@@ -1,45 +1,53 @@
 package com.github.fredrik9000.todolist;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.fredrik9000.todolist.model.Chore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import org.w3c.dom.Text;
-
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnFragmentInteractionListener {
 
     private ArrayList<Chore> chores = new ArrayList<>();
     private ActionMode mActionMode;
-    private Dialog deleteChoresDialog;
+    private DeleteChoresDialog deleteChoresDialog;
     private ChoreAdapter adapter;
     private int positionOflastItemLongClicked;
+    private Gson gson;
+    private SharedPreferences.Editor prefsEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        gson = new Gson();
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this.getApplicationContext());
+        prefsEditor = appSharedPrefs.edit();
+
+        if (appSharedPrefs.contains("Chores")) {
+            Type type = new TypeToken<ArrayList<Chore>>() {
+            }.getType();
+            String json = appSharedPrefs.getString("Chores", "");
+            chores = gson.fromJson(json, type);
+        }
 
         ListView listView = findViewById(R.id.todolist);
         adapter = new ChoreAdapter(this, chores);
@@ -93,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
                     chores.remove(positionOflastItemLongClicked);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
+                    prefsEditor.putString("Chores", gson.toJson(chores));
+                    prefsEditor.commit();
                     return true;
                 default:
                     return  false;
@@ -104,24 +114,6 @@ public class MainActivity extends AppCompatActivity {
             mActionMode = null;
         }
     };
-
-    class priorityCheckBoxChanged implements CheckBox.OnCheckedChangeListener
-    {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView,
-                                     boolean isChecked) {
-            Button deleteChoresButton = deleteChoresDialog.findViewById(R.id.deleteChoresPopupButton);
-            CheckBox deleteLowPriorityCB = deleteChoresDialog.findViewById(R.id.deleteLowPriorityChoresCheckBox);
-            CheckBox deleteMediumPriorityCB = deleteChoresDialog.findViewById(R.id.deleteMediumPriorityChoresCheckBox);
-            CheckBox deleteHighPriorityCB = deleteChoresDialog.findViewById(R.id.deleteHighPriorityChoresCheckBox);
-
-            if(deleteLowPriorityCB.isChecked() || deleteMediumPriorityCB.isChecked() || deleteHighPriorityCB.isChecked()) {
-                deleteChoresButton.setEnabled(true);
-            } else {
-                deleteChoresButton.setEnabled(false);
-            }
-        }
-    }
 
     // create an action bar button
     @Override
@@ -139,50 +131,9 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this,AddChoreActivity.class);
             startActivityForResult(intent, 1);
         } else if (id == R.id.deletecCoreMenuButton) {
-            deleteChoresDialog = new Dialog(MainActivity.this);
-            deleteChoresDialog.setContentView(R.layout.activity_delete_chores_popup);
-
-            TextView txtClose = deleteChoresDialog.findViewById(R.id.closeDialog);
-            txtClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    deleteChoresDialog.dismiss();
-                }
-            });
-
-            Button deleteChoresButton = deleteChoresDialog.findViewById(R.id.deleteChoresPopupButton);
-            deleteChoresButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    CheckBox deleteLowPriorityCB = deleteChoresDialog.findViewById(R.id.deleteLowPriorityChoresCheckBox);
-                    CheckBox deleteMediumPriorityCB = deleteChoresDialog.findViewById(R.id.deleteMediumPriorityChoresCheckBox);
-                    CheckBox deleteHighPriorityCB = deleteChoresDialog.findViewById(R.id.deleteHighPriorityChoresCheckBox);
-
-                    for (Iterator<Chore> iter = chores.listIterator(); iter.hasNext(); ) {
-                        Chore chore = iter.next();
-                        if (deleteLowPriorityCB.isChecked() && chore.getPriority() == 1) {
-                            iter.remove();
-                        } else if (deleteMediumPriorityCB.isChecked() && chore.getPriority() == 2) {
-                            iter.remove();
-                        } else if (deleteHighPriorityCB.isChecked() && chore.getPriority() == 3) {
-                            iter.remove();
-                        }
-                    }
-
-                    adapter.notifyDataSetChanged();
-                    deleteChoresDialog.dismiss();
-                }
-            });
-
-            CheckBox deleteLowPriorityCB = deleteChoresDialog.findViewById(R.id.deleteLowPriorityChoresCheckBox);
-            CheckBox deleteMediumPriorityCB = deleteChoresDialog.findViewById(R.id.deleteMediumPriorityChoresCheckBox);
-            CheckBox deleteHighPriorityCB = deleteChoresDialog.findViewById(R.id.deleteHighPriorityChoresCheckBox);
-            deleteLowPriorityCB.setOnCheckedChangeListener(new priorityCheckBoxChanged());
-            deleteMediumPriorityCB.setOnCheckedChangeListener(new priorityCheckBoxChanged());
-            deleteHighPriorityCB.setOnCheckedChangeListener(new priorityCheckBoxChanged());
-
-            deleteChoresDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            deleteChoresDialog.show();
+            deleteChoresDialog = new DeleteChoresDialog();
+            //deleteChoresDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            deleteChoresDialog.show(getSupportFragmentManager(), "DeleteChoresDialog");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -214,5 +165,24 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         adapter.notifyDataSetChanged();
+        prefsEditor.putString("Chores", gson.toJson(chores));
+        prefsEditor.commit();
+    }
+
+    @Override
+    public void onFragmentInteraction(boolean[] priorities) {
+        for (Iterator<Chore> iter = chores.listIterator(); iter.hasNext(); ) {
+            Chore chore = iter.next();
+            if (priorities[0] && chore.getPriority() == 1) {
+                iter.remove();
+            } else if (priorities[1] && chore.getPriority() == 2) {
+                iter.remove();
+            } else if (priorities[2] && chore.getPriority() == 3) {
+                iter.remove();
+            }
+        }
+        adapter.notifyDataSetChanged();
+        prefsEditor.putString("Chores", gson.toJson(chores));
+        prefsEditor.commit();
     }
 }

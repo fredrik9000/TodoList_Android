@@ -20,31 +20,34 @@ public class ChoreAdapter extends ArrayAdapter<Chore> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Chore chore = getItem(position);
-
+        ChoreViewHolder choreViewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+            choreViewHolder = new ChoreViewHolder();
+            choreViewHolder.textViewChoreName = convertView.findViewById(android.R.id.text1);
+            convertView.setTag(choreViewHolder);
+        } else {
+            choreViewHolder = (ChoreViewHolder)convertView.getTag();
         }
 
-        TextView tv = convertView.findViewById(android.R.id.text1);
-        tv.setText(chore.getTitle());
-
-        //TextView tv2 = convertView.findViewById(android.R.id.text2);
+        choreViewHolder.textViewChoreName.setText(chore.getTitle());
 
         switch (chore.getPriority()) {
             case 1:
-                //tv2.setText("Low priority");
                 convertView.setBackgroundColor(Color.WHITE);
                 break;
             case 2:
-                //tv2.setText("Medium priority");
                 convertView.setBackgroundColor(Color.LTGRAY);
                 break;
             case 3:
-                //tv2.setText("High priority");
                 convertView.setBackgroundColor(Color.GRAY);
         }
 
         return convertView;
+    }
+
+    private static class ChoreViewHolder {
+        public TextView textViewChoreName;
     }
 }
