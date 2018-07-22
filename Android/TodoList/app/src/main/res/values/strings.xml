@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">TodoList</string>
-    <string name="title_activity_add_chore">AddChoreActivity</string>
-    <string name="title_activity_delete_chores_popup">DeleteChoresPopupActivity</string>
-    <string name="title_activity_edit_chore">EditChoreActivity</string>
+    <string name="title_activity_main">Tasks in progress</string>
+    <string name="title_activity_add_chore">Add a task</string>
+    <string name="title_activity_delete_chores_popup">Delete tasks</string>
+    <string name="title_activity_edit_chore">Edit task</string>
 
     <string name="edit_text_task_description_hint">Task description</string>
     <string name="low_priority">Low priority</string>

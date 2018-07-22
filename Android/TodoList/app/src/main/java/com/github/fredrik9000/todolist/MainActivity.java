@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setTitle(R.string.title_activity_main);
+
         loadChores();
 
         ListView listView = findViewById(R.id.todoList);
