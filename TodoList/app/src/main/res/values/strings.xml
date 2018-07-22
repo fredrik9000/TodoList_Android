@@ -9,7 +9,6 @@
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>
-    <string name="add_task">Add task</string>
     <string name="close_dialog_button">X</string>
     <string name="delete_tasks_button">Delete</string>
     <string name="delete_low_priority_tasks">Delete low priority tasks</string>
@@ -17,4 +16,5 @@
     <string name="delete_high_priority_tasks">Delete high priority tasks</string>
 
     <string name="task_description_not_entered">Please write a task description</string>
+    <string name="save_task_button">Save task</string>
 </resources>

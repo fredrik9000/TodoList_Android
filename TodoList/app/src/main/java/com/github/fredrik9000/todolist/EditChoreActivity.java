@@ -42,8 +42,6 @@ public class EditChoreActivity extends AppCompatActivity {
         }
 
         Button button = findViewById(R.id.addChoreButton);
-        button.setText("Edit task");
-
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
