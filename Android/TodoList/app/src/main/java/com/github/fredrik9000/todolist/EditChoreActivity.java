@@ -22,9 +22,9 @@ public class EditChoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_chore);
 
         Intent intent = getIntent();
-        String choreDescription = intent.getStringExtra("CHORE_DESCRIPTION");
-        int chorePriority = intent.getIntExtra("CHORE_PRIORITY", 0);
-        final int chorePosition = intent.getIntExtra("CHORE_POSITION", 0);
+        String choreDescription = intent.getStringExtra(CHORE_DESCRIPTION);
+        int chorePriority = intent.getIntExtra(CHORE_PRIORITY, 0);
+        final int chorePosition = intent.getIntExtra(CHORE_POSITION, 0);
 
         EditText choreDescriptionET = findViewById(R.id.addChoreEditText);
         choreDescriptionET.setText(choreDescription);
@@ -55,7 +55,7 @@ public class EditChoreActivity extends AppCompatActivity {
 
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("CHORE_DESCRIPTION", choreDescription);
+                resultIntent.putExtra(CHORE_DESCRIPTION, choreDescription);
                 int priority ;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
@@ -70,8 +70,8 @@ public class EditChoreActivity extends AppCompatActivity {
                     default:
                         priority = -1;
                 }
-                resultIntent.putExtra("CHORE_PRIORITY", priority);
-                resultIntent.putExtra("CHORE_POSITION", chorePosition);
+                resultIntent.putExtra(CHORE_PRIORITY, priority);
+                resultIntent.putExtra(CHORE_POSITION, chorePosition);
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }

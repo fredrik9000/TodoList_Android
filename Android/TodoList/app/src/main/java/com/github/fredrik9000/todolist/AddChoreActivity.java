@@ -34,7 +34,7 @@ public class AddChoreActivity extends AppCompatActivity {
 
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("CHORE_DESCRIPTION", choreDescription);
+                resultIntent.putExtra(CHORE_DESCRIPTION, choreDescription);
                 int priority;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
@@ -49,7 +49,7 @@ public class AddChoreActivity extends AppCompatActivity {
                     default:
                         priority = -1;
                 }
-                resultIntent.putExtra("CHORE_PRIORITY", priority);
+                resultIntent.putExtra(CHORE_PRIORITY, priority);
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }
