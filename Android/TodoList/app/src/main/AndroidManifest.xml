@@ -21,12 +21,9 @@
             android:label="@string/title_activity_add_chore"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".DeleteChoresPopupActivity"
-            android:label="@string/title_activity_delete_chores_popup" />
-        <activity
             android:name=".EditChoreActivity"
             android:label="@string/title_activity_edit_chore"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

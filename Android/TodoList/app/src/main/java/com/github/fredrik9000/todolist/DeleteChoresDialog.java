@@ -1,10 +1,9 @@
 package com.github.fredrik9000.todolist;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,65 +12,45 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-import com.github.fredrik9000.todolist.model.Chore;
-
-import java.util.Iterator;
-
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link DeleteChoresDialog.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link DeleteChoresDialog#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DeleteChoresDialog extends DialogFragment {
 
-    private TextView txtClose;
-    private Button deleteChoresButton;
-    private CheckBox deleteLowPriorityCB;
-    private CheckBox deleteMediumPriorityCB;
-    private CheckBox deleteHighPriorityCB;
-    private OnFragmentInteractionListener mListener;
-
-    public DeleteChoresDialog() {
-        // Required empty public constructor
-    }
+    private OnDeleteChoresDialogInteractionListener mListener;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_delete_chores_popup, container, false);
-        txtClose = view.findViewById(R.id.closeDialog);
+        TextView txtClose = view.findViewById(R.id.closeDialog);
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getDialog().dismiss();
             }
         });
-        deleteChoresButton = view.findViewById(R.id.deleteChoresPopupButton);
-        deleteLowPriorityCB = view.findViewById(R.id.deleteLowPriorityChoresCheckBox);
-        deleteMediumPriorityCB = view.findViewById(R.id.deleteMediumPriorityChoresCheckBox);
-        deleteHighPriorityCB = view.findViewById(R.id.deleteHighPriorityChoresCheckBox);
-        deleteLowPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.priorityCheckBoxChanged());
-        deleteMediumPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.priorityCheckBoxChanged());
-        deleteHighPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.priorityCheckBoxChanged());
+        Button deleteButton = view.findViewById(R.id.deleteChoresPopupButton);
+        final CheckBox lowPriorityCB = view.findViewById(R.id.deleteLowPriorityChoresCheckBox);
+        final CheckBox mediumPriorityCB = view.findViewById(R.id.deleteMediumPriorityChoresCheckBox);
+        final CheckBox highPriorityCB = view.findViewById(R.id.deleteHighPriorityChoresCheckBox);
+        CheckBox[] checkBoxes = {lowPriorityCB, mediumPriorityCB, highPriorityCB};
 
-        deleteChoresButton.setOnClickListener(new View.OnClickListener() {
+        lowPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.PriorityCheckBoxChanged(checkBoxes, deleteButton));
+        mediumPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.PriorityCheckBoxChanged(checkBoxes, deleteButton));
+        highPriorityCB.setOnCheckedChangeListener(new DeleteChoresDialog.PriorityCheckBoxChanged(checkBoxes, deleteButton));
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean[] priorities = new boolean[3];
-                if (deleteLowPriorityCB.isChecked()) {
+                if (lowPriorityCB.isChecked()) {
                     priorities[0] = true;
                 }
-                if (deleteMediumPriorityCB.isChecked()) {
+                if (mediumPriorityCB.isChecked()) {
                     priorities[1] = true;
                 }
-                if (deleteHighPriorityCB.isChecked()) {
+                if (highPriorityCB.isChecked()) {
                     priorities[2] = true;
                 }
-                mListener.onFragmentInteraction(priorities);
+                mListener.onDeleteChoresDialogInteraction(priorities);
                 getDialog().dismiss();
             }
         });
@@ -79,41 +58,42 @@ public class DeleteChoresDialog extends DialogFragment {
         return view;
     }
 
-    class priorityCheckBoxChanged implements CheckBox.OnCheckedChangeListener
+    class PriorityCheckBoxChanged implements CheckBox.OnCheckedChangeListener
     {
+        private CheckBox[] checkBoxes;
+        private Button deleteButton;
+        PriorityCheckBoxChanged(CheckBox[] checkBoxes, Button deleteButton) {
+            this.checkBoxes = checkBoxes;
+            this.deleteButton = deleteButton;
+        }
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
-            if(deleteLowPriorityCB.isChecked() || deleteMediumPriorityCB.isChecked() || deleteHighPriorityCB.isChecked()) {
-                deleteChoresButton.setEnabled(true);
-            } else {
-                deleteChoresButton.setEnabled(false);
+            boolean isAnyChecked = false;
+
+            for (CheckBox checkBox : checkBoxes) {
+                if (checkBox.isChecked()) {
+                    isAnyChecked = true;
+                    break;
+                }
             }
+
+            deleteButton.setEnabled(isAnyChecked);
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(boolean[] priorities);
+    public interface OnDeleteChoresDialogInteractionListener {
+        void onDeleteChoresDialogInteraction(boolean[] priorities);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnDeleteChoresDialogInteractionListener) {
+            mListener = (OnDeleteChoresDialogInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnDeleteChoresDialogInteractionListener");
         }
     }
 

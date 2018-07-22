@@ -12,6 +12,10 @@ import android.widget.Toast;
 
 public class AddChoreActivity extends AppCompatActivity {
 
+    public static final String CHORE_DESCRIPTION = "CHORE_DESCRIPTION";
+    public static final String CHORE_PRIORITY = "CHORE_PRIORITY";
+    public static final String CHORE_POSITION = "CHORE_POSITION";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,16 +26,16 @@ public class AddChoreActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String choreName = ((EditText)findViewById(R.id.addChoreEditText)).getText().toString();
-                if (choreName.length() == 0) {
-                    Toast.makeText(AddChoreActivity.this, "Please write a task name", Toast.LENGTH_SHORT).show();
+                String choreDescription = ((EditText)findViewById(R.id.addChoreEditText)).getText().toString();
+                if (choreDescription.length() == 0) {
+                    Toast.makeText(AddChoreActivity.this, "Please write a task description", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("CHORE_TITLE", choreName);
-                int priority ;
+                resultIntent.putExtra("CHORE_DESCRIPTION", choreDescription);
+                int priority;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
                         priority = 1;

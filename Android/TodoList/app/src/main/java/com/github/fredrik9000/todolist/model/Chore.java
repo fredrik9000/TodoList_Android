@@ -3,11 +3,11 @@ package com.github.fredrik9000.todolist.model;
 import android.support.annotation.NonNull;
 
 public class Chore implements Comparable<Chore> {
-    private String title;
+    private String description;
     private int priority;
 
-    public Chore(String title, int priority) {
-        this.title = title;
+    public Chore(String description, int priority) {
+        this.description = description;
         this.priority = priority;
     }
 
@@ -19,13 +19,12 @@ public class Chore implements Comparable<Chore> {
         this.priority = priority;
     }
 
-    public String getTitle() {
-
-        return title;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -34,7 +33,7 @@ public class Chore implements Comparable<Chore> {
             this.priority - chore.priority < 0 ? 1
                 : (
                     (this.priority - chore.priority == 0) ? (
-                        (this.title.compareTo(chore.title) > 0) ? 1 : -1
+                        (this.description.compareTo(chore.description) > 0) ? 1 : -1
                     ) : -1
                 )
         );

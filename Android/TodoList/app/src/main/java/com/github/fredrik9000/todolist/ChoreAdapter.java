@@ -2,6 +2,7 @@ package com.github.fredrik9000.todolist;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,41 +14,41 @@ import com.github.fredrik9000.todolist.model.Chore;
 import java.util.ArrayList;
 
 public class ChoreAdapter extends ArrayAdapter<Chore> {
-    public ChoreAdapter(Context context, ArrayList<Chore> chores) {
+    ChoreAdapter(Context context, ArrayList<Chore> chores) {
         super(context, 0, chores);
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Chore chore = getItem(position);
+    public View getView(int position, View view, @NonNull ViewGroup parent) {
         ChoreViewHolder choreViewHolder;
-        // Check if an existing view is being reused, otherwise inflate the view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+        if (view == null) {
+            view = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
             choreViewHolder = new ChoreViewHolder();
-            choreViewHolder.textViewChoreName = convertView.findViewById(android.R.id.text1);
-            convertView.setTag(choreViewHolder);
+            choreViewHolder.textViewChoreName = view.findViewById(android.R.id.text1);
+            view.setTag(choreViewHolder);
         } else {
-            choreViewHolder = (ChoreViewHolder)convertView.getTag();
+            choreViewHolder = (ChoreViewHolder)view.getTag();
         }
 
-        choreViewHolder.textViewChoreName.setText(chore.getTitle());
+        Chore chore = getItem(position);
+        choreViewHolder.textViewChoreName.setText(chore.getDescription());
 
         switch (chore.getPriority()) {
             case 1:
-                convertView.setBackgroundColor(Color.WHITE);
+                view.setBackgroundColor(Color.WHITE);
                 break;
             case 2:
-                convertView.setBackgroundColor(Color.LTGRAY);
+                view.setBackgroundColor(Color.LTGRAY);
                 break;
             case 3:
-                convertView.setBackgroundColor(Color.GRAY);
+                view.setBackgroundColor(Color.GRAY);
         }
 
-        return convertView;
+        return view;
     }
 
     private static class ChoreViewHolder {
-        public TextView textViewChoreName;
+        TextView textViewChoreName;
     }
 }

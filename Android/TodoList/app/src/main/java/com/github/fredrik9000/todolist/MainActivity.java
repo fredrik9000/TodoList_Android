@@ -22,32 +22,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener {
 
     private ArrayList<Chore> chores = new ArrayList<>();
     private ActionMode mActionMode;
-    private DeleteChoresDialog deleteChoresDialog;
     private ChoreAdapter adapter;
-    private int positionOflastItemLongClicked;
-    private Gson gson;
-    private SharedPreferences.Editor prefsEditor;
+    private int lastItemLongClickedPosition;
+
+    private static final int ADD_CHORE_REQUEST_CODE = 1;
+    private static final int EDIT_CHORE_REQUEST_CODE = 2;
+    private static final String SHARED_PREFERENCES_CHORES_KEY = "CHORES";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        gson = new Gson();
-        SharedPreferences appSharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(this.getApplicationContext());
-        prefsEditor = appSharedPrefs.edit();
-
-        if (appSharedPrefs.contains("Chores")) {
-            Type type = new TypeToken<ArrayList<Chore>>() {
-            }.getType();
-            String json = appSharedPrefs.getString("Chores", "");
-            chores = gson.fromJson(json, type);
-        }
+        loadChores();
 
         ListView listView = findViewById(R.id.todolist);
         adapter = new ChoreAdapter(this, chores);
@@ -63,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
                     return false;
                 }
 
-                positionOflastItemLongClicked = position;
+                lastItemLongClickedPosition = position;
                 mActionMode = startSupportActionMode(mActionModeCallback);
                 return true;
             }
@@ -74,10 +65,10 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, EditChoreActivity.class);
                 Chore chore = chores.get(i);
-                intent.putExtra("choreName", chore.getTitle());
-                intent.putExtra("chorePriority", chore.getPriority());
-                intent.putExtra("chorePosition", i);
-                startActivityForResult(intent, 2);
+                intent.putExtra(AddChoreActivity.CHORE_DESCRIPTION, chore.getDescription());
+                intent.putExtra(AddChoreActivity.CHORE_PRIORITY, chore.getPriority());
+                intent.putExtra(AddChoreActivity.CHORE_POSITION, i);
+                startActivityForResult(intent, EDIT_CHORE_REQUEST_CODE);
             }
         });
     }
@@ -98,11 +89,10 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.menu_delete:
-                    chores.remove(positionOflastItemLongClicked);
+                    chores.remove(lastItemLongClickedPosition);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
-                    prefsEditor.putString("Chores", gson.toJson(chores));
-                    prefsEditor.commit();
+                    saveChores();
                     return true;
                 default:
                     return  false;
@@ -129,10 +119,9 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
         if (id == R.id.addcCoreMenuButton) {
             Intent intent = new Intent(this,AddChoreActivity.class);
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, ADD_CHORE_REQUEST_CODE);
         } else if (id == R.id.deletecCoreMenuButton) {
-            deleteChoresDialog = new DeleteChoresDialog();
-            //deleteChoresDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            DeleteChoresDialog deleteChoresDialog = new DeleteChoresDialog();
             deleteChoresDialog.show(getSupportFragmentManager(), "DeleteChoresDialog");
         }
         return super.onOptionsItemSelected(item);
@@ -142,35 +131,34 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-            case (1) : {
+            case (ADD_CHORE_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    String choreName = data.getStringExtra("CHORE_TITLE");
-                    int chorePriority = data.getIntExtra("CHORE_PRIORITY", 0);
-                    chores.add(new Chore(choreName, chorePriority));
+                    String choreDescription = data.getStringExtra(AddChoreActivity.CHORE_DESCRIPTION);
+                    int chorePriority = data.getIntExtra(AddChoreActivity.CHORE_PRIORITY, 0);
+                    chores.add(new Chore(choreDescription, chorePriority));
                     Collections.sort(chores);
                 }
                 break;
             }
-            case (2) : {
+            case (EDIT_CHORE_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    String choreName = data.getStringExtra("CHORE_TITLE");
-                    int chorePriority = data.getIntExtra("CHORE_PRIORITY", 0);
-                    int chorePosition = data.getIntExtra("CHORE_POSITION", 0);
+                    String choreDescription = data.getStringExtra(EditChoreActivity.CHORE_DESCRIPTION);
+                    int chorePriority = data.getIntExtra(EditChoreActivity.CHORE_PRIORITY, 0);
+                    int chorePosition = data.getIntExtra(EditChoreActivity.CHORE_POSITION, 0);
                     Chore chore = chores.get(chorePosition);
                     chore.setPriority(chorePriority);
-                    chore.setTitle(choreName);
+                    chore.setDescription(choreDescription);
                     Collections.sort(chores);
                 }
                 break;
             }
         }
         adapter.notifyDataSetChanged();
-        prefsEditor.putString("Chores", gson.toJson(chores));
-        prefsEditor.commit();
+        saveChores();
     }
 
     @Override
-    public void onFragmentInteraction(boolean[] priorities) {
+    public void onDeleteChoresDialogInteraction(boolean[] priorities) {
         for (Iterator<Chore> iter = chores.listIterator(); iter.hasNext(); ) {
             Chore chore = iter.next();
             if (priorities[0] && chore.getPriority() == 1) {
@@ -182,7 +170,26 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             }
         }
         adapter.notifyDataSetChanged();
-        prefsEditor.putString("Chores", gson.toJson(chores));
-        prefsEditor.commit();
+        saveChores();
+    }
+
+    private void loadChores() {
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this.getApplicationContext());
+
+        if (appSharedPrefs.contains(SHARED_PREFERENCES_CHORES_KEY)) {
+            Type type = new TypeToken<ArrayList<Chore>>() {
+            }.getType();
+            String json = appSharedPrefs.getString(SHARED_PREFERENCES_CHORES_KEY, "");
+            chores = new Gson().fromJson(json, type);
+        }
+    }
+
+    private void saveChores() {
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        prefsEditor.putString(SHARED_PREFERENCES_CHORES_KEY, new Gson().toJson(chores));
+        prefsEditor.apply();
     }
 }
