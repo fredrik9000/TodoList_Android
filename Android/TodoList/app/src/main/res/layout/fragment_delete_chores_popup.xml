@@ -19,7 +19,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:textColor="@android:color/black"
-            android:text="X"
+            android:text="@string/close_dialog_button"
             android:textStyle="bold"
             android:layout_gravity="end"
             android:gravity="center"
@@ -36,23 +36,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="false"
-                android:text="Delete low priority tasks" />
+                android:text="@string/delete_low_priority_tasks" />
             <android.support.v7.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete medium priority tasks"
+                android:text="@string/delete_medium_priority_tasks"
                 android:id="@+id/deleteMediumPriorityChoresCheckBox"/>
             <android.support.v7.widget.AppCompatCheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete high priority tasks"
+                android:text="@string/delete_high_priority_tasks"
                 android:id="@+id/deleteHighPriorityChoresCheckBox"/>
         </LinearLayout>
         <android.support.v7.widget.AppCompatButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/deleteChoresPopupButton"
-            android:text="Delete"
+            android:text="@string/delete_tasks_button"
             android:enabled="false"
             android:layout_gravity="center"/>
     </LinearLayout>

@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
         loadChores();
 
-        ListView listView = findViewById(R.id.todolist);
+        ListView listView = findViewById(R.id.todoList);
         adapter = new ChoreAdapter(this, chores);
         listView.setAdapter(adapter);
         adapter.setNotifyOnChange(true);

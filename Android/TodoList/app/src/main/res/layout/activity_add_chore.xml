@@ -11,7 +11,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Task name"
+        android:hint="@string/edit_text_task_description_hint"
         android:id="@+id/addChoreEditText"/>
     <RadioGroup
         android:layout_width="wrap_content"
@@ -22,21 +22,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/lowPriority"
-            android:text="Low priority"/>
+            android:text="@string/low_priority"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/mediumPriority"
-            android:text="Medium priority"/>
+            android:text="@string/medium_priority"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/highPriority"
-            android:text="High priority"/>
+            android:text="@string/high_priority"/>
     </RadioGroup>
     <android.support.v7.widget.AppCompatButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add task"
+        android:text="@string/add_task"
         android:id="@+id/addChoreButton"/>
 </LinearLayout>

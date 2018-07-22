@@ -4,6 +4,16 @@
     <string name="title_activity_delete_chores_popup">DeleteChoresPopupActivity</string>
     <string name="title_activity_edit_chore">EditChoreActivity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="edit_text_task_description_hint">Task description</string>
+    <string name="low_priority">Low priority</string>
+    <string name="medium_priority">Medium priority</string>
+    <string name="high_priority">High priority</string>
+    <string name="add_task">Add task</string>
+    <string name="close_dialog_button">X</string>
+    <string name="delete_tasks_button">Delete</string>
+    <string name="delete_low_priority_tasks">Delete low priority tasks</string>
+    <string name="delete_medium_priority_tasks">Delete medium priority tasks</string>
+    <string name="delete_high_priority_tasks">Delete high priority tasks</string>
+
+    <string name="task_description_not_entered">Please write a task description</string>
 </resources>

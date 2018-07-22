@@ -28,7 +28,7 @@ public class AddChoreActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String choreDescription = ((EditText)findViewById(R.id.addChoreEditText)).getText().toString();
                 if (choreDescription.length() == 0) {
-                    Toast.makeText(AddChoreActivity.this, "Please write a task description", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddChoreActivity.this, R.string.task_description_not_entered, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
