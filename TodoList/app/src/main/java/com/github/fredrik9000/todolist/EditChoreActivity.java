@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +28,7 @@ public class EditChoreActivity extends AppCompatActivity {
         int chorePriority = intent.getIntExtra(CHORE_PRIORITY, 0);
         final int chorePosition = intent.getIntExtra(CHORE_POSITION, 0);
 
-        EditText choreDescriptionET = findViewById(R.id.addChoreEditText);
+        final EditText choreDescriptionET = findViewById(R.id.addChoreEditText);
         choreDescriptionET.setText(choreDescription);
         choreDescriptionET.setSelection(choreDescriptionET.getText().length());
 
@@ -41,19 +43,37 @@ public class EditChoreActivity extends AppCompatActivity {
                 ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.highPriority);
         }
 
-        Button button = findViewById(R.id.addChoreButton);
+        final Button button = findViewById(R.id.addChoreButton);
+        button.setEnabled(true);
+
+        choreDescriptionET.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence.toString().trim().length()==0){
+                    button.setEnabled(false);
+                } else {
+                    button.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String choreDescription = ((EditText)findViewById(R.id.addChoreEditText)).getText().toString();
-                if (choreDescription.length() == 0) {
-                    Toast.makeText(EditChoreActivity.this, R.string.task_description_not_entered, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra(CHORE_DESCRIPTION, choreDescription);
+                resultIntent.putExtra(CHORE_DESCRIPTION, ((EditText)findViewById(R.id.addChoreEditText)).getText().toString());
                 int priority ;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
