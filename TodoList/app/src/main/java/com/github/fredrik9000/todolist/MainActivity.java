@@ -84,38 +84,8 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddChoreActivity.class);
                 startActivityForResult(intent, ADD_CHORE_REQUEST_CODE);
-                /*AnimationSet animationSet = new AnimationSet(MainActivity.this, null);
-                animationSet.addAnimation(new AlphaAnimation(1f, 0f));
-                animationSet.addAnimation(new TranslateAnimation(0, 0, 0, -fab.getHeight()));
-                animationSet.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
-                animationSet.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        fab.setVisibility(View.GONE);
-                        Intent intent = new Intent(MainActivity.this, AddChoreActivity.class);
-                        startActivityForResult(intent, ADD_CHORE_REQUEST_CODE);
-                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                fab.startAnimation(animationSet);*/
             }
         });
-    }
-
-    protected void onResume()
-    {
-        super.onResume();
-        findViewById(R.id.fab).setVisibility(View.VISIBLE);
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
