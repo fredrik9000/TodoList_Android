@@ -20,13 +20,7 @@ public class DeleteChoresDialog extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_delete_chores_popup, container, false);
-        TextView txtClose = view.findViewById(R.id.closeDialog);
-        txtClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getDialog().dismiss();
-            }
-        });
+
         Button deleteButton = view.findViewById(R.id.deleteChoresPopupButton);
         final CheckBox lowPriorityCB = view.findViewById(R.id.deleteLowPriorityChoresCheckBox);
         final CheckBox mediumPriorityCB = view.findViewById(R.id.deleteMediumPriorityChoresCheckBox);

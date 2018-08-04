@@ -7,10 +7,10 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:title="delete tasks"
         />
-    <item
+    <!--<item
         android:id="@+id/addcCoreMenuButton"
         app:showAsAction="always"
         android:icon="@android:drawable/ic_menu_add"
         android:title="add task"
-        />
+        />-->
 </menu>
