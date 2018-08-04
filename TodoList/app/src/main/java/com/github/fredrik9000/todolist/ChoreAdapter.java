@@ -36,13 +36,13 @@ public class ChoreAdapter extends ArrayAdapter<Chore> {
 
         switch (chore.getPriority()) {
             case 1:
-                view.setBackgroundColor(Color.WHITE);
+                view.setBackgroundColor(Color.rgb(244, 244, 244));
                 break;
             case 2:
-                view.setBackgroundColor(Color.LTGRAY);
+                view.setBackgroundColor(Color.rgb(220, 208, 192));
                 break;
             case 3:
-                view.setBackgroundColor(Color.GRAY);
+                view.setBackgroundColor(Color.rgb(192, 178, 131));
         }
 
         return view;
