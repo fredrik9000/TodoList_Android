@@ -41,15 +41,9 @@ public class DeleteChoresDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 boolean[] priorities = new boolean[3];
-                if (lowPriorityCB.isChecked()) {
-                    priorities[0] = true;
-                }
-                if (mediumPriorityCB.isChecked()) {
-                    priorities[1] = true;
-                }
-                if (highPriorityCB.isChecked()) {
-                    priorities[2] = true;
-                }
+                priorities[0] = lowPriorityCB.isChecked();
+                priorities[1] = mediumPriorityCB.isChecked();
+                priorities[2] = highPriorityCB.isChecked();
                 mListener.onDeleteChoresDialogInteraction(priorities);
                 getDialog().dismiss();
             }
