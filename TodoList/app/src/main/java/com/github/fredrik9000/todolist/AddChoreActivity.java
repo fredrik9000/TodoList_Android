@@ -57,13 +57,13 @@ public class AddChoreActivity extends AppCompatActivity {
                 int priority;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
-                        priority = 1;
+                        priority = 0;
                         break;
                     case R.id.mediumPriority:
-                        priority = 2;
+                        priority = 1;
                         break;
                     case R.id.highPriority:
-                        priority = 3;
+                        priority = 2;
                         break;
                     default:
                         priority = -1;

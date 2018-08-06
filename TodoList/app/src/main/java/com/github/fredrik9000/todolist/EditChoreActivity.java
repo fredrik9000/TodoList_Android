@@ -33,13 +33,13 @@ public class EditChoreActivity extends AppCompatActivity {
         choreDescriptionET.setSelection(choreDescriptionET.getText().length());
 
         switch (chorePriority) {
-            case 1:
+            case 0:
                 ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.lowPriority);
                 break;
-            case 2:
+            case 1:
                 ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.mediumPriority);
                 break;
-            case 3:
+            case 2:
                 ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.highPriority);
         }
 
@@ -77,13 +77,13 @@ public class EditChoreActivity extends AppCompatActivity {
                 int priority ;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
-                        priority = 1;
+                        priority = 0;
                         break;
                     case R.id.mediumPriority:
-                        priority = 2;
+                        priority = 1;
                         break;
                     case R.id.highPriority:
-                        priority = 3;
+                        priority = 2;
                         break;
                     default:
                         priority = -1;

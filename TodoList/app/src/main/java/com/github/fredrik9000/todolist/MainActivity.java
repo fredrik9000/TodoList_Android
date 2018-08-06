@@ -170,14 +170,10 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
     }
 
     @Override
-    public void onDeleteChoresDialogInteraction(boolean[] priorities) {
+    public void onDeleteChoresDialogInteraction(ArrayList<Integer> priorities) {
         for (Iterator<Chore> iter = chores.listIterator(); iter.hasNext(); ) {
             Chore chore = iter.next();
-            if (priorities[0] && chore.getPriority() == 1) {
-                iter.remove();
-            } else if (priorities[1] && chore.getPriority() == 2) {
-                iter.remove();
-            } else if (priorities[2] && chore.getPriority() == 3) {
+            if (priorities.contains(chore.getPriority())) {
                 iter.remove();
             }
         }

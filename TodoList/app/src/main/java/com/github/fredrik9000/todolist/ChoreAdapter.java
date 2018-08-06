@@ -35,13 +35,13 @@ public class ChoreAdapter extends ArrayAdapter<Chore> {
         choreViewHolder.textViewChoreName.setText(chore.getDescription());
 
         switch (chore.getPriority()) {
-            case 1:
+            case 0:
                 view.setBackgroundColor(Color.rgb(244, 244, 244));
                 break;
-            case 2:
+            case 1:
                 view.setBackgroundColor(Color.rgb(220, 208, 192));
                 break;
-            case 3:
+            case 2:
                 view.setBackgroundColor(Color.rgb(192, 178, 131));
         }
 
