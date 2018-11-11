@@ -35,7 +35,7 @@ public class DeleteChoresDialog extends DialogFragment {
                     mSelectedItems.add(which);
                 } else if (mSelectedItems.contains(which)) {
                     // Else, if the item is already in the array, remove it
-                    mSelectedItems.remove(which);
+                    mSelectedItems.remove(Integer.valueOf(which));
                 }
             }
         })
