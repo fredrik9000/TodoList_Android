@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center|top"
-    tools:context=".AddChoreActivity">
+    tools:context=".AddChoreActivity"
+    android:gravity="center">
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/edit_text_task_description_hint"
-        android:id="@+id/addChoreEditText"/>
+        android:id="@+id/addChoreEditText"
+        android:inputType="text"
+        android:layout_marginBottom="20dp"/>
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/priorityRadioGroup"
-        android:checkedButton="@id/mediumPriority">
+        android:checkedButton="@id/mediumPriority"
+        android:layout_marginBottom="20dp">
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,10 +41,46 @@
             android:text="@string/high_priority"/>
     </RadioGroup>
 
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/addChoreButton"
+    <Button
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:text="@string/save_task_button" />
+        android:text="add notification"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/addNotificationButton"
+        >
+    </Button>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="remind me:"
+            android:visibility="visible"
+            android:id="@+id/notificationTextView"
+            />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_delete_forever_black_24dp"
+            android:visibility="visible"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center|bottom">
+        <Button
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:id="@+id/addChoreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/save_task_button"
+            android:layout_marginBottom="10dp"/>
+    </LinearLayout>
 </LinearLayout>
+</ScrollView>
