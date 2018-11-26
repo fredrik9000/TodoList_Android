@@ -1,26 +1,25 @@
 package com.github.fredrik9000.todolist;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
-public class AddChoreActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class AddChoreActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
 
     public static final String CHORE_DESCRIPTION = "CHORE_DESCRIPTION";
     public static final String CHORE_PRIORITY = "CHORE_PRIORITY";
     public static final String CHORE_POSITION = "CHORE_POSITION";
+
+    int dayFinal, monthFinal, yearFinal, hourFinal, minuteFinal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,18 +82,26 @@ public class AddChoreActivity extends AppCompatActivity implements DatePickerDia
         addNotificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                DialogFragment datePickerFragment = new DatePickerFragment();
+                datePickerFragment.show(getSupportFragmentManager(), "datePicker");
             }
         });
     }
 
     @Override
-    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-
+    public void onSelectDateDialogInteraction(int year, int month, int day) {
+        yearFinal = year;
+        monthFinal = month;
+        dayFinal = day;
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
     @Override
-    public void onTimeSet(TimePicker timePicker, int i, int i1) {
+    public void onSelectTimeDialogInteraction(int hour, int minute) {
+        hourFinal = hour;
+        minuteFinal = minute;
 
+        System.out.println("Year: " + yearFinal + ", month: " + monthFinal + ", day: " + dayFinal + ", hour: " + hourFinal + ", minute: " + minuteFinal);
     }
 }
