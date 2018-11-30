@@ -1,7 +1,10 @@
 package com.github.fredrik9000.todolist;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import java.util.Calendar;
 
 public class AddChoreActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
 
@@ -102,6 +107,19 @@ public class AddChoreActivity extends AppCompatActivity implements DatePickerFra
         hourFinal = hour;
         minuteFinal = minute;
 
-        System.out.println("Year: " + yearFinal + ", month: " + monthFinal + ", day: " + dayFinal + ", hour: " + hourFinal + ", minute: " + minuteFinal);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(yearFinal, monthFinal, dayFinal, hourFinal, minuteFinal, 0);
+
+        System.out.println(calendar.toString());
+
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent broadcast = PendingIntent.getBroadcast(this.getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), broadcast);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), broadcast);
+        }
     }
 }
