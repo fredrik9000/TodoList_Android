@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         if (id == R.id.deletecCoreMenuButton) {
             DeleteChoresDialog deleteChoresDialog = new DeleteChoresDialog();
             deleteChoresDialog.show(getSupportFragmentManager(), "DeleteChoresDialog");
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
