@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -31,7 +34,9 @@ public class AddChoreActivity extends AppCompatActivity implements DatePickerFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_chore);
 
-        final Button addChoreButton = findViewById(R.id.addChoreButton);
+        final FloatingActionButton saveChoreButton = findViewById(R.id.fabSaveChore);
+        saveChoreButton.setEnabled(false);
+        saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         final EditText choreDescriptionET = findViewById(R.id.addChoreEditText);
         final TextView notificationTextView = findViewById(R.id.notificationTextView);
         final Button addNotificationButton = findViewById(R.id.addNotificationButton);
@@ -46,9 +51,11 @@ public class AddChoreActivity extends AppCompatActivity implements DatePickerFra
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.toString().trim().length()==0){
-                    addChoreButton.setEnabled(false);
+                    saveChoreButton.setEnabled(false);
+                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                 } else {
-                    addChoreButton.setEnabled(true);
+                    saveChoreButton.setEnabled(true);
+                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
             }
 
@@ -58,7 +65,7 @@ public class AddChoreActivity extends AppCompatActivity implements DatePickerFra
             }
         });
 
-        addChoreButton.setOnClickListener(new View.OnClickListener() {
+        saveChoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();

@@ -72,15 +72,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="center|bottom">
-        <Button
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/addChoreButton"
+        android:gravity="end|bottom">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabSaveChore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="@string/save_task_button"
-            android:layout_marginBottom="10dp"/>
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_check_black_24dp" />
     </LinearLayout>
 </LinearLayout>
 </ScrollView>

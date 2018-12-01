@@ -2,15 +2,16 @@ package com.github.fredrik9000.todolist;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 public class EditChoreActivity extends AppCompatActivity {
 
@@ -43,8 +44,9 @@ public class EditChoreActivity extends AppCompatActivity {
                 ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.highPriority);
         }
 
-        final Button button = findViewById(R.id.addChoreButton);
-        button.setEnabled(true);
+        final FloatingActionButton saveChoreButton = findViewById(R.id.fabSaveChore);
+        saveChoreButton.setEnabled(true);
+        saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 
         choreDescriptionET.addTextChangedListener(new TextWatcher() {
 
@@ -56,9 +58,11 @@ public class EditChoreActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.toString().trim().length()==0){
-                    button.setEnabled(false);
+                    saveChoreButton.setEnabled(false);
+                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                 } else {
-                    button.setEnabled(true);
+                    saveChoreButton.setEnabled(true);
+                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
             }
 
@@ -68,7 +72,7 @@ public class EditChoreActivity extends AppCompatActivity {
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
+        saveChoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
