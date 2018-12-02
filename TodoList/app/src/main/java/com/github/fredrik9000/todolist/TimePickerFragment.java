@@ -33,15 +33,7 @@ public class TimePickerFragment extends DialogFragment
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Calendar datetime = Calendar.getInstance();
-        Calendar c = Calendar.getInstance();
-        datetime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        datetime.set(Calendar.MINUTE, minute);
-        if (datetime.getTimeInMillis() >= c.getTimeInMillis()) {
-            mListener.onSelectTimeDialogInteraction(hourOfDay, minute);
-        } else {
-            Toast.makeText(getActivity().getApplicationContext(), "Invalid Time, select a future date and time", Toast.LENGTH_LONG).show();
-        }
+        mListener.onSelectTimeDialogInteraction(hourOfDay, minute);
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -148,7 +149,18 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
                 if (resultCode == Activity.RESULT_OK) {
                     String choreDescription = data.getStringExtra(AddChoreActivity.CHORE_DESCRIPTION);
                     int chorePriority = data.getIntExtra(AddChoreActivity.CHORE_PRIORITY, 0);
-                    chores.add(new Chore(choreDescription, chorePriority));
+                    boolean hasNotification = data.getBooleanExtra(AddChoreActivity.HAS_NOTIFICATION, false);
+                    if (hasNotification) {
+                        int choreNotificationId = data.getIntExtra(AddChoreActivity.CHORE_NOTIFICATION_ID, 0);
+                        int year = data.getIntExtra(AddChoreActivity.NOTIFICATION_YEAR, 0);
+                        int month = data.getIntExtra(AddChoreActivity.NOTIFICATION_MONTH, 0);
+                        int day = data.getIntExtra(AddChoreActivity.NOTIFICATION_DAY, 0);
+                        int hour = data.getIntExtra(AddChoreActivity.NOTIFICATION_HOUR, 0);
+                        int minute = data.getIntExtra(AddChoreActivity.NOTIFICATION_MINUTE, 0);
+                        chores.add(new Chore(choreDescription, chorePriority, choreNotificationId, true, year, month, day, hour,  minute));
+                    } else {
+                        chores.add(new Chore(choreDescription, chorePriority, 0, false, 0, 0, 0, 0 ,0));
+                    }
                     Collections.sort(chores);
                 }
                 break;

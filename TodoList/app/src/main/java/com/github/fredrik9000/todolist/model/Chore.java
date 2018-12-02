@@ -4,11 +4,43 @@ import android.support.annotation.NonNull;
 
 public class Chore implements Comparable<Chore> {
     private String description;
-    private int priority;
+    private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
+    private boolean hasNotification;
 
-    public Chore(String description, int priority) {
+    public Chore(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
         this.description = description;
         this.priority = priority;
+        this.notificationId = notificationId;
+        this.hasNotification = hasNotification;
+        this.notifyYear = notifyYear;
+        this.notifyMonth = notifyMonth;
+        this.notifyDay = notifyDay;
+        this.notifyHour = notifyHour;
+        this.notifyMinute = notifyMinute;
+    }
+
+    public int getNotifyYear() {
+        return notifyYear;
+    }
+
+    public int getNotifyMonth() {
+        return notifyMonth;
+    }
+
+    public int getNotifyDay() {
+        return notifyDay;
+    }
+
+    public int getNotifyHour() {
+        return notifyHour;
+    }
+
+    public int getNotifyMinute() {
+        return notifyMinute;
+    }
+
+    public boolean hasNotification() {
+        return hasNotification;
     }
 
     public int getPriority() {
@@ -25,6 +57,10 @@ public class Chore implements Comparable<Chore> {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getNotificationId() {
+        return notificationId;
     }
 
     @Override
