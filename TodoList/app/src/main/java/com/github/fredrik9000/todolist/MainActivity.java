@@ -25,9 +25,9 @@ import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener {
 
-    private ArrayList<TODO> TODOS = new ArrayList<>();
+    private ArrayList<TODO> todoList = new ArrayList<>();
     private ActionMode mActionMode;
-    private ChoreAdapter adapter;
+    private TODOAdapter adapter;
     private int lastItemLongClickedPosition;
 
     private static final int ADD_TODO_REQUEST_CODE = 1;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         loadChores();
 
         ListView listView = findViewById(R.id.todoList);
-        adapter = new ChoreAdapter(this, TODOS);
+        adapter = new TODOAdapter(this, todoList);
         listView.setAdapter(adapter);
         adapter.setNotifyOnChange(true);
 
@@ -67,18 +67,19 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
-                TODO TODO = TODOS.get(i);
-                intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, TODO.getDescription());
-                intent.putExtra(AddTODOActivity.CHORE_PRIORITY, TODO.getPriority());
-                if (TODO.getHasNotification()) {
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, TODO.getNotifyYear());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, TODO.getNotifyMonth());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, TODO.getNotifyDay());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_HOUR, TODO.getNotifyHour());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, TODO.getNotifyMinute());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_ID, TODO.getNotificationId());
+                TODO todo = todoList.get(i);
+                intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, todo.getDescription());
+                intent.putExtra(AddTODOActivity.CHORE_PRIORITY, todo.getPriority());
+                intent.putExtra(AddTODOActivity.CHORE_POSITION, i);
+                if (todo.getHasNotification()) {
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, todo.getNotifyDay());
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_HOUR, todo.getNotifyHour());
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
+                    intent.putExtra(AddTODOActivity.NOTIFICATION_ID, todo.getNotificationId());
                 }
-                intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, TODO.getHasNotification());
+                intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.getHasNotification());
                 startActivityForResult(intent, EDIT_TODO_REQUEST_CODE);
             }
         });
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.menu_delete:
-                    TODOS.remove(lastItemLongClickedPosition);
+                    todoList.remove(lastItemLongClickedPosition);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
                     saveChores();
@@ -152,17 +153,17 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
                 if (resultCode == Activity.RESULT_OK) {
                     TODO todo = new TODO();
                     updateTodoItem(data, todo);
-                    TODOS.add(todo);
-                    Collections.sort(TODOS);
+                    todoList.add(todo);
+                    Collections.sort(todoList);
                 }
                 break;
             }
             case (EDIT_TODO_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
                     int chorePosition = data.getIntExtra(AddTODOActivity.CHORE_POSITION, 0);
-                    TODO todo = TODOS.get(chorePosition);
+                    TODO todo = todoList.get(chorePosition);
                     updateTodoItem(data, todo);
-                    Collections.sort(TODOS);
+                    Collections.sort(todoList);
                 }
                 break;
             }
@@ -186,10 +187,10 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
     @Override
     public void onDeleteChoresDialogInteraction(ArrayList<Integer> priorities) {
-        for (Iterator<TODO> iter = TODOS.listIterator(); iter.hasNext(); ) {
-            TODO TODO = iter.next();
+        for (Iterator<TODO> iterator = todoList.listIterator(); iterator.hasNext(); ) {
+            TODO TODO = iterator.next();
             if (priorities.contains(TODO.getPriority())) {
-                iter.remove();
+                iterator.remove();
             }
         }
         adapter.notifyDataSetChanged();
@@ -204,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             Type type = new TypeToken<ArrayList<TODO>>() {
             }.getType();
             String json = appSharedPrefs.getString(SHARED_PREFERENCES_CHORES_KEY, "");
-            TODOS = new Gson().fromJson(json, type);
+            todoList = new Gson().fromJson(json, type);
         }
     }
 
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        prefsEditor.putString(SHARED_PREFERENCES_CHORES_KEY, new Gson().toJson(TODOS));
+        prefsEditor.putString(SHARED_PREFERENCES_CHORES_KEY, new Gson().toJson(todoList));
         prefsEditor.apply();
     }
 }
