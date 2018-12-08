@@ -9,13 +9,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.github.fredrik9000.todolist.model.Chore;
+import com.github.fredrik9000.todolist.model.TODO;
 
 import java.util.ArrayList;
 
-public class ChoreAdapter extends ArrayAdapter<Chore> {
-    ChoreAdapter(Context context, ArrayList<Chore> chores) {
-        super(context, 0, chores);
+class ChoreAdapter extends ArrayAdapter<TODO> {
+    ChoreAdapter(Context context, ArrayList<TODO> TODOS) {
+        super(context, 0, TODOS);
     }
 
     @NonNull
@@ -31,10 +31,10 @@ public class ChoreAdapter extends ArrayAdapter<Chore> {
             choreViewHolder = (ChoreViewHolder)view.getTag();
         }
 
-        Chore chore = getItem(position);
-        choreViewHolder.textViewChoreName.setText(chore.getDescription());
+        TODO TODO = getItem(position);
+        choreViewHolder.textViewChoreName.setText(TODO.getDescription());
 
-        switch (chore.getPriority()) {
+        switch (TODO.getPriority()) {
             case 0:
                 view.setBackgroundColor(Color.rgb(244, 244, 244));
                 break;

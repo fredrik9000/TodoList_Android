@@ -2,12 +2,14 @@ package com.github.fredrik9000.todolist.model;
 
 import android.support.annotation.NonNull;
 
-public class Chore implements Comparable<Chore> {
+public class TODO implements Comparable<TODO> {
     private String description;
     private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
     private boolean hasNotification;
 
-    public Chore(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
+    public TODO() {}
+
+    public void updateTODO(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
         this.description = description;
         this.priority = priority;
         this.notificationId = notificationId;
@@ -39,7 +41,7 @@ public class Chore implements Comparable<Chore> {
         return notifyMinute;
     }
 
-    public boolean hasNotification() {
+    public boolean getHasNotification() {
         return hasNotification;
     }
 
@@ -47,16 +49,8 @@ public class Chore implements Comparable<Chore> {
         return priority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public int getNotificationId() {
@@ -64,12 +58,12 @@ public class Chore implements Comparable<Chore> {
     }
 
     @Override
-    public int compareTo(@NonNull Chore chore) {
+    public int compareTo(@NonNull TODO TODO) {
         return (
-            this.priority - chore.priority < 0 ? 1
+            this.priority - TODO.priority < 0 ? 1
                 : (
-                    (this.priority - chore.priority == 0) ? (
-                        (this.description.compareTo(chore.description) > 0) ? 1 : -1
+                    (this.priority - TODO.priority == 0) ? (
+                        (this.description.compareTo(TODO.description) > 0) ? 1 : -1
                     ) : -1
                 )
         );

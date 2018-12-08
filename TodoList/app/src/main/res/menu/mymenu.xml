@@ -5,7 +5,6 @@
         android:id="@+id/deletecCoreMenuButton"
         app:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="delete tasks"
         />
     <!--<item
         android:id="@+id/addcCoreMenuButton"

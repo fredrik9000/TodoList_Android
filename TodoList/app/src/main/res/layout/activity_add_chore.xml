@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".AddChoreActivity"
+    tools:context=".AddTODOActivity"
     android:gravity="center">
 
     <EditText
@@ -50,7 +50,7 @@
         style="@style/Widget.AppCompat.Button.Colored"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="add notification"
+    android:text="@string/add_notification"
     android:layout_marginBottom="10dp"
     android:id="@+id/addNotificationButton"
     />
@@ -58,7 +58,7 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="remove notification"
+        android:text="@string/remove_notification"
         android:layout_marginBottom="10dp"
         android:id="@+id/removeNotificationButton"
         android:visibility="gone"
@@ -70,7 +70,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="remind me:"
             android:visibility="gone"
             android:id="@+id/notificationTextView"
             />
@@ -78,7 +77,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="end|bottom">
         <android.support.design.widget.FloatingActionButton

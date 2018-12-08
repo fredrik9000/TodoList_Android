@@ -10,8 +10,15 @@
     <string name="high_priority">High priority</string>
     <string name="close_dialog_button">X</string>
     <string name="delete_tasks_button">Delete</string>
+    <string name="delete_task_button">Delete item</string>
     <string name="task_description_not_entered">Please write a task description</string>
     <string name="save_task_button">Save task</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="add_notification">add notification</string>
+    <string name="remove_notification">remove notification</string>
+    <string name="update_notification">update notification</string>
+    <string name="notification_time">notify: %s</string>
+    <string name="delete_todo_items">Delete TODO\'s</string>
+    <string name="invalid_time">Invalid Time, select a future date and time</string>
 </resources>

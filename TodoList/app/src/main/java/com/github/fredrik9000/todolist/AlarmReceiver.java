@@ -13,7 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 public class AlarmReceiver extends BroadcastReceiver {
-    public static final String NOTIFICATION_CHANNEL_ID = "main_channel";
+    private static final String NOTIFICATION_CHANNEL_ID = "main_channel";
 
     @Override
     public void onReceive(Context context, Intent intent) {

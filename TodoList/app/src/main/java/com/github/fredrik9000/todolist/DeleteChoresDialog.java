@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class DeleteChoresDialog extends DialogFragment {
 
-    ArrayList mSelectedItems;
+    private ArrayList mSelectedItems;
     private OnDeleteChoresDialogInteractionListener mListener;
 
     public interface OnDeleteChoresDialogInteractionListener {
@@ -24,7 +24,7 @@ public class DeleteChoresDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mSelectedItems = new ArrayList();  // Where we track the selected items
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Delete TODO's");
+        builder.setTitle(R.string.delete_todo_items);
         builder.setMultiChoiceItems(R.array.priorities, null, new DialogInterface.OnMultiChoiceClickListener()
         {
             @Override

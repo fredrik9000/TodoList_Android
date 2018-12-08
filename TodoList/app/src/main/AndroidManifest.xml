@@ -17,12 +17,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddChoreActivity"
+            android:name=".AddTODOActivity"
             android:label="@string/title_activity_add_chore"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".EditChoreActivity"
-            android:label="@string/title_activity_edit_chore"
             android:parentActivityName=".MainActivity" />
         <receiver android:name="AlarmReceiver">
         </receiver>

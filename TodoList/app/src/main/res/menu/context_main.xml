@@ -5,7 +5,7 @@
     android:id="@+id/menu_delete"
     android:orderInCategory="100"
     app:showAsAction="ifRoom|withText"
-    android:title="Delete task"
+    android:title="@string/delete_task_button"
     />
     <!--android:icon="@android:drawable/ic_menu_delete"-->
 </menu>
