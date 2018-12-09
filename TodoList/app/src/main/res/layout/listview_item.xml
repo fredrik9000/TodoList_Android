@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:id="@+id/parent_layout">
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/text1"
+        android:textSize="24sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="?android:attr/listPreferredItemHeightSmall"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
         android:gravity="center_vertical"
-        android:checkMark="?android:attr/textCheckMark"
         android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
         android:paddingRight="?android:attr/listPreferredItemPaddingRight"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"

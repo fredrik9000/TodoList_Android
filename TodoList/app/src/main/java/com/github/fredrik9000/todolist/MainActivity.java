@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,11 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener {
+public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener, TODOAdapter.OnItemClickListener {
 
     private ArrayList<TODO> todoList = new ArrayList<>();
     private ActionMode mActionMode;
-    private TODOAdapter adapter;
+    private RecyclerView.Adapter adapter;
     private int lastItemLongClickedPosition;
 
     private static final int ADD_TODO_REQUEST_CODE = 1;
@@ -43,46 +46,15 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
         loadChores();
 
-        ListView listView = findViewById(R.id.todoList);
-        adapter = new TODOAdapter(this, todoList);
-        listView.setAdapter(adapter);
-        adapter.setNotifyOnChange(true);
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> arg0, View view,
-                                           int position, long id) {
-                if (mActionMode != null) {
-                    return false;
-                }
-
-                lastItemLongClickedPosition = position;
-                mActionMode = startSupportActionMode(mActionModeCallback);
-                return true;
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
-                TODO todo = todoList.get(i);
-                intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, todo.getDescription());
-                intent.putExtra(AddTODOActivity.CHORE_PRIORITY, todo.getPriority());
-                intent.putExtra(AddTODOActivity.CHORE_POSITION, i);
-                if (todo.getHasNotification()) {
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, todo.getNotifyDay());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_HOUR, todo.getNotifyHour());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
-                    intent.putExtra(AddTODOActivity.NOTIFICATION_ID, todo.getNotificationId());
-                }
-                intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.getHasNotification());
-                startActivityForResult(intent, EDIT_TODO_REQUEST_CODE);
-            }
-        });
+        RecyclerView recyclerView = findViewById(R.id.todoList);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new TODOAdapter(todoList, this);
+        recyclerView.setAdapter(adapter);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
 
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -215,5 +187,35 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         prefsEditor.putString(SHARED_PREFERENCES_CHORES_KEY, new Gson().toJson(todoList));
         prefsEditor.apply();
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
+        TODO todo = todoList.get(position);
+        intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, todo.getDescription());
+        intent.putExtra(AddTODOActivity.CHORE_PRIORITY, todo.getPriority());
+        intent.putExtra(AddTODOActivity.CHORE_POSITION, position);
+        if (todo.getHasNotification()) {
+            intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
+            intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
+            intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, todo.getNotifyDay());
+            intent.putExtra(AddTODOActivity.NOTIFICATION_HOUR, todo.getNotifyHour());
+            intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
+            intent.putExtra(AddTODOActivity.NOTIFICATION_ID, todo.getNotificationId());
+        }
+        intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.getHasNotification());
+        startActivityForResult(intent, EDIT_TODO_REQUEST_CODE);
+    }
+
+    @Override
+    public boolean onItemLongClick(int position) {
+        if (mActionMode != null) {
+            return false;
+        }
+
+        lastItemLongClickedPosition = position;
+        mActionMode = startSupportActionMode(mActionModeCallback);
+        return true;
     }
 }
