@@ -17,7 +17,8 @@
         android:hint="@string/edit_text_task_description_hint"
         android:id="@+id/addChoreEditText"
         android:inputType="text"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="20dp"
+        android:maxLength="40"/>
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
