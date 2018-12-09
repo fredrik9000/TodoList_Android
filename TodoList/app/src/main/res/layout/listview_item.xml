@@ -4,26 +4,21 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/parent_layout">
+    android:id="@+id/parent_layout"
+    android:padding="15dp">
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/text1"
         android:textSize="24sp"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="?android:attr/listPreferredItemHeightSmall"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:gravity="center_vertical"
-        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
+        android:textAppearance="?android:attr/textAppearance"
+        android:gravity="center_vertical"/>
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/alarmImageView"
         android:layout_gravity="center_vertical|end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:src="@drawable/ic_notifications_active_black_24dp"
         android:visibility="invisible"/>
 </LinearLayout>
