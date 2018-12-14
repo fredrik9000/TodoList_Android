@@ -67,6 +67,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             saveChoreButton.setEnabled(false);
             saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         } else {
+            setTitle(R.string.title_activity_edit_chore);
             saveChoreButton.setEnabled(true);
             saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
             choreDescriptionET.setText(choreDescription);
