@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.github.fredrik9000.todolist.model.TODO;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
 
@@ -55,7 +56,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
                 todoItemViewHolder.itemView.setBackgroundColor(Color.rgb(192, 178, 131));
         }
 
-        if (todoItem.getHasNotification()) {
+        if (todoItem.getHasNotification() && !isNotificationExpired(todoItem)) {
             todoItemViewHolder.alarmImageView.setVisibility(View.VISIBLE);
         } else {
             todoItemViewHolder.alarmImageView.setVisibility(View.INVISIBLE);
@@ -74,6 +75,13 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
                 return clickListener.onItemLongClick(todoItemViewHolder.getAdapterPosition());
             }
         });
+    }
+
+    private boolean isNotificationExpired(TODO todo) {
+        Calendar notificationCalendar = Calendar.getInstance();
+        notificationCalendar.set(todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute(), 0);
+        Calendar currentTimeCalendar = Calendar.getInstance();
+        return notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis();
     }
 
     @Override
