@@ -25,10 +25,11 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 
-public class AddTODOActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
+public class AddTodoActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
 
-    public static final String CHORE_DESCRIPTION = "CHORE_DESCRIPTION";
-    public static final String CHORE_PRIORITY = "CHORE_PRIORITY";
+    public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
+    public static final String TODO_PRIORITY = "TODO_PRIORITY";
+    public static final String TODO_POSITION = "TODO_POSITION";
     public static final String NOTIFICATION_YEAR = "NOTIFICATION_YEAR";
     public static final String NOTIFICATION_MONTH = "NOTIFICATION_MONTH";
     public static final String NOTIFICATION_DAY = "NOTIFICATION_DAY";
@@ -36,7 +37,6 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
     public static final String NOTIFICATION_MINUTE = "NOTIFICATION_MINUTE";
     public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     public static final String HAS_NOTIFICATION = "HAS_NOTIFICATION";
-    public static final String CHORE_POSITION = "CHORE_POSITION";
 
     private int day, month, year, hour, minute;
     private int notificationId;
@@ -49,30 +49,30 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_chore);
+        setContentView(R.layout.activity_add_todo);
 
         Intent intent = getIntent();
-        String choreDescription = intent.getStringExtra(CHORE_DESCRIPTION);
-        int chorePriority = intent.getIntExtra(CHORE_PRIORITY, 0);
-        final int chorePosition = intent.getIntExtra(CHORE_POSITION, 0);
+        String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
+        int todoPriority = intent.getIntExtra(TODO_PRIORITY, 0);
+        final int todoPosition = intent.getIntExtra(TODO_POSITION, 0);
         hasNotification = intent.getBooleanExtra(HAS_NOTIFICATION, false);
 
-        final FloatingActionButton saveChoreButton = findViewById(R.id.fabSaveChore);
-        final EditText choreDescriptionET = findViewById(R.id.addChoreEditText);
+        final FloatingActionButton saveButton = findViewById(R.id.fabSaveTodo);
+        final EditText todoDescriptionET = findViewById(R.id.addTodoEditText);
         notificationTextView = findViewById(R.id.notificationTextView);
         removeNotificationButton = findViewById(R.id.removeNotificationButton);
         addNotificationButton = findViewById(R.id.addNotificationButton);
 
-        if (choreDescription == null) { //description doubles as a check for task being created
-            saveChoreButton.setEnabled(false);
-            saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+        if (todoDescription == null) { //description doubles as a check for task being created
+            saveButton.setEnabled(false);
+            saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         } else {
-            setTitle(R.string.title_activity_edit_chore);
-            saveChoreButton.setEnabled(true);
-            saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-            choreDescriptionET.setText(choreDescription);
+            setTitle(R.string.title_activity_edit_todo);
+            saveButton.setEnabled(true);
+            saveButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            todoDescriptionET.setText(todoDescription);
 
-            switch (chorePriority) {
+            switch (todoPriority) {
                 case 0:
                     ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.lowPriority);
                     break;
@@ -115,7 +115,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
 
                     if (!isAlarmRunning)
                     {
-                        addNotificationAlarm(choreDescription);
+                        addNotificationAlarm(todoDescription);
                     }
                 }
             } else {
@@ -123,7 +123,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             }
         }
 
-        choreDescriptionET.addTextChangedListener(new TextWatcher() {
+        todoDescriptionET.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -133,11 +133,11 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.toString().trim().length()==0){
-                    saveChoreButton.setEnabled(false);
-                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                    saveButton.setEnabled(false);
+                    saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                 } else {
-                    saveChoreButton.setEnabled(true);
-                    saveChoreButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                    saveButton.setEnabled(true);
+                    saveButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 }
             }
 
@@ -147,12 +147,12 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             }
         });
 
-        saveChoreButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra(CHORE_DESCRIPTION, choreDescriptionET.getText().toString());
+                resultIntent.putExtra(TODO_DESCRIPTION, todoDescriptionET.getText().toString());
                 int priority;
                 switch (priorityRBID) {
                     case R.id.lowPriority:
@@ -167,8 +167,8 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
                     default:
                         priority = -1;
                 }
-                resultIntent.putExtra(CHORE_PRIORITY, priority);
-                resultIntent.putExtra(CHORE_POSITION, chorePosition);
+                resultIntent.putExtra(TODO_PRIORITY, priority);
+                resultIntent.putExtra(TODO_POSITION, todoPosition);
                 resultIntent.putExtra(HAS_NOTIFICATION, hasNotification);
                 resultIntent.putExtra(NOTIFICATION_YEAR, year);
                 resultIntent.putExtra(NOTIFICATION_MONTH, month);
@@ -177,7 +177,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
                 resultIntent.putExtra(NOTIFICATION_MINUTE, minute);
                 resultIntent.putExtra(NOTIFICATION_ID, notificationId);
                 if (hasNotification) {
-                    addNotificationAlarm(choreDescriptionET.getText().toString());
+                    addNotificationAlarm(todoDescriptionET.getText().toString());
                 }
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
@@ -188,8 +188,8 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             @Override
             public void onClick(View view) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(AddTODOActivity.this.getApplicationContext(), MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(AddTODOActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent intent = new Intent(AddTodoActivity.this.getApplicationContext(), MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(AddTodoActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
                 addNotificationButton.setText(R.string.add_notification);
@@ -208,12 +208,12 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
         });
     }
 
-    private void addNotificationAlarm(String choreDescription) {
+    private void addNotificationAlarm(String todoDescription) {
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
-        Intent notificationIntent = new Intent(AddTODOActivity.this.getApplicationContext(), AlarmReceiver.class);
-        notificationIntent.putExtra(AlarmReceiver.CHORE_DESCRIPTION, choreDescription);
-        PendingIntent broadcast = PendingIntent.getBroadcast(AddTODOActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent notificationIntent = new Intent(AddTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, todoDescription);
+        PendingIntent broadcast = PendingIntent.getBroadcast(AddTodoActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);

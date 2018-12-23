@@ -42,7 +42,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder todoItemViewHolder, final int position) {
         Todo todoItem = todos.get(position);
-        todoItemViewHolder.textViewChoreName.setText(todoItem.getDescription());
+        todoItemViewHolder.textViewTodoName.setText(todoItem.getDescription());
 
         switch (todoItem.getPriority()) {
             case 0:
@@ -89,12 +89,12 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewChoreName;
+        TextView textViewTodoName;
         ImageView alarmImageView;
         LinearLayout parentLayout;
         ViewHolder(final View view) {
             super(view);
-            textViewChoreName = view.findViewById(R.id.text1);
+            textViewTodoName = view.findViewById(R.id.text1);
             alarmImageView = view.findViewById(R.id.alarmImageView);
             parentLayout = view.findViewById(R.id.parent_layout);
         }

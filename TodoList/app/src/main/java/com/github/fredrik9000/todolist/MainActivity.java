@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener, TODOAdapter.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements DeleteTodosDialog.OnDeleteTodosDialogInteractionListener, TODOAdapter.OnItemClickListener {
 
     private ArrayList<Todo> todoList = new ArrayList<>();
     private ActionMode mActionMode;
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
     private static final int ADD_TODO_REQUEST_CODE = 1;
     private static final int EDIT_TODO_REQUEST_CODE = 2;
-    private static final String SHARED_PREFERENCES_CHORES_KEY = "CHORES";
+    private static final String SHARED_PREFERENCES_TODOS_KEY = "TODOS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
         setTitle(R.string.title_activity_main);
 
-        loadChores();
+        loadTodos();
 
         RecyclerView recyclerView = findViewById(R.id.todoList);
         recyclerView.setHasFixedSize(true);
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
+                Intent intent = new Intent(MainActivity.this, AddTodoActivity.class);
                 startActivityForResult(intent, ADD_TODO_REQUEST_CODE);
             }
         });
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
                     todoList.remove(lastItemLongClickedPosition);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
-                    saveChores();
+                    saveTodos();
                     return true;
                 default:
                     return  false;
@@ -111,8 +111,8 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         int id = item.getItemId();
 
         if (id == R.id.deletecCoreMenuButton) {
-            DeleteChoresDialog deleteChoresDialog = new DeleteChoresDialog();
-            deleteChoresDialog.show(getSupportFragmentManager(), "DeleteChoresDialog");
+            DeleteTodosDialog deleteTodosDialog = new DeleteTodosDialog();
+            deleteTodosDialog.show(getSupportFragmentManager(), "DeleteTodosDialog");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -133,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             }
             case (EDIT_TODO_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    int chorePosition = data.getIntExtra(AddTODOActivity.CHORE_POSITION, 0);
-                    Todo todo = todoList.get(chorePosition);
+                    int todoPosition = data.getIntExtra(AddTodoActivity.TODO_POSITION, 0);
+                    Todo todo = todoList.get(todoPosition);
                     updateTodoItem(data, todo);
                     Collections.sort(todoList);
                 }
@@ -142,24 +142,24 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             }
         }
         adapter.notifyDataSetChanged();
-        saveChores();
+        saveTodos();
     }
 
     private void updateTodoItem(Intent data, Todo todo) {
-        String choreDescription = data.getStringExtra(AddTODOActivity.CHORE_DESCRIPTION);
-        int chorePriority = data.getIntExtra(AddTODOActivity.CHORE_PRIORITY, 0);
-        boolean hasNotification = data.getBooleanExtra(AddTODOActivity.HAS_NOTIFICATION, false);
-        int choreNotificationId = data.getIntExtra(AddTODOActivity.NOTIFICATION_ID, 0);
-        int year = data.getIntExtra(AddTODOActivity.NOTIFICATION_YEAR, 0);
-        int month = data.getIntExtra(AddTODOActivity.NOTIFICATION_MONTH, 0);
-        int day = data.getIntExtra(AddTODOActivity.NOTIFICATION_DAY, 0);
-        int hour = data.getIntExtra(AddTODOActivity.NOTIFICATION_HOUR, 0);
-        int minute = data.getIntExtra(AddTODOActivity.NOTIFICATION_MINUTE, 0);
-        todo.updateTODO(choreDescription, chorePriority, choreNotificationId, hasNotification, year, month, day, hour,  minute);
+        String todoDescription = data.getStringExtra(AddTodoActivity.TODO_DESCRIPTION);
+        int todoPriority = data.getIntExtra(AddTodoActivity.TODO_PRIORITY, 0);
+        boolean hasNotification = data.getBooleanExtra(AddTodoActivity.HAS_NOTIFICATION, false);
+        int todoNotificationId = data.getIntExtra(AddTodoActivity.NOTIFICATION_ID, 0);
+        int year = data.getIntExtra(AddTodoActivity.NOTIFICATION_YEAR, 0);
+        int month = data.getIntExtra(AddTodoActivity.NOTIFICATION_MONTH, 0);
+        int day = data.getIntExtra(AddTodoActivity.NOTIFICATION_DAY, 0);
+        int hour = data.getIntExtra(AddTodoActivity.NOTIFICATION_HOUR, 0);
+        int minute = data.getIntExtra(AddTodoActivity.NOTIFICATION_MINUTE, 0);
+        todo.updateTODO(todoDescription, todoPriority, todoNotificationId, hasNotification, year, month, day, hour,  minute);
     }
 
     @Override
-    public void onDeleteChoresDialogInteraction(ArrayList<Integer> priorities) {
+    public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
         for (Iterator<Todo> iterator = todoList.listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
             if (priorities.contains(todo.getPriority())) {
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             }
         }
         adapter.notifyDataSetChanged();
-        saveChores();
+        saveTodos();
     }
 
     private void removeNotification(Todo todo) {
@@ -182,42 +182,42 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         pendingIntent.cancel();
     }
 
-    private void loadChores() {
+    private void loadTodos() {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(this.getApplicationContext());
 
-        if (appSharedPrefs.contains(SHARED_PREFERENCES_CHORES_KEY)) {
+        if (appSharedPrefs.contains(SHARED_PREFERENCES_TODOS_KEY)) {
             Type type = new TypeToken<ArrayList<Todo>>() {
             }.getType();
-            String json = appSharedPrefs.getString(SHARED_PREFERENCES_CHORES_KEY, "");
+            String json = appSharedPrefs.getString(SHARED_PREFERENCES_TODOS_KEY, "");
             todoList = new Gson().fromJson(json, type);
         }
     }
 
-    private void saveChores() {
+    private void saveTodos() {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        prefsEditor.putString(SHARED_PREFERENCES_CHORES_KEY, new Gson().toJson(todoList));
+        prefsEditor.putString(SHARED_PREFERENCES_TODOS_KEY, new Gson().toJson(todoList));
         prefsEditor.apply();
     }
 
     @Override
     public void onItemClick(int position) {
-        Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
+        Intent intent = new Intent(MainActivity.this, AddTodoActivity.class);
         Todo todo = todoList.get(position);
-        intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, todo.getDescription());
-        intent.putExtra(AddTODOActivity.CHORE_PRIORITY, todo.getPriority());
-        intent.putExtra(AddTODOActivity.CHORE_POSITION, position);
+        intent.putExtra(AddTodoActivity.TODO_DESCRIPTION, todo.getDescription());
+        intent.putExtra(AddTodoActivity.TODO_PRIORITY, todo.getPriority());
+        intent.putExtra(AddTodoActivity.TODO_POSITION, position);
         if (todo.isNotificationEnabled()) {
-            intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
-            intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
-            intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, todo.getNotifyDay());
-            intent.putExtra(AddTODOActivity.NOTIFICATION_HOUR, todo.getNotifyHour());
-            intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
-            intent.putExtra(AddTODOActivity.NOTIFICATION_ID, todo.getNotificationId());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_DAY, todo.getNotifyDay());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_HOUR, todo.getNotifyHour());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
+            intent.putExtra(AddTodoActivity.NOTIFICATION_ID, todo.getNotificationId());
         }
-        intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.isNotificationEnabled());
+        intent.putExtra(AddTodoActivity.HAS_NOTIFICATION, todo.isNotificationEnabled());
         startActivityForResult(intent, EDIT_TODO_REQUEST_CODE);
     }
 

@@ -10,13 +10,13 @@ import android.support.v4.app.DialogFragment;
 
 import java.util.ArrayList;
 
-public class DeleteChoresDialog extends DialogFragment {
+public class DeleteTodosDialog extends DialogFragment {
 
     private ArrayList mSelectedItems;
-    private OnDeleteChoresDialogInteractionListener mListener;
+    private OnDeleteTodosDialogInteractionListener mListener;
 
-    public interface OnDeleteChoresDialogInteractionListener {
-        void onDeleteChoresDialogInteraction(ArrayList<Integer> priorities);
+    public interface OnDeleteTodosDialogInteractionListener {
+        void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities);
     }
 
     @NonNull
@@ -43,7 +43,7 @@ public class DeleteChoresDialog extends DialogFragment {
        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                mListener.onDeleteChoresDialogInteraction(mSelectedItems);
+                mListener.onDeleteTodosDialogInteraction(mSelectedItems);
             }
         })
         .setNegativeButton(R.string.cancel,null);
@@ -53,11 +53,11 @@ public class DeleteChoresDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnDeleteChoresDialogInteractionListener) {
-            mListener = (OnDeleteChoresDialogInteractionListener) context;
+        if (context instanceof OnDeleteTodosDialogInteractionListener) {
+            mListener = (OnDeleteTodosDialogInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnDeleteChoresDialogInteractionListener");
+                    + " must implement OnDeleteTodosDialogInteractionListener");
         }
     }
 

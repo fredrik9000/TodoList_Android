@@ -8,14 +8,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".AddTODOActivity"
+    tools:context=".AddTodoActivity"
     android:gravity="center">
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/edit_text_task_description_hint"
-        android:id="@+id/addChoreEditText"
+        android:id="@+id/addTodoEditText"
         android:inputType="text"
         android:layout_marginBottom="20dp"
         android:maxLength="40"/>
@@ -82,7 +82,7 @@
         android:layout_weight="1"
         android:gravity="end|bottom">
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabSaveChore"
+            android:id="@+id/fabSaveTodo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
