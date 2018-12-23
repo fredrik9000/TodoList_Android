@@ -115,7 +115,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
 
                     if (!isAlarmRunning)
                     {
-                        addNotificationAlarm();
+                        addNotificationAlarm(choreDescription);
                     }
                 }
             } else {
@@ -177,7 +177,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
                 resultIntent.putExtra(NOTIFICATION_MINUTE, minute);
                 resultIntent.putExtra(NOTIFICATION_ID, notificationId);
                 if (hasNotification) {
-                    addNotificationAlarm();
+                    addNotificationAlarm(choreDescriptionET.getText().toString());
                 }
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
@@ -188,7 +188,7 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
             @Override
             public void onClick(View view) {
                 AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(AddTODOActivity.this, AlarmReceiver.class);
+                Intent intent = new Intent(AddTODOActivity.this.getApplicationContext(), MainActivity.class);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(AddTODOActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
@@ -208,10 +208,11 @@ public class AddTODOActivity extends AppCompatActivity implements DatePickerFrag
         });
     }
 
-    private void addNotificationAlarm() {
+    private void addNotificationAlarm(String choreDescription) {
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
-        Intent notificationIntent = new Intent(AddTODOActivity.this, AlarmReceiver.class);
+        Intent notificationIntent = new Intent(AddTODOActivity.this.getApplicationContext(), AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.CHORE_DESCRIPTION, choreDescription);
         PendingIntent broadcast = PendingIntent.getBroadcast(AddTODOActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

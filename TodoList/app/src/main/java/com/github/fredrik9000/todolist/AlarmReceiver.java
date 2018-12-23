@@ -14,10 +14,12 @@ import android.support.v4.content.ContextCompat;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String NOTIFICATION_CHANNEL_ID = "main_channel";
+    public static final String CHORE_DESCRIPTION = "CHORE_DESCRIPTION";
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        String choreDescription = intent.getStringExtra(CHORE_DESCRIPTION);
         Intent intMain = new Intent(context, MainActivity.class);
         intMain.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 4754, intMain, PendingIntent.FLAG_ONE_SHOT);
@@ -28,6 +30,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
             notification = builder.setContentTitle("Task reminder")
+                    .setContentText(choreDescription)
                     .setAutoCancel(true)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentIntent(pendingIntent)
@@ -41,6 +44,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
             notification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                     .setContentTitle("Task reminder")
+                    .setContentText(choreDescription)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setAutoCancel(true)
                     .setColor(ContextCompat.getColor(context, R.color.colorPrimary))

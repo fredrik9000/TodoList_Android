@@ -1,6 +1,5 @@
 package com.github.fredrik9000.todolist;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.fredrik9000.todolist.model.TODO;
+import com.github.fredrik9000.todolist.model.Todo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,9 +24,9 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
 
     private final OnItemClickListener clickListener;
 
-    private final ArrayList<TODO> todos;
+    private final ArrayList<Todo> todos;
 
-    TODOAdapter(ArrayList<TODO> todos, OnItemClickListener clickListener) {
+    TODOAdapter(ArrayList<Todo> todos, OnItemClickListener clickListener) {
         this.todos = todos;
         this.clickListener = clickListener;
     }
@@ -42,7 +41,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder todoItemViewHolder, final int position) {
-        TODO todoItem = todos.get(position);
+        Todo todoItem = todos.get(position);
         todoItemViewHolder.textViewChoreName.setText(todoItem.getDescription());
 
         switch (todoItem.getPriority()) {
@@ -56,7 +55,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
                 todoItemViewHolder.itemView.setBackgroundColor(Color.rgb(192, 178, 131));
         }
 
-        if (todoItem.getHasNotification() && !isNotificationExpired(todoItem)) {
+        if (todoItem.isNotificationEnabled() && !isNotificationExpired(todoItem)) {
             todoItemViewHolder.alarmImageView.setVisibility(View.VISIBLE);
         } else {
             todoItemViewHolder.alarmImageView.setVisibility(View.INVISIBLE);
@@ -77,7 +76,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
         });
     }
 
-    private boolean isNotificationExpired(TODO todo) {
+    private boolean isNotificationExpired(Todo todo) {
         Calendar notificationCalendar = Calendar.getInstance();
         notificationCalendar.set(todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute(), 0);
         Calendar currentTimeCalendar = Calendar.getInstance();

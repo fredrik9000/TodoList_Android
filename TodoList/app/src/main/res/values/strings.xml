@@ -9,7 +9,7 @@
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>
     <string name="close_dialog_button">X</string>
-    <string name="delete_tasks_button">Delete</string>
+    <string name="delete_tasks_button">Delete tasks</string>
     <string name="delete_task_button">Delete item</string>
     <string name="task_description_not_entered">Please write a task description</string>
     <string name="save_task_button">Save task</string>

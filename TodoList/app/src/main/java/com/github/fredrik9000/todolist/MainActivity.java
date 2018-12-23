@@ -1,6 +1,8 @@
 package com.github.fredrik9000.todolist;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,10 +16,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import com.github.fredrik9000.todolist.model.TODO;
+import com.github.fredrik9000.todolist.model.Todo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements DeleteChoresDialog.OnDeleteChoresDialogInteractionListener, TODOAdapter.OnItemClickListener {
 
-    private ArrayList<TODO> todoList = new ArrayList<>();
+    private ArrayList<Todo> todoList = new ArrayList<>();
     private ActionMode mActionMode;
     private RecyclerView.Adapter adapter;
     private int lastItemLongClickedPosition;
@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.menu_delete:
+                    removeNotification(todoList.get(lastItemLongClickedPosition));
                     todoList.remove(lastItemLongClickedPosition);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         switch(requestCode) {
             case (ADD_TODO_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    TODO todo = new TODO();
+                    Todo todo = new Todo();
                     updateTodoItem(data, todo);
                     todoList.add(todo);
                     Collections.sort(todoList);
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             case (EDIT_TODO_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
                     int chorePosition = data.getIntExtra(AddTODOActivity.CHORE_POSITION, 0);
-                    TODO todo = todoList.get(chorePosition);
+                    Todo todo = todoList.get(chorePosition);
                     updateTodoItem(data, todo);
                     Collections.sort(todoList);
                 }
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         saveChores();
     }
 
-    private void updateTodoItem(Intent data, TODO todo) {
+    private void updateTodoItem(Intent data, Todo todo) {
         String choreDescription = data.getStringExtra(AddTODOActivity.CHORE_DESCRIPTION);
         int chorePriority = data.getIntExtra(AddTODOActivity.CHORE_PRIORITY, 0);
         boolean hasNotification = data.getBooleanExtra(AddTODOActivity.HAS_NOTIFICATION, false);
@@ -159,9 +160,13 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
 
     @Override
     public void onDeleteChoresDialogInteraction(ArrayList<Integer> priorities) {
-        for (Iterator<TODO> iterator = todoList.listIterator(); iterator.hasNext(); ) {
-            TODO TODO = iterator.next();
-            if (priorities.contains(TODO.getPriority())) {
+        for (Iterator<Todo> iterator = todoList.listIterator(); iterator.hasNext(); ) {
+            Todo todo = iterator.next();
+            if (priorities.contains(todo.getPriority())) {
+                if (todo.isNotificationEnabled()) {
+                    removeNotification(todo);
+                }
+
                 iterator.remove();
             }
         }
@@ -169,12 +174,20 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
         saveChores();
     }
 
+    private void removeNotification(Todo todo) {
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this.getApplicationContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this.getApplicationContext(), todo.getNotificationId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+        pendingIntent.cancel();
+    }
+
     private void loadChores() {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(this.getApplicationContext());
 
         if (appSharedPrefs.contains(SHARED_PREFERENCES_CHORES_KEY)) {
-            Type type = new TypeToken<ArrayList<TODO>>() {
+            Type type = new TypeToken<ArrayList<Todo>>() {
             }.getType();
             String json = appSharedPrefs.getString(SHARED_PREFERENCES_CHORES_KEY, "");
             todoList = new Gson().fromJson(json, type);
@@ -192,11 +205,11 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(MainActivity.this, AddTODOActivity.class);
-        TODO todo = todoList.get(position);
+        Todo todo = todoList.get(position);
         intent.putExtra(AddTODOActivity.CHORE_DESCRIPTION, todo.getDescription());
         intent.putExtra(AddTODOActivity.CHORE_PRIORITY, todo.getPriority());
         intent.putExtra(AddTODOActivity.CHORE_POSITION, position);
-        if (todo.getHasNotification()) {
+        if (todo.isNotificationEnabled()) {
             intent.putExtra(AddTODOActivity.NOTIFICATION_YEAR, todo.getNotifyYear());
             intent.putExtra(AddTODOActivity.NOTIFICATION_MONTH, todo.getNotifyMonth());
             intent.putExtra(AddTODOActivity.NOTIFICATION_DAY, todo.getNotifyDay());
@@ -204,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements DeleteChoresDialo
             intent.putExtra(AddTODOActivity.NOTIFICATION_MINUTE, todo.getNotifyMinute());
             intent.putExtra(AddTODOActivity.NOTIFICATION_ID, todo.getNotificationId());
         }
-        intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.getHasNotification());
+        intent.putExtra(AddTODOActivity.HAS_NOTIFICATION, todo.isNotificationEnabled());
         startActivityForResult(intent, EDIT_TODO_REQUEST_CODE);
     }
 

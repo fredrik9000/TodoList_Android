@@ -2,18 +2,18 @@ package com.github.fredrik9000.todolist.model;
 
 import android.support.annotation.NonNull;
 
-public class TODO implements Comparable<TODO> {
+public class Todo implements Comparable<Todo> {
     private String description;
     private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
-    private boolean hasNotification;
+    private boolean notificationEnabled;
 
-    public TODO() {}
+    public Todo() {}
 
     public void updateTODO(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
         this.description = description;
         this.priority = priority;
         this.notificationId = notificationId;
-        this.hasNotification = hasNotification;
+        this.notificationEnabled = hasNotification;
         this.notifyYear = notifyYear;
         this.notifyMonth = notifyMonth;
         this.notifyDay = notifyDay;
@@ -41,8 +41,8 @@ public class TODO implements Comparable<TODO> {
         return notifyMinute;
     }
 
-    public boolean getHasNotification() {
-        return hasNotification;
+    public boolean isNotificationEnabled() {
+        return notificationEnabled;
     }
 
     public int getPriority() {
@@ -58,12 +58,12 @@ public class TODO implements Comparable<TODO> {
     }
 
     @Override
-    public int compareTo(@NonNull TODO TODO) {
+    public int compareTo(@NonNull Todo todo) {
         return (
-            this.priority - TODO.priority < 0 ? 1
+            this.priority - todo.priority < 0 ? 1
                 : (
-                    (this.priority - TODO.priority == 0) ? (
-                        (this.description.compareTo(TODO.description) > 0) ? 1 : -1
+                    (this.priority - todo.priority == 0) ? (
+                        (this.description.compareTo(todo.description) > 0) ? 1 : -1
                     ) : -1
                 )
         );
