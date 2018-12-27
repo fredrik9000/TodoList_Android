@@ -9,13 +9,13 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,7 +58,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         hasNotification = intent.getBooleanExtra(HAS_NOTIFICATION, false);
 
         final FloatingActionButton saveButton = findViewById(R.id.fabSaveTodo);
-        final EditText todoDescriptionET = findViewById(R.id.addTodoEditText);
+        final TextInputEditText todoDescriptionET = findViewById(R.id.addTodoEditText);
         notificationTextView = findViewById(R.id.notificationTextView);
         removeNotificationButton = findViewById(R.id.removeNotificationButton);
         addNotificationButton = findViewById(R.id.addNotificationButton);
