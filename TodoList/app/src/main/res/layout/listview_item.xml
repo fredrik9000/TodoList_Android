@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/parent_layout"
     android:padding="15dp">
-    <android.support.v7.widget.AppCompatTextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/text1"
         android:textSize="24sp"
         android:layout_width="0dp"
@@ -16,7 +16,7 @@
         android:gravity="center_vertical"
         android:ellipsize="end"
         android:maxLines="1"/>
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/alarmImageView"
         android:layout_gravity="center_vertical|end"
         android:layout_width="wrap_content"

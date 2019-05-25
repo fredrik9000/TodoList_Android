@@ -1,6 +1,6 @@
 package com.github.fredrik9000.todolist.model;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class Todo implements Comparable<Todo> {
     private String description;
