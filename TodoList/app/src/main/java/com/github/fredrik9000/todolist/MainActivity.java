@@ -194,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         final ArrayList<Todo> todoListCopy = new ArrayList<>();
         for (Iterator<Todo> iterator = todoList.listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
-            todoListCopy.add(todo);
             if (priorities.contains(todo.getPriority())) {
+                todoListCopy.add(todo);
                 if (todo.isNotificationEnabled()) {
                     removeNotification(todo);
                 }
