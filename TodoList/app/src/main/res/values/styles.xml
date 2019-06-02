@@ -13,13 +13,4 @@
         <item name="android:textColor">@color/color_title</item>
     </style>
 
-    <!-- <style name="AppTheme.PopMe">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowCloseOnTouchOutside">true</item>
-    </style> -->
-
-    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
 </resources>

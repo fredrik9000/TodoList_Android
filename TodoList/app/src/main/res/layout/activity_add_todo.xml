@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/addTodoCoordinatorLayout"
+    tools:context=".AddTodoActivity">
 <ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".AddTodoActivity"
-    android:gravity="center"
+    android:gravity="top|center"
     android:focusable="true"
     android:focusableInTouchMode="true">
 
@@ -81,18 +84,16 @@
             android:id="@+id/notificationTextView"
             />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="end|bottom">
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabSaveTodo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_check_black_24dp" />
-    </LinearLayout>
 </LinearLayout>
 </ScrollView>
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fabSaveTodo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end|bottom"
+    android:src="@drawable/ic_check_black_24dp"
+    android:layout_margin="16dp" />
+<!--android:backgroundTint="@color/colorPrimary"
+android:tint="@android:color/white"
+/>-->
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

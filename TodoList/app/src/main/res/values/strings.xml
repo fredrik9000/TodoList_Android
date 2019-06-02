@@ -2,17 +2,13 @@
     <string name="app_name">TodoList</string>
     <string name="title_activity_main">Tasks in progress</string>
     <string name="title_activity_add_todo">Add a task</string>
-    <string name="title_activity_delete_todos_popup">Delete tasks</string>
     <string name="title_activity_edit_todo">Edit task</string>
     <string name="edit_text_task_description_hint">Task description</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>
-    <string name="close_dialog_button">X</string>
     <string name="delete_tasks_button">Delete tasks</string>
     <string name="delete_task_button">Delete item</string>
-    <string name="task_description_not_entered">Please write a task description</string>
-    <string name="save_task_button">Save task</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="add_notification">add notification</string>

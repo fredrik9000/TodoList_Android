@@ -5,11 +5,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,16 +20,19 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.github.fredrik9000.todolist.model.Todo;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements DeleteTodosDialog.OnDeleteTodosDialogInteractionListener, TODOAdapter.OnItemClickListener {
 
+    private CoordinatorLayout coordinatorLayout;
     private ArrayList<Todo> todoList = new ArrayList<>();
     private ActionMode mActionMode;
     private RecyclerView.Adapter adapter;
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                 startActivityForResult(intent, ADD_TODO_REQUEST_CODE);
             }
         });
+        coordinatorLayout = findViewById(R.id.coordinatorLayout);
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -81,14 +87,39 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch (menuItem.getItemId()) {
                 case R.id.menu_delete:
-                    removeNotification(todoList.get(lastItemLongClickedPosition));
+                    final Todo todoItem = todoList.get(lastItemLongClickedPosition);
+                    if (todoItem.isNotificationEnabled()) {
+                        removeNotification(todoItem);
+                    }
                     todoList.remove(lastItemLongClickedPosition);
                     adapter.notifyDataSetChanged();
                     actionMode.finish();
                     saveTodos();
+                    Snackbar snackbar = Snackbar.make(
+                            coordinatorLayout,
+                            "Item deleted",
+                             Snackbar.LENGTH_LONG
+                    ).setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            todoList.add(todoItem);
+                            if (todoItem.isNotificationEnabled()) {
+                                addNotification(todoItem);
+                            }
+                            adapter.notifyDataSetChanged();
+                            saveTodos();
+                            Snackbar snackbar2 = Snackbar.make(
+                                    coordinatorLayout,
+                                    "Undo successful",
+                                    Snackbar.LENGTH_SHORT
+                            );
+                            snackbar2.show();
+                        }
+                    });
+                    snackbar.show();
                     return true;
                 default:
-                    return  false;
+                    return false;
             }
         }
 
@@ -160,8 +191,10 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
     @Override
     public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
+        final ArrayList<Todo> todoListCopy = new ArrayList<>();
         for (Iterator<Todo> iterator = todoList.listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
+            todoListCopy.add(todo);
             if (priorities.contains(todo.getPriority())) {
                 if (todo.isNotificationEnabled()) {
                     removeNotification(todo);
@@ -172,6 +205,30 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         }
         adapter.notifyDataSetChanged();
         saveTodos();
+        Snackbar snackbar = Snackbar.make(
+                coordinatorLayout,
+                "Items deleted",
+                Snackbar.LENGTH_LONG
+        ).setAction("Undo", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (Todo todoItem : todoListCopy) {
+                    todoList.add(todoItem);
+                    if (todoItem.isNotificationEnabled()) {
+                        addNotification(todoItem);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                saveTodos();
+                Snackbar snackbar2 = Snackbar.make(
+                        coordinatorLayout,
+                        "Undo successful",
+                        Snackbar.LENGTH_SHORT
+                );
+                snackbar2.show();
+            }
+        });
+        snackbar.show();
     }
 
     private void removeNotification(Todo todo) {
@@ -180,6 +237,23 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this.getApplicationContext(), todo.getNotificationId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();
+    }
+
+    private void addNotification(Todo todo) {
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        Intent notificationIntent = new Intent(MainActivity.this.getApplicationContext(), AlarmReceiver.class);
+        notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, todo.getDescription());
+        PendingIntent broadcast = PendingIntent.getBroadcast(MainActivity.this.getApplicationContext(), todo.getNotificationId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar notificationCalendar = Calendar.getInstance();
+        notificationCalendar.set(todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute(), 0);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);
+        }
     }
 
     private void loadTodos() {

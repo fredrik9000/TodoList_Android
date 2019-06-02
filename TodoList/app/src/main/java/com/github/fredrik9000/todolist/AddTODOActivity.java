@@ -9,7 +9,10 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
@@ -26,6 +29,8 @@ import java.util.Locale;
 import java.util.Random;
 
 public class AddTodoActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
+
+    private CoordinatorLayout coordinatorLayout;
 
     public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
     public static final String TODO_PRIORITY = "TODO_PRIORITY";
@@ -52,7 +57,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         setContentView(R.layout.activity_add_todo);
 
         Intent intent = getIntent();
-        String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
+        final String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
         int todoPriority = intent.getIntExtra(TODO_PRIORITY, 0);
         final int todoPosition = intent.getIntExtra(TODO_POSITION, 0);
         hasNotification = intent.getBooleanExtra(HAS_NOTIFICATION, false);
@@ -62,6 +67,8 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         notificationTextView = findViewById(R.id.notificationTextView);
         removeNotificationButton = findViewById(R.id.removeNotificationButton);
         addNotificationButton = findViewById(R.id.addNotificationButton);
+
+        coordinatorLayout = findViewById(R.id.addTodoCoordinatorLayout);
 
         if (todoDescription == null) { //description doubles as a check for task being created
             saveButton.setEnabled(false);
@@ -196,6 +203,38 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
                 notificationTextView.setVisibility(View.GONE);
                 removeNotificationButton.setVisibility(View.GONE);
                 hasNotification = false;
+
+                Snackbar snackbar = Snackbar.make(
+                        coordinatorLayout,
+                        "Notification removed",
+                        Snackbar.LENGTH_LONG
+                ).setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addNotificationAlarm(todoDescription);
+
+                        notificationCalendar = Calendar.getInstance();
+                        notificationCalendar.set(year, month, day, hour, minute, 0);
+                        Calendar currentTimeCalendar = Calendar.getInstance();
+                        if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
+                            Toast.makeText(AddTodoActivity.this, R.string.invalid_time, Toast.LENGTH_LONG).show();
+                            hasNotification = false;
+                        } else {
+                            hasNotification = true;
+                            notificationTextView.setText(getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())));
+                            notificationTextView.setVisibility(View.VISIBLE);
+                            removeNotificationButton.setVisibility(View.VISIBLE);
+                            addNotificationButton.setText(R.string.update_notification);
+                        }
+                        Snackbar snackbar2 = Snackbar.make(
+                                coordinatorLayout,
+                                "Undo successful",
+                                Snackbar.LENGTH_SHORT
+                        );
+                        snackbar2.show();
+                    }
+                });
+                snackbar.show();
             }
         });
 
