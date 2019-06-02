@@ -15,7 +15,7 @@ import com.github.fredrik9000.todolist.model.Todo;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
+class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -26,7 +26,7 @@ class TODOAdapter extends RecyclerView.Adapter<TODOAdapter.ViewHolder> {
 
     private final ArrayList<Todo> todos;
 
-    TODOAdapter(ArrayList<Todo> todos, OnItemClickListener clickListener) {
+    TodoAdapter(ArrayList<Todo> todos, OnItemClickListener clickListener) {
         this.todos = todos;
         this.clickListener = clickListener;
     }

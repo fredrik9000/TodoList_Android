@@ -30,7 +30,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity implements DeleteTodosDialog.OnDeleteTodosDialogInteractionListener, TODOAdapter.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements DeleteTodosDialog.OnDeleteTodosDialogInteractionListener, TodoAdapter.OnItemClickListener {
 
     private CoordinatorLayout coordinatorLayout;
     private ArrayList<Todo> todoList = new ArrayList<>();
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new TODOAdapter(todoList, this);
+        adapter = new TodoAdapter(todoList, this);
         recyclerView.setAdapter(adapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
