@@ -17,4 +17,5 @@
     <string name="notification_time">notify: %s</string>
     <string name="delete_todo_items">Delete TODO\'s</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
+    <string name="no_tasks_added">Add tasks by tapping the plus-button to get started.</string>
 </resources>

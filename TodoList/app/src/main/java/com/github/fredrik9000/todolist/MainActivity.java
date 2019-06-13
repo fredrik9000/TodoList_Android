@@ -38,10 +38,12 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
     TodoListViewModel todoListViewModel;
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         setTitle(R.string.title_activity_main);
         todoListViewModel = ViewModelProviders.of(this).get(TodoListViewModel.class);
 
@@ -63,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
             }
         });
         coordinatorLayout = binding.coordinatorLayout;
+
+        checkForEmptyView();
     }
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -89,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                     adapter.notifyItemRemoved(lastItemLongClickedPosition);
                     actionMode.finish();
                     todoListViewModel.saveTodoList();
+                    checkForEmptyView();
                     Snackbar snackbar = Snackbar.make(
                             coordinatorLayout,
                             "Item deleted",
@@ -103,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                             Collections.sort(todoListViewModel.getTodoList());
                             adapter.notifyItemInserted(lastItemLongClickedPosition);
                             todoListViewModel.saveTodoList();
+                            checkForEmptyView();
                             Snackbar snackbar2 = Snackbar.make(
                                     coordinatorLayout,
                                     "Undo successful",
@@ -154,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                     updateTodoItem(data, todo);
                     todoListViewModel.addTodo(todo);
                     Collections.sort(todoListViewModel.getTodoList());
+                    checkForEmptyView();
                 }
                 break;
             }
@@ -200,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         }
         adapter.notifyDataSetChanged();
         todoListViewModel.saveTodoList();
+        checkForEmptyView();
         Snackbar snackbar = Snackbar.make(
                 coordinatorLayout,
                 "Items deleted",
@@ -216,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                 Collections.sort(todoListViewModel.getTodoList());
                 adapter.notifyDataSetChanged();
                 todoListViewModel.saveTodoList();
+                checkForEmptyView();
                 Snackbar snackbar2 = Snackbar.make(
                         coordinatorLayout,
                         "Undo successful",
@@ -256,5 +265,16 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         lastItemLongClickedPosition = position;
         mActionMode = startSupportActionMode(mActionModeCallback);
         return true;
+    }
+
+    public void checkForEmptyView() {
+        if (todoListViewModel.getTodoList().isEmpty()) {
+            binding.todoList.setVisibility(View.GONE);
+            binding.emptyView.setVisibility(View.VISIBLE);
+        }
+        else {
+            binding.todoList.setVisibility(View.VISIBLE);
+            binding.emptyView.setVisibility(View.GONE);
+        }
     }
 }
