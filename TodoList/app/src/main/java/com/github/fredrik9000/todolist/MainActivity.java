@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
     @Override
     public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
         final ArrayList<Todo> todoListCopy = new ArrayList<>();
+        int todoListLength = todoListViewModel.getTodoList().size();
         for (Iterator<Todo> iterator = todoListViewModel.getTodoList().listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
             if (priorities.contains(todo.getPriority())) {
@@ -205,6 +206,12 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                 iterator.remove();
             }
         }
+
+        //The selected priorities didn't match any of the tasks, so no items will be removed.
+        if (todoListLength == todoListViewModel.getTodoList().size()) {
+            return;
+        }
+
         adapter.notifyDataSetChanged();
         todoListViewModel.saveTodoList();
         checkForEmptyView();
