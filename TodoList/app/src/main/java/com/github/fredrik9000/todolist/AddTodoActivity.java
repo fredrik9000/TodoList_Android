@@ -8,18 +8,20 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+
+import com.github.fredrik9000.todolist.databinding.ActivityAddTodoBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +56,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_todo);
+        final ActivityAddTodoBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_add_todo);
 
         Intent intent = getIntent();
         final String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
@@ -62,13 +64,13 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         final int todoPosition = intent.getIntExtra(TODO_POSITION, 0);
         hasNotification = intent.getBooleanExtra(HAS_NOTIFICATION, false);
 
-        final FloatingActionButton saveButton = findViewById(R.id.fabSaveTodo);
-        final TextInputEditText todoDescriptionET = findViewById(R.id.addTodoEditText);
-        notificationTextView = findViewById(R.id.notificationTextView);
-        removeNotificationButton = findViewById(R.id.removeNotificationButton);
-        addNotificationButton = findViewById(R.id.addNotificationButton);
+        final FloatingActionButton saveButton = binding.fabSaveTodo;
+        final TextInputEditText todoDescriptionET = binding.addTodoEditText;
+        notificationTextView = binding.notificationTextView;
+        removeNotificationButton = binding.removeNotificationButton;
+        addNotificationButton = binding.addNotificationButton;
 
-        coordinatorLayout = findViewById(R.id.addTodoCoordinatorLayout);
+        coordinatorLayout = binding.addTodoCoordinatorLayout;
 
         if (todoDescription == null) { //description doubles as a check for task being created
             saveButton.setEnabled(false);
@@ -81,13 +83,13 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
             switch (todoPriority) {
                 case 0:
-                    ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.lowPriority);
+                    binding.priorityRadioGroup.check(R.id.lowPriority);
                     break;
                 case 1:
-                    ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.mediumPriority);
+                    binding.priorityRadioGroup.check(R.id.mediumPriority);
                     break;
                 case 2:
-                    ((RadioGroup)findViewById(R.id.priorityRadioGroup)).check(R.id.highPriority);
+                    binding.priorityRadioGroup.check(R.id.highPriority);
             }
 
             if (hasNotification) {
@@ -157,7 +159,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int priorityRBID = ((RadioGroup)findViewById(R.id.priorityRadioGroup)).getCheckedRadioButtonId();
+                int priorityRBID = binding.priorityRadioGroup.getCheckedRadioButtonId();
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(TODO_DESCRIPTION, todoDescriptionET.getText().toString());
                 int priority;

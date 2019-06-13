@@ -8,14 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.github.fredrik9000.todolist.databinding.ListviewItemBinding;
 import com.github.fredrik9000.todolist.model.Todo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
-class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
+public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -24,10 +24,10 @@ class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     private final OnItemClickListener clickListener;
 
-    private final ArrayList<Todo> todos;
+    private final ArrayList<Todo> todoList;
 
-    TodoAdapter(ArrayList<Todo> todos, OnItemClickListener clickListener) {
-        this.todos = todos;
+    TodoAdapter(ArrayList<Todo> todoList, OnItemClickListener clickListener) {
+        this.todoList = todoList;
         this.clickListener = clickListener;
     }
 
@@ -35,14 +35,14 @@ class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        View view = inflater.inflate(R.layout.listview_item, viewGroup, false);
-        return new ViewHolder(view);
+        ListviewItemBinding binding = ListviewItemBinding.inflate(inflater, viewGroup, false);
+        return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder todoItemViewHolder, final int position) {
-        Todo todoItem = todos.get(position);
-        todoItemViewHolder.textViewTodoName.setText(todoItem.getDescription());
+        Todo todoItem = todoList.get(position);
+        todoItemViewHolder.bind(todoItem);
 
         switch (todoItem.getPriority()) {
             case 0:
@@ -85,18 +85,24 @@ class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return todos.size();
+        return todoList.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewTodoName;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        private final ListviewItemBinding binding;
         ImageView alarmImageView;
         LinearLayout parentLayout;
-        ViewHolder(final View view) {
-            super(view);
-            textViewTodoName = view.findViewById(R.id.text1);
-            alarmImageView = view.findViewById(R.id.alarmImageView);
-            parentLayout = view.findViewById(R.id.parent_layout);
+
+        ViewHolder(ListviewItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            alarmImageView = binding.alarmImageView;
+            parentLayout = binding.parentLayout;
+        }
+
+        void bind(Todo todo) {
+            binding.setTodo(todo);
+            binding.executePendingBindings();
         }
     }
 }
