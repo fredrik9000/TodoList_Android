@@ -2,6 +2,8 @@ package com.github.fredrik9000.todolist;
 
 import android.graphics.Color;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,24 +14,36 @@ import android.widget.LinearLayout;
 import com.github.fredrik9000.todolist.databinding.ListviewItemBinding;
 import com.github.fredrik9000.todolist.model.Todo;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
+public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
+
+    protected TodoAdapter(OnItemClickListener clickListener) {
+        super(DIFF_CALLBACK);
+        this.clickListener = clickListener;
+    }
 
     public interface OnItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(Todo todo);
         boolean onItemLongClick(int position);
     }
 
+    private static final DiffUtil.ItemCallback<Todo> DIFF_CALLBACK = new DiffUtil.ItemCallback<Todo>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Todo oldItem, @NonNull Todo newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Todo oldItem, @NonNull Todo newItem) {
+            return oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getPriority() == newItem.getPriority() &&
+                    oldItem.isNotificationEnabled() == newItem.isNotificationEnabled() &&
+                    oldItem.getNotificationId() == newItem.getNotificationId();
+        }
+    };
+
     private final OnItemClickListener clickListener;
-
-    private final ArrayList<Todo> todoList;
-
-    TodoAdapter(ArrayList<Todo> todoList, OnItemClickListener clickListener) {
-        this.todoList = todoList;
-        this.clickListener = clickListener;
-    }
 
     @NonNull
     @Override
@@ -41,7 +55,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder todoItemViewHolder, final int position) {
-        Todo todoItem = todoList.get(position);
+        Todo todoItem = getItem(position);
         todoItemViewHolder.bind(todoItem);
 
         switch (todoItem.getPriority()) {
@@ -60,20 +74,6 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         } else {
             todoItemViewHolder.alarmImageView.setVisibility(View.INVISIBLE);
         }
-
-        todoItemViewHolder.parentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clickListener.onItemClick(todoItemViewHolder.getAdapterPosition());
-            }
-        });
-
-        todoItemViewHolder.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return clickListener.onItemLongClick(todoItemViewHolder.getAdapterPosition());
-            }
-        });
     }
 
     private boolean isNotificationExpired(Todo todo) {
@@ -83,9 +83,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
         return notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis();
     }
 
-    @Override
-    public int getItemCount() {
-        return todoList.size();
+    public Todo getTodoAt(int position) {
+        return getItem(position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -98,6 +97,28 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.ViewHolder> {
             this.binding = binding;
             alarmImageView = binding.alarmImageView;
             parentLayout = binding.parentLayout;
+
+            parentLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if (clickListener != null && position != RecyclerView.NO_POSITION) {
+                        clickListener.onItemClick(getItem(position));
+                    }
+                }
+            });
+
+            parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int position = getAdapterPosition();
+                    if (clickListener != null && position != RecyclerView.NO_POSITION) {
+                        return clickListener.onItemLongClick(position);
+                    } else {
+                        return false;
+                    }
+                }
+            });
         }
 
         void bind(Todo todo) {

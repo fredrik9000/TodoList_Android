@@ -36,7 +36,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
     public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
     public static final String TODO_PRIORITY = "TODO_PRIORITY";
-    public static final String TODO_POSITION = "TODO_POSITION";
+    public static final String TODO_ID = "TODO_ID";
     public static final String NOTIFICATION_YEAR = "NOTIFICATION_YEAR";
     public static final String NOTIFICATION_MONTH = "NOTIFICATION_MONTH";
     public static final String NOTIFICATION_DAY = "NOTIFICATION_DAY";
@@ -58,10 +58,9 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         super.onCreate(savedInstanceState);
         final ActivityAddTodoBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_add_todo);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         final String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
         int todoPriority = intent.getIntExtra(TODO_PRIORITY, 0);
-        final int todoPosition = intent.getIntExtra(TODO_POSITION, 0);
         hasNotification = intent.getBooleanExtra(HAS_NOTIFICATION, false);
 
         final FloatingActionButton saveButton = binding.fabSaveTodo;
@@ -72,7 +71,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
         coordinatorLayout = binding.addTodoCoordinatorLayout;
 
-        if (todoDescription == null) { //description doubles as a check for task being created
+        if (!intent.hasExtra(TODO_ID)) { //Checks if we are adding or editing an item
             saveButton.setEnabled(false);
             saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         } else {
@@ -177,17 +176,21 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
                         priority = -1;
                 }
                 resultIntent.putExtra(TODO_PRIORITY, priority);
-                resultIntent.putExtra(TODO_POSITION, todoPosition);
+                if (intent.hasExtra(TODO_ID)) { //If we are editing an item we need to send the passed in id back
+                    resultIntent.putExtra(TODO_ID, intent.getIntExtra(TODO_ID, 0));
+                }
                 resultIntent.putExtra(HAS_NOTIFICATION, hasNotification);
                 resultIntent.putExtra(NOTIFICATION_YEAR, year);
                 resultIntent.putExtra(NOTIFICATION_MONTH, month);
                 resultIntent.putExtra(NOTIFICATION_DAY, day);
                 resultIntent.putExtra(NOTIFICATION_HOUR, hour);
                 resultIntent.putExtra(NOTIFICATION_MINUTE, minute);
-                resultIntent.putExtra(NOTIFICATION_ID, notificationId);
                 if (hasNotification) {
                     addNotificationAlarm(todoDescriptionET.getText().toString());
+                } else {
+                    notificationId = 0;
                 }
+                resultIntent.putExtra(NOTIFICATION_ID, notificationId);
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }

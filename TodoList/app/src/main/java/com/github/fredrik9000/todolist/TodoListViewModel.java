@@ -4,62 +4,72 @@ import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import com.github.fredrik9000.todolist.model.Todo;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.github.fredrik9000.todolist.model.TodoRepository;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 public class TodoListViewModel extends AndroidViewModel {
-    private ArrayList<Todo> todoList;
-    private static final String SHARED_PREFERENCES_TODOS_KEY = "TODOS";
+    private LiveData<List<Todo>> todoList;
     private Application application;
+    private TodoRepository repository;
 
     public TodoListViewModel(@NonNull Application application) {
         super(application);
+        repository = new TodoRepository(application);
+        todoList = repository.getAllTodos();
         this.application = application;
     }
 
-    public ArrayList<Todo> getTodoList() {
-        if (todoList == null) {
-            SharedPreferences appSharedPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(application.getApplicationContext());
+    public void addTodo(Todo todo) {
+        repository.insert(todo);
+    }
 
-            if (appSharedPrefs.contains(SHARED_PREFERENCES_TODOS_KEY)) {
-                Type type = new TypeToken<ArrayList<Todo>>() {
-                }.getType();
-                String json = appSharedPrefs.getString(SHARED_PREFERENCES_TODOS_KEY, "");
-                todoList = new Gson().fromJson(json, type);
-            } else {
-                todoList = new ArrayList<>();
-            }
-        }
+    public void removeTodo(Todo todo) {
+        repository.delete(todo);
+    }
+
+    public void updateTodo(Todo todo) {
+        repository.update(todo);
+    }
+
+    public LiveData<List<Todo>> getTodoList() {
         return todoList;
     }
 
+    public List<Todo> removeTodosWithPriorities(ArrayList<Integer> priorities, AlarmManager alarmManager) {
+        final List<Todo> removedTodoItems = new ArrayList<>();
+        for (Iterator<Todo> iterator = todoList.getValue().listIterator(); iterator.hasNext(); ) {
+            Todo todo = iterator.next();
+            if (priorities.contains(todo.getPriority())) {
+                removedTodoItems.add(todo);
+                if (todo.isNotificationEnabled()) {
+                    removeNotification(alarmManager, todo);
+                }
 
-    public void saveTodoList() {
-        SharedPreferences appSharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(application.getApplicationContext());
-        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        prefsEditor.putString(SHARED_PREFERENCES_TODOS_KEY, new Gson().toJson(todoList));
-        prefsEditor.apply();
+                repository.delete(todo);
+            }
+        }
+        return removedTodoItems;
     }
 
-    public void addTodo(Todo todo) {
-        if (todoList == null) {
-            todoList = new ArrayList<>();
+    public void addTodoItems(List<Todo> todoListItems, AlarmManager alarmManager) {
+        for (Iterator<Todo> iterator = todoListItems.listIterator(); iterator.hasNext(); ) {
+            Todo todo = iterator.next();
+            if (todo.isNotificationEnabled()) {
+                addNotification(alarmManager, todo);
+            }
         }
-        todoList.add(todo);
+        repository.insertTodoItems(todoListItems);
     }
 
     public void removeNotification(AlarmManager alarmManager, Todo todo) {

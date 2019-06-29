@@ -1,13 +1,15 @@
 package com.github.fredrik9000.todolist.model;
 
-import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-public class Todo implements Comparable<Todo> {
+@Entity(tableName = "todo_table")
+public class Todo {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     private String description;
     private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
     private boolean notificationEnabled;
-
-    public Todo() {}
 
     public void updateTODO(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
         this.description = description;
@@ -57,15 +59,47 @@ public class Todo implements Comparable<Todo> {
         return notificationId;
     }
 
-    @Override
-    public int compareTo(@NonNull Todo todo) {
-        return (
-            this.priority - todo.priority < 0 ? 1
-                : (
-                    (this.priority - todo.priority == 0) ? (
-                        (this.description.compareTo(todo.description) > 0) ? 1 : -1
-                    ) : -1
-                )
-        );
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
+    }
+
+    public void setNotifyYear(int notifyYear) {
+        this.notifyYear = notifyYear;
+    }
+
+    public void setNotifyMonth(int notifyMonth) {
+        this.notifyMonth = notifyMonth;
+    }
+
+    public void setNotifyDay(int notifyDay) {
+        this.notifyDay = notifyDay;
+    }
+
+    public void setNotifyHour(int notifyHour) {
+        this.notifyHour = notifyHour;
+    }
+
+    public void setNotifyMinute(int notifyMinute) {
+        this.notifyMinute = notifyMinute;
+    }
+
+    public void setNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
     }
 }
