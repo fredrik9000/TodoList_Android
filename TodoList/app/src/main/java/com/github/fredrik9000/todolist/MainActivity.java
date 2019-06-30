@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
     private CoordinatorLayout coordinatorLayout;
     private ActionMode mActionMode;
     private int lastItemLongClickedPosition;
-    TodoAdapter adapter;
+    private TodoAdapter adapter;
 
     private static final int ADD_TODO_REQUEST_CODE = 1;
     private static final int EDIT_TODO_REQUEST_CODE = 2;
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                     if (todoItem.isNotificationEnabled()) {
                         todoListViewModel.removeNotification((AlarmManager)getSystemService(ALARM_SERVICE), todoItem);
                     }
-                    todoListViewModel.removeTodo(todoItem);
+                    todoListViewModel.delete(todoItem);
                     actionMode.finish();
                     Snackbar snackbar = Snackbar.make(
                             coordinatorLayout,
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                             if (todoItem.isNotificationEnabled()) {
                                 todoListViewModel.addNotification((AlarmManager)getSystemService(ALARM_SERVICE), todoItem);
                             }
-                            todoListViewModel.addTodo(todoItem);
+                            todoListViewModel.insert(todoItem);
                             Snackbar snackbar2 = Snackbar.make(
                                     coordinatorLayout,
                                     R.string.undo_successful,
@@ -158,9 +158,8 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         switch(requestCode) {
             case (ADD_TODO_REQUEST_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    Todo todo = new Todo();
-                    updateTodoItem(data, todo);
-                    todoListViewModel.addTodo(todo);
+                    Todo todo = createTodoItem(data);
+                    todoListViewModel.insert(todo);
                 }
                 break;
             }
@@ -171,16 +170,15 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                         Toast.makeText(this, R.string.task_update_invalid_id, Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Todo todo = new Todo();
-                    updateTodoItem(data, todo);
+                    Todo todo = createTodoItem(data);
                     todo.setId(todoId);
-                    todoListViewModel.updateTodo(todo);
+                    todoListViewModel.update(todo);
                 }
             }
         }
     }
 
-    private void updateTodoItem(Intent data, Todo todo) {
+    private Todo createTodoItem(Intent data) {
         String todoDescription = data.getStringExtra(AddTodoActivity.TODO_DESCRIPTION);
         int todoPriority = data.getIntExtra(AddTodoActivity.TODO_PRIORITY, 0);
         boolean hasNotification = data.getBooleanExtra(AddTodoActivity.HAS_NOTIFICATION, false);
@@ -190,13 +188,13 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         int day = data.getIntExtra(AddTodoActivity.NOTIFICATION_DAY, 0);
         int hour = data.getIntExtra(AddTodoActivity.NOTIFICATION_HOUR, 0);
         int minute = data.getIntExtra(AddTodoActivity.NOTIFICATION_MINUTE, 0);
-        todo.updateTODO(todoDescription, todoPriority, todoNotificationId, hasNotification, year, month, day, hour,  minute);
+        return new Todo(todoDescription, todoPriority, todoNotificationId, hasNotification, year, month, day, hour,  minute);
     }
 
     @Override
     public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
         final AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        final List<Todo> removedTodoListItems = todoListViewModel.removeTodosWithPriorities(priorities, alarmManager);
+        final List<Todo> removedTodoListItems = todoListViewModel.deleteTodosWithPriorities(priorities, alarmManager);
 
         //The selected priorities didn't match any of the tasks, so no items will be removed.
         if (removedTodoListItems.size() == 0) {
@@ -210,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         ).setAction("Undo", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                todoListViewModel.addTodoItems(removedTodoListItems, alarmManager);
+                todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
                 Snackbar snackbar2 = Snackbar.make(
                         coordinatorLayout,
                         "Undo successful",

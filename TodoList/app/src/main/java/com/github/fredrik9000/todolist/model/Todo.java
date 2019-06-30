@@ -11,7 +11,9 @@ public class Todo {
     private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
     private boolean notificationEnabled;
 
-    public void updateTODO(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
+    public Todo() {}
+
+    public Todo(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute) {
         this.description = description;
         this.priority = priority;
         this.notificationId = notificationId;

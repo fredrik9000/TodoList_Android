@@ -30,15 +30,15 @@ public class TodoListViewModel extends AndroidViewModel {
         this.application = application;
     }
 
-    public void addTodo(Todo todo) {
+    public void insert(Todo todo) {
         repository.insert(todo);
     }
 
-    public void removeTodo(Todo todo) {
+    public void delete(Todo todo) {
         repository.delete(todo);
     }
 
-    public void updateTodo(Todo todo) {
+    public void update(Todo todo) {
         repository.update(todo);
     }
 
@@ -46,7 +46,7 @@ public class TodoListViewModel extends AndroidViewModel {
         return todoList;
     }
 
-    public List<Todo> removeTodosWithPriorities(ArrayList<Integer> priorities, AlarmManager alarmManager) {
+    public List<Todo> deleteTodosWithPriorities(ArrayList<Integer> priorities, AlarmManager alarmManager) {
         final List<Todo> removedTodoItems = new ArrayList<>();
         for (Iterator<Todo> iterator = todoList.getValue().listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
@@ -62,7 +62,7 @@ public class TodoListViewModel extends AndroidViewModel {
         return removedTodoItems;
     }
 
-    public void addTodoItems(List<Todo> todoListItems, AlarmManager alarmManager) {
+    public void insertTodoItems(List<Todo> todoListItems, AlarmManager alarmManager) {
         for (Iterator<Todo> iterator = todoListItems.listIterator(); iterator.hasNext(); ) {
             Todo todo = iterator.next();
             if (todo.isNotificationEnabled()) {
