@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.github.fredrik9000.todolist.databinding.ActivityMainBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +19,10 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
+import com.github.fredrik9000.todolist.databinding.ActivityMainBinding;
 import com.github.fredrik9000.todolist.model.Todo;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -31,17 +30,67 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DeleteTodosDialog.OnDeleteTodosDialogInteractionListener, TodoAdapter.OnItemClickListener {
 
+    private static final int ADD_TODO_REQUEST_CODE = 1;
+    private static final int EDIT_TODO_REQUEST_CODE = 2;
+    TodoListViewModel todoListViewModel;
     private CoordinatorLayout coordinatorLayout;
     private ActionMode mActionMode;
     private int lastItemLongClickedPosition;
     private TodoAdapter adapter;
-
-    private static final int ADD_TODO_REQUEST_CODE = 1;
-    private static final int EDIT_TODO_REQUEST_CODE = 2;
-
-    TodoListViewModel todoListViewModel;
-
     private ActivityMainBinding binding;
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            actionMode.getMenuInflater().inflate(R.menu.context_main, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.menu_delete:
+                    final Todo todoItem = adapter.getTodoAt(lastItemLongClickedPosition);
+                    if (todoItem.isNotificationEnabled()) {
+                        todoListViewModel.removeNotification((AlarmManager) getSystemService(ALARM_SERVICE), todoItem);
+                    }
+                    todoListViewModel.delete(todoItem);
+                    actionMode.finish();
+                    Snackbar snackbar = Snackbar.make(
+                            coordinatorLayout,
+                            R.string.item_deleted,
+                            Snackbar.LENGTH_LONG
+                    ).setAction(R.string.undo, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (todoItem.isNotificationEnabled()) {
+                                todoListViewModel.addNotification((AlarmManager) getSystemService(ALARM_SERVICE), todoItem);
+                            }
+                            todoListViewModel.insert(todoItem);
+                            Snackbar snackbar2 = Snackbar.make(
+                                    coordinatorLayout,
+                                    R.string.undo_successful,
+                                    Snackbar.LENGTH_SHORT
+                            );
+                            snackbar2.show();
+                        }
+                    });
+                    snackbar.show();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            mActionMode = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,60 +127,6 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         });
     }
 
-    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            actionMode.getMenuInflater().inflate(R.menu.context_main, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.menu_delete:
-                    final Todo todoItem = adapter.getTodoAt(lastItemLongClickedPosition);
-                    if (todoItem.isNotificationEnabled()) {
-                        todoListViewModel.removeNotification((AlarmManager)getSystemService(ALARM_SERVICE), todoItem);
-                    }
-                    todoListViewModel.delete(todoItem);
-                    actionMode.finish();
-                    Snackbar snackbar = Snackbar.make(
-                            coordinatorLayout,
-                            R.string.item_deleted,
-                             Snackbar.LENGTH_LONG
-                    ).setAction(R.string.undo, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (todoItem.isNotificationEnabled()) {
-                                todoListViewModel.addNotification((AlarmManager)getSystemService(ALARM_SERVICE), todoItem);
-                            }
-                            todoListViewModel.insert(todoItem);
-                            Snackbar snackbar2 = Snackbar.make(
-                                    coordinatorLayout,
-                                    R.string.undo_successful,
-                                    Snackbar.LENGTH_SHORT
-                            );
-                            snackbar2.show();
-                        }
-                    });
-                    snackbar.show();
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode actionMode) {
-            mActionMode = null;
-        }
-    };
-
     // create an action bar button
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -155,15 +150,15 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (ADD_TODO_REQUEST_CODE) : {
+        switch (requestCode) {
+            case (ADD_TODO_REQUEST_CODE): {
                 if (resultCode == Activity.RESULT_OK) {
                     Todo todo = createTodoItem(data);
                     todoListViewModel.insert(todo);
                 }
                 break;
             }
-            case (EDIT_TODO_REQUEST_CODE) : {
+            case (EDIT_TODO_REQUEST_CODE): {
                 if (resultCode == Activity.RESULT_OK) {
                     int todoId = data.getIntExtra(AddTodoActivity.TODO_ID, -1);
                     if (todoId == -1) {
@@ -188,12 +183,12 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         int day = data.getIntExtra(AddTodoActivity.NOTIFICATION_DAY, 0);
         int hour = data.getIntExtra(AddTodoActivity.NOTIFICATION_HOUR, 0);
         int minute = data.getIntExtra(AddTodoActivity.NOTIFICATION_MINUTE, 0);
-        return new Todo(todoDescription, todoPriority, todoNotificationId, hasNotification, year, month, day, hour,  minute);
+        return new Todo(todoDescription, todoPriority, todoNotificationId, hasNotification, year, month, day, hour, minute);
     }
 
     @Override
     public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
-        final AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        final AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         final List<Todo> removedTodoListItems = todoListViewModel.deleteTodosWithPriorities(priorities, alarmManager);
 
         //The selected priorities didn't match any of the tasks, so no items will be removed.
@@ -254,8 +249,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         if (todoList.isEmpty()) {
             binding.todoList.setVisibility(View.GONE);
             binding.emptyView.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             binding.todoList.setVisibility(View.VISIBLE);
             binding.emptyView.setVisibility(View.GONE);
         }

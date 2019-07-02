@@ -4,10 +4,11 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
 
@@ -16,9 +17,6 @@ public class TimePickerFragment extends DialogFragment
 
     private OnSelectTimeDialogInteractionListener mListener;
 
-    public interface OnSelectTimeDialogInteractionListener {
-        void onSelectTimeDialogInteraction(int hour, int minute);
-    }
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -52,5 +50,9 @@ public class TimePickerFragment extends DialogFragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public interface OnSelectTimeDialogInteractionListener {
+        void onSelectTimeDialogInteraction(int hour, int minute);
     }
 }

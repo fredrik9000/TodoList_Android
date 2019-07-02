@@ -8,16 +8,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.github.fredrik9000.todolist.databinding.ActivityAddTodoBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -26,14 +16,22 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.DialogFragment;
+
+import com.github.fredrik9000.todolist.databinding.ActivityAddTodoBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 
 public class AddTodoActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
-
-    private CoordinatorLayout coordinatorLayout;
 
     public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
     public static final String TODO_PRIORITY = "TODO_PRIORITY";
@@ -45,7 +43,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
     public static final String NOTIFICATION_MINUTE = "NOTIFICATION_MINUTE";
     public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     public static final String HAS_NOTIFICATION = "HAS_NOTIFICATION";
-
+    private CoordinatorLayout coordinatorLayout;
     private int day, month, year, hour, minute;
     private int notificationId;
     private boolean hasNotification = false;
@@ -73,7 +71,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         priorityPicker = binding.priorityPicker;
         priorityPicker.setMinValue(0);
         priorityPicker.setMaxValue(2);
-        priorityPicker.setDisplayedValues( new String[] { getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority) } );
+        priorityPicker.setDisplayedValues(new String[]{getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority)});
 
         coordinatorLayout = binding.addTodoCoordinatorLayout;
 
@@ -128,8 +126,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
                             new Intent("com.my.package.MY_UNIQUE_ACTION"),
                             PendingIntent.FLAG_NO_CREATE) != null);
 
-                    if (!isAlarmRunning)
-                    {
+                    if (!isAlarmRunning) {
                         addNotificationAlarm(todoDescription);
                     }
                 }
@@ -147,7 +144,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.toString().trim().length()==0){
+                if (charSequence.toString().trim().length() == 0) {
                     saveButton.setEnabled(false);
                     saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                 } else {
@@ -192,7 +189,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         removeNotificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 Intent intent = new Intent(AddTodoActivity.this.getApplicationContext(), MainActivity.class);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(AddTodoActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(pendingIntent);
@@ -246,7 +243,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
     }
 
     private void addNotificationAlarm(String todoDescription) {
-        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent notificationIntent = new Intent(AddTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
         notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, todoDescription);

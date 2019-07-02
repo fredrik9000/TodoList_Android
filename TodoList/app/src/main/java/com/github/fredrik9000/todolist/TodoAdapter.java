@@ -1,15 +1,16 @@
 package com.github.fredrik9000.todolist;
 
 import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.fredrik9000.todolist.databinding.ListviewItemBinding;
 import com.github.fredrik9000.todolist.model.Todo;
@@ -17,16 +18,6 @@ import com.github.fredrik9000.todolist.model.Todo;
 import java.util.Calendar;
 
 public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
-
-    protected TodoAdapter(OnItemClickListener clickListener) {
-        super(DIFF_CALLBACK);
-        this.clickListener = clickListener;
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(Todo todo);
-        boolean onItemLongClick(int position);
-    }
 
     private static final DiffUtil.ItemCallback<Todo> DIFF_CALLBACK = new DiffUtil.ItemCallback<Todo>() {
         @Override
@@ -42,8 +33,12 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                     oldItem.getNotificationId() == newItem.getNotificationId();
         }
     };
-
     private final OnItemClickListener clickListener;
+
+    protected TodoAdapter(OnItemClickListener clickListener) {
+        super(DIFF_CALLBACK);
+        this.clickListener = clickListener;
+    }
 
     @NonNull
     @Override
@@ -85,6 +80,12 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
     public Todo getTodoAt(int position) {
         return getItem(position);
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Todo todo);
+
+        boolean onItemLongClick(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array
-        name="priorities">
+    <string-array name="priorities">
         <item>Delete low priority tasks</item>
         <item>Delete medium priority tasks</item>
         <item>Delete high priority tasks</item>

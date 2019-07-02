@@ -4,9 +4,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.widget.DatePicker;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import android.widget.DatePicker;
 
 import java.util.Calendar;
 
@@ -14,10 +15,6 @@ public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
     private OnSelectDateDialogInteractionListener mListener;
-
-    public interface OnSelectDateDialogInteractionListener {
-        void onSelectDateDialogInteraction(int year, int month, int day);
-    }
 
     @NonNull
     @Override
@@ -54,5 +51,9 @@ public class DatePickerFragment extends DialogFragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public interface OnSelectDateDialogInteractionListener {
+        void onSelectDateDialogInteraction(int year, int month, int day);
     }
 }
