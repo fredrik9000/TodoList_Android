@@ -22,6 +22,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
     private TextView notificationTextView;
     private Button removeNotificationButton, addNotificationButton;
+    private NumberPicker priorityPicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,12 +70,17 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         notificationTextView = binding.notificationTextView;
         removeNotificationButton = binding.removeNotificationButton;
         addNotificationButton = binding.addNotificationButton;
+        priorityPicker = binding.priorityPicker;
+        priorityPicker.setMinValue(0);
+        priorityPicker.setMaxValue(2);
+        priorityPicker.setDisplayedValues( new String[] { getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority) } );
 
         coordinatorLayout = binding.addTodoCoordinatorLayout;
 
         if (!intent.hasExtra(TODO_ID)) { //Checks if we are adding or editing an item
             saveButton.setEnabled(false);
             saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+            priorityPicker.setValue(1);
         } else {
             setTitle(R.string.title_activity_edit_todo);
             saveButton.setEnabled(true);
@@ -82,13 +89,13 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
 
             switch (todoPriority) {
                 case 0:
-                    binding.priorityRadioGroup.check(R.id.lowPriority);
+                    priorityPicker.setValue(0);
                     break;
                 case 1:
-                    binding.priorityRadioGroup.check(R.id.mediumPriority);
+                    priorityPicker.setValue(1);
                     break;
                 case 2:
-                    binding.priorityRadioGroup.check(R.id.highPriority);
+                    priorityPicker.setValue(2);
             }
 
             if (hasNotification) {
@@ -158,23 +165,9 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int priorityRBID = binding.priorityRadioGroup.getCheckedRadioButtonId();
+                int priority = priorityPicker.getValue();
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(TODO_DESCRIPTION, todoDescriptionET.getText().toString());
-                int priority;
-                switch (priorityRBID) {
-                    case R.id.lowPriority:
-                        priority = 0;
-                        break;
-                    case R.id.mediumPriority:
-                        priority = 1;
-                        break;
-                    case R.id.highPriority:
-                        priority = 2;
-                        break;
-                    default:
-                        priority = -1;
-                }
                 resultIntent.putExtra(TODO_PRIORITY, priority);
                 if (intent.hasExtra(TODO_ID)) { //If we are editing an item we need to send the passed in id back
                     resultIntent.putExtra(TODO_ID, intent.getIntExtra(TODO_ID, 0));

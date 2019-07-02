@@ -32,28 +32,12 @@
                     android:inputType="text"
                     android:maxLength="40"/>
             </com.google.android.material.textfield.TextInputLayout>
-            <RadioGroup
+
+            <NumberPicker
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/priorityRadioGroup"
-                android:checkedButton="@id/mediumPriority"
-                android:layout_marginBottom="20dp">
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/lowPriority"
-                    android:text="@string/low_priority"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/mediumPriority"
-                    android:text="@string/medium_priority"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/highPriority"
-                    android:text="@string/high_priority"/>
-            </RadioGroup>
+                android:id="@+id/priorityPicker"
+                android:layout_marginBottom="20dp"></NumberPicker>
 
             <LinearLayout
                 android:layout_width="match_parent"
