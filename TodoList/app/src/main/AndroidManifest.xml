@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddTodoActivity"
+            android:name=".AddEditTodoActivity"
             android:label="@string/title_activity_add_todo">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -21,7 +21,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 
-import com.github.fredrik9000.todolist.databinding.ActivityAddTodoBinding;
+import com.github.fredrik9000.todolist.databinding.ActivityAddEditTodoBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,7 +31,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 
-public class AddTodoActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
+public class AddEditTodoActivity extends AppCompatActivity implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
 
     public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
     public static final String TODO_PRIORITY = "TODO_PRIORITY";
@@ -56,7 +56,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final ActivityAddTodoBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_add_todo);
+        final ActivityAddEditTodoBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_add_edit_todo);
 
         final Intent intent = getIntent();
         final String todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
@@ -190,8 +190,8 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
             @Override
             public void onClick(View view) {
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(AddTodoActivity.this.getApplicationContext(), MainActivity.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(AddTodoActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent intent = new Intent(AddEditTodoActivity.this.getApplicationContext(), MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(AddEditTodoActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
                 addNotificationButton.setText(R.string.add_notification);
@@ -212,7 +212,7 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
                         notificationCalendar.set(year, month, day, hour, minute, 0);
                         Calendar currentTimeCalendar = Calendar.getInstance();
                         if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
-                            Toast.makeText(AddTodoActivity.this, R.string.invalid_time, Toast.LENGTH_LONG).show();
+                            Toast.makeText(AddEditTodoActivity.this, R.string.invalid_time, Toast.LENGTH_LONG).show();
                             hasNotification = false;
                         } else {
                             hasNotification = true;
@@ -245,9 +245,9 @@ public class AddTodoActivity extends AppCompatActivity implements DatePickerFrag
     private void addNotificationAlarm(String todoDescription) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        Intent notificationIntent = new Intent(AddTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
+        Intent notificationIntent = new Intent(AddEditTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
         notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, todoDescription);
-        PendingIntent broadcast = PendingIntent.getBroadcast(AddTodoActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent broadcast = PendingIntent.getBroadcast(AddEditTodoActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);

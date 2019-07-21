@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
     <layout xmlns:android="http://schemas.android.com/apk/res/android">
         <data>
-            <variable name="add_todo" type="com.github.fredrik9000.todolist.AddTodoActivity"/>
+            <variable name="add_edit_todo" type="com.github.fredrik9000.todolist.AddEditTodoActivity"/>
         </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/addTodoCoordinatorLayout"
-    tools:context=".AddTodoActivity">
+    tools:context=".AddEditTodoActivity">
         <ScrollView android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
