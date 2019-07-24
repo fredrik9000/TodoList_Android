@@ -13,24 +13,24 @@ import java.util.ArrayList;
 
 public class DeleteTodosDialog extends DialogFragment {
 
-    private ArrayList mSelectedItems;
-    private OnDeleteTodosDialogInteractionListener mListener;
+    private ArrayList selectedPriorities;
+    private OnDeleteTodosDialogInteractionListener listener;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mSelectedItems = new ArrayList();  // Where we track the selected items
+        selectedPriorities = new ArrayList();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.delete_todo_items);
         builder.setMultiChoiceItems(R.array.priorities, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
                 if (isChecked) {
-                    // If the user checked the item, add it to the selected items
-                    mSelectedItems.add(which);
-                } else if (mSelectedItems.contains(which)) {
-                    // Else, if the item is already in the array, remove it
-                    mSelectedItems.remove(Integer.valueOf(which));
+                    // If the user checked the priority, add it to the selected priorities
+                    selectedPriorities.add(which);
+                } else if (selectedPriorities.contains(which)) {
+                    // Else, if the priority is already in the array, remove it
+                    selectedPriorities.remove(Integer.valueOf(which));
                 }
             }
         })
@@ -38,7 +38,7 @@ public class DeleteTodosDialog extends DialogFragment {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.onDeleteTodosDialogInteraction(mSelectedItems);
+                        listener.onDeleteTodosDialogInteraction(selectedPriorities);
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);
@@ -49,7 +49,7 @@ public class DeleteTodosDialog extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnDeleteTodosDialogInteractionListener) {
-            mListener = (OnDeleteTodosDialogInteractionListener) context;
+            listener = (OnDeleteTodosDialogInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnDeleteTodosDialogInteractionListener");
@@ -59,7 +59,7 @@ public class DeleteTodosDialog extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        listener = null;
     }
 
     public interface OnDeleteTodosDialogInteractionListener {

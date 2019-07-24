@@ -15,7 +15,7 @@ import java.util.Calendar;
 public class TimePickerFragment extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
-    private OnSelectTimeDialogInteractionListener mListener;
+    private OnSelectTimeDialogInteractionListener listener;
 
     @NonNull
     @Override
@@ -32,14 +32,14 @@ public class TimePickerFragment extends DialogFragment
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mListener.onSelectTimeDialogInteraction(hourOfDay, minute);
+        listener.onSelectTimeDialogInteraction(hourOfDay, minute);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnSelectTimeDialogInteractionListener) {
-            mListener = (OnSelectTimeDialogInteractionListener) context;
+            listener = (OnSelectTimeDialogInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnSelectTimeDialogInteractionListener");
@@ -49,7 +49,7 @@ public class TimePickerFragment extends DialogFragment
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        listener = null;
     }
 
     public interface OnSelectTimeDialogInteractionListener {

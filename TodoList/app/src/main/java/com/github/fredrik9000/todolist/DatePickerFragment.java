@@ -14,7 +14,7 @@ import java.util.Calendar;
 public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
-    private OnSelectDateDialogInteractionListener mListener;
+    private OnSelectDateDialogInteractionListener listener;
 
     @NonNull
     @Override
@@ -33,14 +33,14 @@ public class DatePickerFragment extends DialogFragment
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
-        mListener.onSelectDateDialogInteraction(year, month, day);
+        listener.onSelectDateDialogInteraction(year, month, day);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnSelectDateDialogInteractionListener) {
-            mListener = (OnSelectDateDialogInteractionListener) context;
+            listener = (OnSelectDateDialogInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnSelectDateDialogInteractionListener");
@@ -50,7 +50,7 @@ public class DatePickerFragment extends DialogFragment
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        listener = null;
     }
 
     public interface OnSelectDateDialogInteractionListener {
