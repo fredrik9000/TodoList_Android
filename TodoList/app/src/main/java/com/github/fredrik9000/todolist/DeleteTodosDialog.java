@@ -13,13 +13,12 @@ import java.util.ArrayList;
 
 public class DeleteTodosDialog extends DialogFragment {
 
-    private ArrayList selectedPriorities;
     private OnDeleteTodosDialogInteractionListener listener;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        selectedPriorities = new ArrayList();
+        final ArrayList<Integer> selectedPriorities = new ArrayList<>();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.delete_todo_items);
         builder.setMultiChoiceItems(R.array.priorities, null, new DialogInterface.OnMultiChoiceClickListener() {

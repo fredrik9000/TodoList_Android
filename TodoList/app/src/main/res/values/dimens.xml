@@ -1,3 +1,14 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="empty_view_text_size">24sp</dimen>
+    <dimen name="empty_view_margin">16dp</dimen>
+    <dimen name="empty_view_line_spacing_extra">8sp</dimen>
+
+    <dimen name="list_item_text_size">24sp</dimen>
+    <dimen name="list_item_padding">16dp</dimen>
+
+    <dimen name="add_edit_todo_text_description_margin">16dp</dimen>
+    <dimen name="priority_picker_margin_bottom">20dp</dimen>
+    <dimen name="notification_button_margin_bottom">12dp</dimen>
 </resources>

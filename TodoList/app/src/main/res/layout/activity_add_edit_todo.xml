@@ -1,88 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
     <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
         <data>
             <variable name="add_edit_todo" type="com.github.fredrik9000.todolist.AddEditTodoActivity"/>
         </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/addTodoCoordinatorLayout"
-    tools:context=".AddEditTodoActivity">
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/addTodoCoordinatorLayout"
+        tools:context=".AddEditTodoActivity">
+
         <ScrollView android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="top|center"
-            android:focusable="true"
-            android:focusableInTouchMode="true">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/edit_text_task_description_hint"
-                android:layout_margin="16dp">
-                <com.google.android.material.textfield.TextInputEditText
+                android:orientation="vertical"
+                android:gravity="top|center"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/addTodoEditText"
-                    android:inputType="text"
-                    android:maxLength="40"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:hint="@string/edit_text_task_description_hint"
+                    android:layout_margin="@dimen/add_edit_todo_text_description_margin">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/addTodoEditText"
+                        android:inputType="text"
+                        android:maxLength="40"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <NumberPicker
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/priorityPicker"
-                android:layout_marginBottom="20dp"></NumberPicker>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-                <Button
-                style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_notification"
-            android:layout_marginBottom="12dp"
-            android:id="@+id/addNotificationButton"
-            />
-            <Button
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/remove_notification"
-                android:layout_marginBottom="12dp"
-                android:id="@+id/removeNotificationButton"
-                android:visibility="gone"
-                />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
+                <NumberPicker
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:id="@+id/notificationTextView"
-                    />
+                    android:id="@+id/priorityPicker"
+                    android:layout_marginBottom="@dimen/priority_picker_margin_bottom"></NumberPicker>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/add_notification"
+                        android:layout_marginBottom="@dimen/notification_button_margin_bottom"
+                        android:id="@+id/addNotificationButton" />
+
+                    <Button
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/remove_notification"
+                        android:layout_marginBottom="@dimen/notification_button_margin_bottom"
+                        android:id="@+id/removeNotificationButton"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:id="@+id/notificationTextView" />
+
+                </LinearLayout>
+
             </LinearLayout>
-        </LinearLayout>
+
         </ScrollView>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabSaveTodo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:src="@drawable/ic_check_black_24dp"
-            android:layout_margin="16dp" />
+            android:layout_margin="@dimen/fab_margin" />
         <!--android:backgroundTint="@color/colorPrimary"
         android:tint="@android:color/white"
         />-->
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </layout>

@@ -19,22 +19,18 @@ public class TodoRepository {
 
     public void insert(Todo todo) {
         new InsertTodoAsyncTask(todoDao).execute(todo);
-        //todoDao.insert(todo);
     }
 
     public void insertTodoItems(List<Todo> todoList) {
         new InsertTodoListAsyncTask(todoDao, todoList).execute();
-        //todoDao.insert(todoList);
     }
 
     public void update(Todo todo) {
         new UpdateTodoAsyncTask(todoDao).execute(todo);
-        //todoDao.update(todo);
     }
 
     public void delete(Todo todo) {
         new DeleteTodoAsyncTask(todoDao).execute(todo);
-        //todoDao.delete(todo);
     }
 
     public LiveData<List<Todo>> getAllTodos() {
