@@ -201,9 +201,9 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
 
                 Snackbar snackbar = Snackbar.make(
                         coordinatorLayout,
-                        "Notification removed",
+                        R.string.notification_removed,
                         Snackbar.LENGTH_LONG
-                ).setAction("Undo", new View.OnClickListener() {
+                ).setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         addNotificationAlarm(todoDescription);
@@ -223,7 +223,7 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
                         }
                         Snackbar snackbar2 = Snackbar.make(
                                 coordinatorLayout,
-                                "Undo successful",
+                                R.string.undo_successful,
                                 Snackbar.LENGTH_SHORT
                         );
                         snackbar2.show();

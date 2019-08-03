@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
     private static final int ADD_TODO_REQUEST_CODE = 1;
     private static final int EDIT_TODO_REQUEST_CODE = 2;
-    TodoListViewModel todoListViewModel;
+    private TodoListViewModel todoListViewModel;
     private CoordinatorLayout coordinatorLayout;
     private ActionMode actionMode;
     private int lastItemLongClickedPosition;
@@ -145,15 +145,15 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
         Snackbar snackbar = Snackbar.make(
                 coordinatorLayout,
-                "Items deleted",
+                R.string.items_deleted,
                 Snackbar.LENGTH_LONG
-        ).setAction("Undo", new View.OnClickListener() {
+        ).setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
                 Snackbar snackbar2 = Snackbar.make(
                         coordinatorLayout,
-                        "Undo successful",
+                        R.string.undo_successful,
                         Snackbar.LENGTH_SHORT
                 );
                 snackbar2.show();
@@ -183,11 +183,13 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
     @Override
     public boolean onItemLongClick(int position) {
+
         if (actionMode != null) {
             return false;
         }
 
         lastItemLongClickedPosition = position;
+
         actionMode = startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
@@ -215,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
                                 R.string.item_deleted,
                                 Snackbar.LENGTH_LONG
                         ).setAction(R.string.undo, new View.OnClickListener() {
+
                             @Override
                             public void onClick(View view) {
                                 if (todoItem.isNotificationEnabled()) {
@@ -238,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
-                actionMode = null;
+                MainActivity.this.actionMode = null;
             }
         });
         return true;
