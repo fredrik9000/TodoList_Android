@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
     private int lastItemLongClickedPosition;
     private TodoAdapter adapter;
     private ActivityMainBinding binding;
+    private long lastClickedUndoTime = 0;
+    private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +153,11 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         ).setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (isUndoDoubleClicked()){
+                    return;
+                }
+                lastClickedUndoTime = SystemClock.elapsedRealtime();
+
                 todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
                 Snackbar snackbar2 = Snackbar.make(
                         coordinatorLayout,
@@ -161,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         });
         snackbar.show();
     }
-
 
     @Override
     public void onItemClick(Todo todo) {
@@ -220,6 +227,11 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
 
                             @Override
                             public void onClick(View view) {
+                                if (isUndoDoubleClicked()){
+                                    return;
+                                }
+                                lastClickedUndoTime = SystemClock.elapsedRealtime();
+
                                 if (todoItem.isNotificationEnabled()) {
                                     todoListViewModel.addNotification((AlarmManager) getSystemService(ALARM_SERVICE), todoItem);
                                 }
@@ -247,7 +259,11 @@ public class MainActivity extends AppCompatActivity implements DeleteTodosDialog
         return true;
     }
 
-    public void checkForEmptyView(List<Todo> todoList) {
+    private boolean isUndoDoubleClicked() {
+        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
+    }
+
+    private void checkForEmptyView(List<Todo> todoList) {
         if (todoList.isEmpty()) {
             binding.todoList.setVisibility(View.GONE);
             binding.emptyView.setVisibility(View.VISIBLE);

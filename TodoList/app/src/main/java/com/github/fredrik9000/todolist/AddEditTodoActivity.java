@@ -8,6 +8,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -52,6 +53,8 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
     private TextView notificationTextView;
     private Button removeNotificationButton, addNotificationButton;
     private NumberPicker priorityPicker;
+    private long lastClickedUndoTime = 0;
+    private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,6 +209,11 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
                 ).setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (isUndoDoubleClicked()){
+                            return;
+                        }
+                        lastClickedUndoTime = SystemClock.elapsedRealtime();
+
                         addNotificationAlarm(todoDescription);
 
                         notificationCalendar = Calendar.getInstance();
@@ -254,6 +262,10 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);
         }
+    }
+
+    private boolean isUndoDoubleClicked() {
+        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
     }
 
     @Override
