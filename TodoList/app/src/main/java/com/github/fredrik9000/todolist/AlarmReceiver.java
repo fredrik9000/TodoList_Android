@@ -8,13 +8,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.github.fredrik9000.todolist.model.TodoDao;
+import com.github.fredrik9000.todolist.model.TodoDatabase;
+
 public class AlarmReceiver extends BroadcastReceiver {
     public static final String TODO_DESCRIPTION = "TODO_DESCRIPTION";
+    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     private static final String NOTIFICATION_CHANNEL_ID = "main_channel";
 
     @Override
@@ -55,5 +60,22 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
 
         notificationManager.notify(0, notification);
+        TodoDatabase database = TodoDatabase.getInstance(context.getApplicationContext());
+        new UpdateTodoAsyncTaskAndDisableNotificationWithId(database.todoDao()).execute(intent.getIntExtra(NOTIFICATION_ID, 0));
+    }
+
+    private static class UpdateTodoAsyncTaskAndDisableNotificationWithId extends AsyncTask<Integer, Void, Void> {
+
+        private TodoDao todoDao;
+
+        private UpdateTodoAsyncTaskAndDisableNotificationWithId(TodoDao todoDao) {
+            this.todoDao = todoDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... notificationIds) {
+            todoDao.disableNotificationWithId(notificationIds[0]);
+            return null;
+        }
     }
 }

@@ -21,6 +21,9 @@ public interface TodoDao {
     @Update
     void update(Todo todo);
 
+    @Query("UPDATE todo_table SET notificationEnabled = 0 WHERE notificationId = :notificationId")
+    void disableNotificationWithId(int notificationId);
+
     @Delete
     void delete(Todo todo);
 

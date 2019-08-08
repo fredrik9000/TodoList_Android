@@ -22,13 +22,13 @@
                 android:orientation="vertical"
                 android:gravity="top|center"
                 android:focusable="true"
-                android:focusableInTouchMode="true">
+                android:focusableInTouchMode="true"
+                android:padding="@dimen/add_edit_todo_text_content_margin">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/edit_text_task_description_hint"
-                    android:layout_margin="@dimen/add_edit_todo_text_description_margin">
+                    android:hint="@string/edit_text_task_description_hint">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -41,20 +41,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/priorityPicker"
-                    android:layout_marginBottom="@dimen/priority_picker_margin_bottom" />
+                    android:layout_marginTop="@dimen/priority_picker_margin_top" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/notification_buttons_margin_top">
 
                     <Button
                         style="@style/Widget.AppCompat.Button.Colored"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/add_notification"
-                        android:layout_marginBottom="@dimen/notification_button_margin_bottom"
                         android:id="@+id/addNotificationButton" />
 
                     <Button
@@ -62,23 +62,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/remove_notification"
-                        android:layout_marginBottom="@dimen/notification_button_margin_bottom"
                         android:id="@+id/removeNotificationButton"
                         android:visibility="gone" />
 
                 </LinearLayout>
 
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:id="@+id/notificationTextView" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/notificationTextView"
+                    android:layout_marginTop="@dimen/notification_text_margin_top"/>
 
             </LinearLayout>
 
@@ -91,9 +85,6 @@
             android:layout_gravity="end|bottom"
             android:src="@drawable/ic_check_black_24dp"
             android:layout_margin="@dimen/fab_margin" />
-        <!--android:backgroundTint="@color/colorPrimary"
-        android:tint="@android:color/white"
-        />-->
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
