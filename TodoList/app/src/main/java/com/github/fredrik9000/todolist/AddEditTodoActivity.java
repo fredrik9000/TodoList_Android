@@ -80,7 +80,7 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         }
 
         final FloatingActionButton saveButton = binding.fabSaveTodo;
-        todoDescriptionET = binding.addTodoEditText;
+        todoDescriptionET = binding.todoDescriptionEditText;
         notificationTextView = binding.notificationTextView;
         removeNotificationButton = binding.removeNotificationButton;
         addNotificationButton = binding.addNotificationButton;

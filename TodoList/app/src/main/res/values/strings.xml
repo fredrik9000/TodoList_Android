@@ -11,10 +11,10 @@
     <string name="delete_task_button">Delete item</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="add_notification">add notification</string>
-    <string name="remove_notification">remove notification</string>
-    <string name="update_notification">update notification</string>
-    <string name="notification_time">notify: %s</string>
+    <string name="add_notification">Add notification</string>
+    <string name="remove_notification">Remove notification</string>
+    <string name="update_notification">Update notification</string>
+    <string name="notification_time">Notify: %s</string>
     <string name="delete_todo_items">Delete TODO\'s</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
     <string name="no_tasks_added">Add tasks by tapping the plus button to get started.</string>

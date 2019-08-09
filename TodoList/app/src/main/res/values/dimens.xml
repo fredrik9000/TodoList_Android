@@ -8,8 +8,9 @@
     <dimen name="list_item_text_size">24sp</dimen>
     <dimen name="list_item_padding">16dp</dimen>
 
-    <dimen name="add_edit_todo_text_content_margin">16dp</dimen>
+    <dimen name="add_edit_todo_text_content_padding">16dp</dimen>
     <dimen name="priority_picker_margin_top">24dp</dimen>
     <dimen name="notification_buttons_margin_top">24dp</dimen>
     <dimen name="notification_text_margin_top">16dp</dimen>
+    <dimen name="notification_buttons_space_divided_by_2">4dp</dimen>
 </resources>
