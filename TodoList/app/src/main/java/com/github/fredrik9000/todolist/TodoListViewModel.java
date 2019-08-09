@@ -73,8 +73,8 @@ public class TodoListViewModel extends AndroidViewModel {
     }
 
     public void removeNotification(AlarmManager alarmManager, Todo todo) {
-        Intent intent = new Intent(application.getApplicationContext(), AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(application.getApplicationContext(), todo.getNotificationId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent notificationIntent = new Intent(application.getApplicationContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(application.getApplicationContext(), todo.getNotificationId(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();
     }

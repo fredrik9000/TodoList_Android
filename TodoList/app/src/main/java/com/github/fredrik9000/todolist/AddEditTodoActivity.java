@@ -44,18 +44,20 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
     public static final String NOTIFICATION_MINUTE = "NOTIFICATION_MINUTE";
     public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
     public static final String HAS_NOTIFICATION = "HAS_NOTIFICATION";
-    private CoordinatorLayout coordinatorLayout;
-    private int day, month, year, hour, minute;
-    private int notificationId;
-    private boolean hasNotification = false;
-    private boolean hasAddedNotification = false;
-    private boolean hasRemovedNotification = false;
-    private Calendar notificationCalendar;
+    public static final String HAS_ADDED_NOTIFICATION = "HAS_ADDED_NOTIFICATION";
+    public static final String HAS_REMOVED_NOTIFICATION = "HAS_REMOVED_NOTIFICATION";
 
+    private CoordinatorLayout coordinatorLayout;
     private TextInputEditText todoDescriptionET;
     private TextView notificationTextView;
     private Button removeNotificationButton, addNotificationButton;
     private NumberPicker priorityPicker;
+
+    private int dayTemp, day, monthTemp, month, yearTemp, year, hour, minute;
+    private int notificationId;
+    private boolean hasNotification = false;
+    private boolean hasAddedNotification = false;
+    private boolean hasRemovedNotification = false;
     private long lastClickedUndoTime = 0;
     private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
@@ -66,13 +68,14 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
 
         final Intent intent = getIntent();
         int todoPriority;
-
         final String todoDescription;
 
         if (savedInstanceState != null) {
             todoDescription = savedInstanceState.getString(TODO_DESCRIPTION);
             todoPriority = savedInstanceState.getInt(TODO_PRIORITY, 1);
             hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION);
+            hasAddedNotification = savedInstanceState.getBoolean(HAS_ADDED_NOTIFICATION);
+            hasRemovedNotification = savedInstanceState.getBoolean(HAS_REMOVED_NOTIFICATION);
         } else {
             todoDescription = intent.getStringExtra(TODO_DESCRIPTION);
             todoPriority = intent.getIntExtra(TODO_PRIORITY, 1);
@@ -91,60 +94,67 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
 
         coordinatorLayout = binding.addTodoCoordinatorLayout;
 
-        if (!intent.hasExtra(TODO_ID)) { //Checks if we are adding or editing an item
+        if (intent.hasExtra(TODO_ID)) { //Checks if we are adding or editing an item
+            setTitle(R.string.title_activity_edit_todo);
+        }
+
+        if (todoDescription == null || todoDescription.length() == 0) {
             saveButton.setEnabled(false);
             saveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
-            priorityPicker.setValue(1);
         } else {
-            setTitle(R.string.title_activity_edit_todo);
             saveButton.setEnabled(true);
             saveButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
             todoDescriptionET.setText(todoDescription);
+        }
 
-            switch (todoPriority) {
-                case 0:
-                    priorityPicker.setValue(0);
-                    break;
-                case 1:
-                    priorityPicker.setValue(1);
-                    break;
-                case 2:
-                    priorityPicker.setValue(2);
-            }
+        switch (todoPriority) {
+            case 0:
+                priorityPicker.setValue(0);
+                break;
+            case 1:
+                priorityPicker.setValue(1);
+                break;
+            case 2:
+                priorityPicker.setValue(2);
+        }
 
-            if (hasNotification) {
-                if (savedInstanceState != null) {
-                    year = savedInstanceState.getInt(NOTIFICATION_YEAR, 0);
-                    month = savedInstanceState.getInt(NOTIFICATION_MONTH, 0);
-                    day = savedInstanceState.getInt(NOTIFICATION_DAY, 0);
-                    hour = savedInstanceState.getInt(NOTIFICATION_HOUR, 0);
-                    minute = savedInstanceState.getInt(NOTIFICATION_MINUTE, 0);
-                    notificationId = savedInstanceState.getInt(NOTIFICATION_ID, 0);
-                } else {
-                    year = intent.getIntExtra(NOTIFICATION_YEAR, 0);
-                    month = intent.getIntExtra(NOTIFICATION_MONTH, 0);
-                    day = intent.getIntExtra(NOTIFICATION_DAY, 0);
-                    hour = intent.getIntExtra(NOTIFICATION_HOUR, 0);
-                    minute = intent.getIntExtra(NOTIFICATION_MINUTE, 0);
-                    notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
-                }
+        if (hasNotification) {
+            if (savedInstanceState != null) {
+                year = savedInstanceState.getInt(NOTIFICATION_YEAR, 0);
+                month = savedInstanceState.getInt(NOTIFICATION_MONTH, 0);
+                day = savedInstanceState.getInt(NOTIFICATION_DAY, 0);
+                hour = savedInstanceState.getInt(NOTIFICATION_HOUR, 0);
+                minute = savedInstanceState.getInt(NOTIFICATION_MINUTE, 0);
+                notificationId = savedInstanceState.getInt(NOTIFICATION_ID, 0);
+                displayNotificationAddedState(createNotificationCalendar());
+            } else {
+                year = intent.getIntExtra(NOTIFICATION_YEAR, 0);
+                month = intent.getIntExtra(NOTIFICATION_MONTH, 0);
+                day = intent.getIntExtra(NOTIFICATION_DAY, 0);
+                hour = intent.getIntExtra(NOTIFICATION_HOUR, 0);
+                minute = intent.getIntExtra(NOTIFICATION_MINUTE, 0);
+                notificationId = intent.getIntExtra(NOTIFICATION_ID, 0);
 
-                notificationCalendar = Calendar.getInstance();
-                notificationCalendar.set(year, month, day, hour, minute, 0);
+                // Reset expired notification when first creating the activity
+                Calendar notificationCalendar = createNotificationCalendar();
                 Calendar currentTimeCalendar = Calendar.getInstance();
 
-                // If the notification has expired, reset all notification values
                 if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
-                    clearNotificationDate();
+                    year = 0;
+                    month = 0;
+                    day = 0;
+                    hour = 0;
+                    minute = 0;
                     hasNotification = false;
                     notificationId = new Random().nextInt();
                 } else {
-                    showNotificationText();
+                    displayNotificationAddedState(notificationCalendar);
                 }
-            } else {
-                // Even before a notificaiton is set, the task is given a notificaiton id
-                notificationId = new Random().nextInt();
             }
+        } else {
+            // Tasks without notification will be given a generated notification id for later use
+            // If the task is saved without a notification it wont be included
+            notificationId = new Random().nextInt();
         }
 
         todoDescriptionET.addTextChangedListener(new TextWatcher() {
@@ -178,21 +188,29 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(TODO_DESCRIPTION, todoDescriptionET.getText().toString());
                 resultIntent.putExtra(TODO_PRIORITY, priority);
-                if (intent.hasExtra(TODO_ID)) { //If we are editing an item we need to send the passed in id back
+
+                // If we are editing an existing task we need to send the passed in id back
+                if (intent.hasExtra(TODO_ID)) {
                     resultIntent.putExtra(TODO_ID, intent.getIntExtra(TODO_ID, 0));
                 }
+
                 resultIntent.putExtra(HAS_NOTIFICATION, hasNotification);
                 resultIntent.putExtra(NOTIFICATION_YEAR, year);
                 resultIntent.putExtra(NOTIFICATION_MONTH, month);
                 resultIntent.putExtra(NOTIFICATION_DAY, day);
                 resultIntent.putExtra(NOTIFICATION_HOUR, hour);
                 resultIntent.putExtra(NOTIFICATION_MINUTE, minute);
+
                 if (hasAddedNotification) {
                     addNotificationAlarm(todoDescriptionET.getText().toString());
                 } else if (hasRemovedNotification) {
                     removeNotificationAlarm();
+                }
+
+                if (!hasNotification) {
                     notificationId = 0;
                 }
+
                 resultIntent.putExtra(NOTIFICATION_ID, notificationId);
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
@@ -202,11 +220,11 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         removeNotificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNotificationButton.setText(R.string.add_notification);
-                notificationTextView.setVisibility(View.GONE);
-                removeNotificationButton.setVisibility(View.GONE);
+                displayNotificationNotAddedState();
                 hasNotification = false;
                 hasRemovedNotification = true;
+                final boolean currentHasAddedNotification = hasAddedNotification;
+                hasAddedNotification = false;
 
                 Snackbar snackbar = Snackbar.make(
                         coordinatorLayout,
@@ -219,18 +237,13 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
                             return;
                         }
                         lastClickedUndoTime = SystemClock.elapsedRealtime();
+                        // When undoing, set hasAddedNotification to what it was previously.
+                        // This is because one could be undoing either a newly added or an already existing notification.
+                        hasAddedNotification = currentHasAddedNotification;
+                        hasRemovedNotification = false;
+                        hasNotification = true;
+                        displayNotificationAddedState(createNotificationCalendar());
 
-                        notificationCalendar = Calendar.getInstance();
-                        notificationCalendar.set(year, month, day, hour, minute, 0);
-                        Calendar currentTimeCalendar = Calendar.getInstance();
-                        if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
-                            Toast.makeText(AddEditTodoActivity.this, R.string.invalid_time, Toast.LENGTH_LONG).show();
-                            hasNotification = false;
-                        } else {
-                            hasAddedNotification = true;
-                            hasNotification = true;
-                            showNotificationText();
-                        }
                         Snackbar snackbar2 = Snackbar.make(
                                 coordinatorLayout,
                                 R.string.undo_successful,
@@ -252,30 +265,41 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         });
     }
 
-    private void clearNotificationDate() {
-        year = 0;
-        month = 0;
-        day = 0;
-        hour = 0;
-        minute = 0;
+    private void displayNotificationAddedState(Calendar notificationCalendar) {
+        notificationTextView.setText(getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())));
+        notificationTextView.setVisibility(View.VISIBLE);
+        removeNotificationButton.setVisibility(View.VISIBLE);
+        addNotificationButton.setText(R.string.update_notification);
+    }
+
+    private void displayNotificationNotAddedState() {
+        addNotificationButton.setText(R.string.add_notification);
+        notificationTextView.setVisibility(View.GONE);
+        removeNotificationButton.setVisibility(View.GONE);
+    }
+
+    private Calendar createNotificationCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day, hour, minute, 0);
+        return calendar;
     }
 
     private void removeNotificationAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(AddEditTodoActivity.this.getApplicationContext(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(AddEditTodoActivity.this.getApplicationContext(), notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent notificationIntent = new Intent(AddEditTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(AddEditTodoActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();
     }
 
     private void addNotificationAlarm(String todoDescription) {
-        notificationId = new Random().nextInt();
-
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent notificationIntent = new Intent(AddEditTodoActivity.this.getApplicationContext(), AlarmReceiver.class);
         notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, todoDescription);
         notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, notificationId);
         PendingIntent broadcast = PendingIntent.getBroadcast(AddEditTodoActivity.this.getApplicationContext(), notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar notificationCalendar = createNotificationCalendar();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.getTimeInMillis(), broadcast);
@@ -290,43 +314,35 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
 
     @Override
     public void onSelectDateDialogInteraction(int year, int month, int day) {
-        this.year = year;
-        this.month = month;
-        this.day = day;
+        this.yearTemp = year;
+        this.monthTemp = month;
+        this.dayTemp = day;
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
     @Override
     public void onSelectTimeDialogInteraction(int hour, int minute) {
-        this.hour = hour;
-        this.minute = minute;
-
-        notificationCalendar = Calendar.getInstance();
-        notificationCalendar.set(year, month, day, hour, minute, 0);
+        Calendar notificationCalendar = Calendar.getInstance();
+        notificationCalendar.set(yearTemp, monthTemp, dayTemp, hour, minute, 0);
         Calendar currentTimeCalendar = Calendar.getInstance();
         if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
             Toast.makeText(this.getApplicationContext(), R.string.invalid_time, Toast.LENGTH_LONG).show();
-            hasNotification = false;
-            clearNotificationDate();
         } else {
             hasNotification = true;
-            showNotificationText();
             hasAddedNotification = true;
+            displayNotificationAddedState(notificationCalendar);
+            this.year = yearTemp;
+            this.month = monthTemp;
+            this.day = dayTemp;
+            this.hour = hour;
+            this.minute = minute;
         }
-    }
-
-    private void showNotificationText() {
-        notificationTextView.setText(getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())));
-        notificationTextView.setVisibility(View.VISIBLE);
-        removeNotificationButton.setVisibility(View.VISIBLE);
-        addNotificationButton.setText(R.string.update_notification);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(HAS_NOTIFICATION, hasNotification);
         outState.putInt(TODO_PRIORITY, priorityPicker.getValue());
         outState.putString(TODO_DESCRIPTION, todoDescriptionET.getText().toString());
         outState.putInt(NOTIFICATION_YEAR, year);
@@ -335,5 +351,8 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         outState.putInt(NOTIFICATION_HOUR, hour);
         outState.putInt(NOTIFICATION_MINUTE, minute);
         outState.putInt(NOTIFICATION_ID, notificationId);
+        outState.putBoolean(HAS_NOTIFICATION, hasNotification);
+        outState.putBoolean(HAS_ADDED_NOTIFICATION, hasAddedNotification);
+        outState.putBoolean(HAS_REMOVED_NOTIFICATION, hasRemovedNotification);
     }
 }
