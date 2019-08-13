@@ -22,6 +22,7 @@
             android:fillViewport="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/addTodoConstraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="true"
@@ -55,38 +56,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/todoDescriptionTextInputLayout" />
 
-                <Button
-                    android:id="@+id/addNotificationButton"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/notification_buttons_margin_top"
-                    android:layout_marginEnd="@dimen/notification_buttons_space_divided_by_2"
-                    android:layout_marginRight="@dimen/notification_buttons_space_divided_by_2"
-                    android:text="@string/add_notification"
-                    app:layout_constraintEnd_toStartOf="@+id/removeNotificationButton"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_chainStyle="packed"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/priorityPicker"
-                    app:layout_goneMarginEnd="0dp"
-                    app:layout_goneMarginRight="0dp" />
-
-                <Button
-                    android:id="@+id/removeNotificationButton"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
-                    android:layout_marginLeft="@dimen/notification_buttons_space_divided_by_2"
-                    android:layout_marginTop="@dimen/notification_buttons_margin_top"
-                    android:text="@string/remove_notification"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/addNotificationButton"
-                    app:layout_constraintTop_toBottomOf="@+id/priorityPicker" />
-
                 <TextView
                     android:id="@+id/notificationTextView"
                     android:layout_width="wrap_content"
@@ -95,7 +64,42 @@
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/addNotificationButton" />
+                    app:layout_constraintTop_toBottomOf="@+id/priorityPicker" />
+
+                <Button
+                    android:id="@+id/addNotificationButton"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/notification_buttons_margin_top"
+                    android:text="@string/add_notification"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/notificationTextView"
+                    app:layout_constraintWidth_default="wrap" />
+
+                <Button
+                    android:id="@+id/removeNotificationButton"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/notification_buttons_margin_top"
+                    android:text="@string/remove_notification"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/centered_vertical_guideline"
+                    android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
+                    android:layout_marginLeft="@dimen/notification_buttons_space_divided_by_2"
+                    app:layout_constraintTop_toBottomOf="@+id/notificationTextView"
+                    app:layout_constraintWidth_default="wrap"
+                    app:layout_constraintHorizontal_bias="0.0" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/centered_vertical_guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

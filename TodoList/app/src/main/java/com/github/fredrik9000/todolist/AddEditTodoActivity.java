@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
@@ -48,6 +51,7 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
     public static final String HAS_REMOVED_NOTIFICATION = "HAS_REMOVED_NOTIFICATION";
 
     private CoordinatorLayout coordinatorLayout;
+    private ConstraintLayout constraintLayout;
     private TextInputEditText todoDescriptionET;
     private TextView notificationTextView;
     private Button removeNotificationButton, addNotificationButton;
@@ -93,6 +97,7 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
         priorityPicker.setDisplayedValues(new String[]{getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority)});
 
         coordinatorLayout = binding.addTodoCoordinatorLayout;
+        constraintLayout = binding.addTodoConstraintLayout;
 
         if (intent.hasExtra(TODO_ID)) { //Checks if we are adding or editing an item
             setTitle(R.string.title_activity_edit_todo);
@@ -266,13 +271,28 @@ public class AddEditTodoActivity extends AppCompatActivity implements DatePicker
     }
 
     private void displayNotificationAddedState(Calendar notificationCalendar) {
-        notificationTextView.setText(getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())));
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(constraintLayout);
+        // When both buttons are showing, show each button on each side of the centered vertical guideline, moved towards the center
+        constraintSet.connect(R.id.addNotificationButton, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, (int)getResources().getDimension(R.dimen.notification_buttons_space_divided_by_2));
+        constraintSet.setHorizontalBias(R.id.addNotificationButton, 1.0f);
+        constraintSet.applyTo(constraintLayout);
+
+        notificationTextView.setText(Html.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
+                + getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime()))));
         notificationTextView.setVisibility(View.VISIBLE);
         removeNotificationButton.setVisibility(View.VISIBLE);
         addNotificationButton.setText(R.string.update_notification);
     }
 
     private void displayNotificationNotAddedState() {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(constraintLayout);
+        // When only the add button is showing, center it horizontally
+        constraintSet.connect(R.id.addNotificationButton, ConstraintSet.END, R.id.addTodoConstraintLayout, ConstraintSet.END, 0);
+        constraintSet.setHorizontalBias(R.id.addNotificationButton, 0.5f);
+        constraintSet.applyTo(constraintLayout);
+
         addNotificationButton.setText(R.string.add_notification);
         notificationTextView.setVisibility(View.GONE);
         removeNotificationButton.setVisibility(View.GONE);
