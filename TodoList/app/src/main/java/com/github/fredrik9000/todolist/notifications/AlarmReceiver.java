@@ -1,4 +1,4 @@
-package com.github.fredrik9000.todolist;
+package com.github.fredrik9000.todolist.notifications;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -14,6 +14,8 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.github.fredrik9000.todolist.MainActivity;
+import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.model.TodoDao;
 import com.github.fredrik9000.todolist.model.TodoDatabase;
 

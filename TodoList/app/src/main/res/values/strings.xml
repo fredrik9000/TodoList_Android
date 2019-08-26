@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">TodoList</string>
-    <string name="title_activity_main">Tasks in progress</string>
-    <string name="title_activity_add_todo">Add a task</string>
-    <string name="title_activity_edit_todo">Edit task</string>
+    <string name="title_main">Tasks in progress</string>
+    <string name="title_add_todo">Add a task</string>
+    <string name="title_edit_todo">Edit task</string>
     <string name="edit_text_task_description_hint">Task description</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
@@ -19,7 +19,6 @@
     <string name="delete_todo_items">Delete TODO\'s</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
     <string name="no_tasks_added">Add tasks by tapping the plus button to get started.</string>
-    <string name="task_update_invalid_id">Can\'t update task.</string>
     <string name="undo">Undo</string>
     <string name="item_deleted">Task deleted</string>
     <string name="items_deleted">Tasks deleted</string>

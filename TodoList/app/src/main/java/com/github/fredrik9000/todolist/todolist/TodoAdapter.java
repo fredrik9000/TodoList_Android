@@ -1,4 +1,4 @@
-package com.github.fredrik9000.todolist;
+package com.github.fredrik9000.todolist.todolist;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -35,7 +35,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
     };
     private final OnItemClickListener clickListener;
 
-    protected TodoAdapter(OnItemClickListener clickListener) {
+    TodoAdapter(OnItemClickListener clickListener) {
         super(DIFF_CALLBACK);
         this.clickListener = clickListener;
     }
@@ -78,12 +78,12 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
         return notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis();
     }
 
-    public Todo getTodoAt(int position) {
+    Todo getTodoAt(int position) {
         return getItem(position);
     }
 
     public interface OnItemClickListener {
-        void onItemClick(Todo todo);
+        void onItemClick(View view, Todo todo);
 
         boolean onItemLongClick(int position);
     }
@@ -104,7 +104,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if (clickListener != null && position != RecyclerView.NO_POSITION) {
-                        clickListener.onItemClick(getItem(position));
+                        clickListener.onItemClick(view, getItem(position));
                     }
                 }
             });

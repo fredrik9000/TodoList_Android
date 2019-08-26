@@ -1,18 +1,22 @@
-package com.github.fredrik9000.todolist;
+package com.github.fredrik9000.todolist.todolist;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.github.fredrik9000.todolist.R;
 
 import java.util.ArrayList;
 
 public class DeleteTodosDialog extends DialogFragment {
 
+    private static final String TAG = "DeleteTodosDialog";
     private OnDeleteTodosDialogInteractionListener listener;
 
     @NonNull
@@ -47,11 +51,11 @@ public class DeleteTodosDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnDeleteTodosDialogInteractionListener) {
-            listener = (OnDeleteTodosDialogInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnDeleteTodosDialogInteractionListener");
+
+        try {
+            listener = (OnDeleteTodosDialogInteractionListener) getTargetFragment();
+        } catch (ClassCastException e) {
+            Log.e(TAG, "onAttach: ClassCastException" + e.getMessage());
         }
     }
 

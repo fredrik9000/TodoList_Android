@@ -1,9 +1,10 @@
-package com.github.fredrik9000.todolist;
+package com.github.fredrik9000.todolist.add_edit_todo;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.DatePicker;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import java.util.Calendar;
 public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
+    private static final String TAG = "DatePickerFragment";
     private OnSelectDateDialogInteractionListener listener;
 
     @NonNull
@@ -39,11 +41,11 @@ public class DatePickerFragment extends DialogFragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnSelectDateDialogInteractionListener) {
-            listener = (OnSelectDateDialogInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSelectDateDialogInteractionListener");
+
+        try {
+            listener = (OnSelectDateDialogInteractionListener) getTargetFragment();
+        } catch (ClassCastException e) {
+            Log.e(TAG, "onAttach: ClassCastException : " + e.getMessage());
         }
     }
 

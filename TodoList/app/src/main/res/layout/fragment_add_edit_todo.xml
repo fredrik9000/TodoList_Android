@@ -3,18 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="add_edit_todo"
-            type="com.github.fredrik9000.todolist.AddEditTodoActivity" />
-    </data>
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/addTodoCoordinatorLayout"
+        android:id="@+id/addEditTodoCoordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".AddEditTodoActivity">
+        tools:context=".add_edit_todo.AddEditTodoFragment">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -22,7 +15,7 @@
             android:fillViewport="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/addTodoConstraintLayout"
+                android:id="@+id/addEditTodoConstraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="true"
@@ -83,16 +76,16 @@
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
+                    android:layout_marginLeft="@dimen/notification_buttons_space_divided_by_2"
                     android:layout_marginTop="@dimen/notification_buttons_margin_top"
                     android:text="@string/remove_notification"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/centered_vertical_guideline"
-                    android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
-                    android:layout_marginLeft="@dimen/notification_buttons_space_divided_by_2"
                     app:layout_constraintTop_toBottomOf="@+id/notificationTextView"
-                    app:layout_constraintWidth_default="wrap"
-                    app:layout_constraintHorizontal_bias="0.0" />
+                    app:layout_constraintWidth_default="wrap" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/centered_vertical_guideline"
@@ -106,7 +99,7 @@
         </ScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabSaveTodo"
+            android:id="@+id/saveTodoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"

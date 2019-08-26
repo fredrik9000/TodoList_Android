@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
-        <variable name="todo" type="com.github.fredrik9000.todolist.model.Todo"/>
-    </data>
-
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/parent_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/parent_layout"
+        android:orientation="horizontal"
         android:padding="@dimen/list_item_padding">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text1"
-            android:textSize="@dimen/list_item_text_size"
-            android:text="@{todo.description}"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="?android:attr/listPreferredItemHeightSmall"
-            android:textAppearance="?android:attr/textAppearance"
-            android:gravity="center_vertical"
+            android:layout_weight="1"
             android:ellipsize="end"
-            android:maxLines="1"/>
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="@{todo.description}"
+            android:textAppearance="?android:attr/textAppearance"
+            android:textSize="@dimen/list_item_text_size" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/alarmImageView"
-            android:layout_gravity="center_vertical|end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
             android:src="@drawable/ic_notifications_active_black_24dp"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
     </LinearLayout>
+
+    <data>
+
+        <variable
+            name="todo"
+            type="com.github.fredrik9000.todolist.model.Todo" />
+    </data>
 
 </layout>

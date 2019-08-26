@@ -1,10 +1,11 @@
-package com.github.fredrik9000.todolist;
+package com.github.fredrik9000.todolist.add_edit_todo;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 public class TimePickerFragment extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener {
 
+    private static final String TAG = "TimePickerFragment";
     private OnSelectTimeDialogInteractionListener listener;
 
     @NonNull
@@ -38,11 +40,11 @@ public class TimePickerFragment extends DialogFragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnSelectTimeDialogInteractionListener) {
-            listener = (OnSelectTimeDialogInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnSelectTimeDialogInteractionListener");
+
+        try {
+            listener = (OnSelectTimeDialogInteractionListener) getTargetFragment();
+        } catch (ClassCastException e) {
+            Log.e(TAG, "onAttach: ClassCastException" + e.getMessage());
         }
     }
 

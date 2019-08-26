@@ -1,45 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <data>
-        <variable name="todo_list" type="com.github.fredrik9000.todolist.MainActivity"/>
-    </data>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:tools="http://schemas.android.com/tools"
+    <fragment
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/coordinatorLayout"
-        tools:context=".MainActivity">
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/navigation_graph" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/todoList"
-            tools:listitem="@layout/listview_item"/>
-
-        <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
-            android:text="@string/no_tasks_added"
-            android:textSize="@dimen/empty_view_text_size"
-            android:layout_margin="@dimen/empty_view_margin"
-            android:lineSpacingExtra="@dimen/empty_view_line_spacing_extra"/>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/ic_add_black_24dp"
-            android:layout_margin="@dimen/fab_margin" />
-            <!--android:backgroundTint="@color/colorPrimary"
-            android:tint="@android:color/white"
-            />-->
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</layout>
+</merge>
