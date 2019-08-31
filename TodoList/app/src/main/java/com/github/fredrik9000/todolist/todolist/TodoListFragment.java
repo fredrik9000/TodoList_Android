@@ -27,7 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.fredrik9000.todolist.R;
-import com.github.fredrik9000.todolist.databinding.FragmentMainBinding;
+import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding;
 import com.github.fredrik9000.todolist.model.Todo;
 import com.github.fredrik9000.todolist.notifications.NotificationUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,9 +36,9 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainFragment extends Fragment implements TodoAdapter.OnItemClickListener, DeleteTodosDialog.OnDeleteTodosDialogInteractionListener {
+public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInteractionListener, DeleteTodosDialog.OnDeleteTodosDialogInteractionListener {
 
-    private FragmentMainBinding binding;
+    private FragmentTodoListBinding binding;
     private TodoListViewModel todoListViewModel;
     private ActionMode actionMode;
     private TodoAdapter adapter;
@@ -46,7 +46,7 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
     private long lastClickedUndoTime = 0;
     private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
-    public MainFragment() {
+    public TodoListFragment() {
         // Required empty public constructor
     }
 
@@ -59,7 +59,7 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo_list, container, false);
         return binding.getRoot();
     }
 
@@ -80,7 +80,7 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
         final FloatingActionButton fab = binding.fab;
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                MainFragmentDirections.ActionMainFragmentToAddEditTodoFragment action = MainFragmentDirections.actionMainFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "");
+                TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "");
                 Navigation.findNavController(view).navigate(action);
             }
         });
@@ -107,7 +107,7 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
 
         if (id == R.id.deletecCoreMenuButton) {
             DeleteTodosDialog deleteTodosDialog = new DeleteTodosDialog();
-            deleteTodosDialog.setTargetFragment(MainFragment.this, 1);
+            deleteTodosDialog.setTargetFragment(TodoListFragment.this, 1);
             deleteTodosDialog.show(getFragmentManager(), "DeleteTodosDialog");
             return true;
         }
@@ -116,7 +116,12 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
 
     @Override
     public void onItemClick(View view, Todo todo) {
-        MainFragmentDirections.ActionMainFragmentToAddEditTodoFragment action = MainFragmentDirections.actionMainFragmentToAddEditTodoFragment(getString(R.string.title_edit_todo), "");
+        // Tasks in completed state can't be edited
+        if (todo.isCompleted()) {
+            return;
+        }
+
+        TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_edit_todo), "");
         action.setId(todo.getId());
         action.setDescription(todo.getDescription());
         action.setPriority(todo.getPriority());
@@ -196,10 +201,35 @@ public class MainFragment extends Fragment implements TodoAdapter.OnItemClickLis
 
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
-                MainFragment.this.actionMode = null;
+                TodoListFragment.this.actionMode = null;
             }
         });
         return true;
+    }
+
+    @Override
+    public void onCompletedChecked(Todo todo) {
+        todo.setCompleted(true);
+
+        // If a notification was active for the completed task, remove it.
+        if (todo.isNotificationEnabled()) {
+            NotificationUtil.removeNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId());
+            todo.setNotificationEnabled(false);
+            todo.setNotificationId(0);
+            todo.setNotifyYear(0);
+            todo.setNotifyMonth(0);
+            todo.setNotifyDay(0);
+            todo.setNotifyHour(0);
+            todo.setNotifyMinute(0);
+        }
+
+        todoListViewModel.update(todo);
+    }
+
+    @Override
+    public void onCompletedUnchecked(Todo todo) {
+        todo.setCompleted(false);
+        todoListViewModel.update(todo);
     }
 
     @Override

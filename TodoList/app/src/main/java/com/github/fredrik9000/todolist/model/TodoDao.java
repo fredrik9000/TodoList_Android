@@ -27,6 +27,6 @@ public interface TodoDao {
     @Delete
     void delete(Todo todo);
 
-    @Query("SELECT * FROM todo_table ORDER BY priority DESC, description ASC")
+    @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, description ASC")
     LiveData<List<Todo>> getAllTodos();
 }

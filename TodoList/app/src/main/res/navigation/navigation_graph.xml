@@ -7,11 +7,11 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.github.fredrik9000.todolist.todolist.MainFragment"
+        android:name="com.github.fredrik9000.todolist.todolist.TodoListFragment"
         android:label="@string/title_main"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_todo_list" >
         <action
-            android:id="@+id/action_mainFragment_to_addEditTodoFragment"
+            android:id="@+id/action_todoListFragment_to_addEditTodoFragment"
             app:destination="@id/addEditTodoFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />

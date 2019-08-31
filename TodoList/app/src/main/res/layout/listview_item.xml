@@ -1,32 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:id="@+id/parent_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/list_item_padding">
+        android:paddingTop="@dimen/list_item_vertical_padding"
+        android:paddingBottom="@dimen/list_item_vertical_padding"
+        android:paddingLeft="@dimen/list_item_horizontal_padding"
+        android:paddingRight="@dimen/list_item_horizontal_padding">
+
+        <CheckBox
+            android:id="@+id/complete_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:checked="@{todo.isCompleted}" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/text1"
+            android:id="@+id/description_text_view"
             android:layout_width="0dp"
             android:layout_height="?android:attr/listPreferredItemHeightSmall"
             android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/list_item_text_horizontal_margin"
+            android:layout_marginRight="@dimen/list_item_text_horizontal_margin"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:text="@{todo.description}"
             android:textAppearance="?android:attr/textAppearance"
-            android:textSize="@dimen/list_item_text_size" />
+            android:textSize="@dimen/list_item_text_size"
+            tools:text="Todo title goes here" />
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/alarmImageView"
+            android:id="@+id/alarm_image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|end"
             android:src="@drawable/ic_notifications_active_black_24dp"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            tools:visibility="visible" />
 
     </LinearLayout>
 

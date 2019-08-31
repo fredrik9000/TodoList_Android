@@ -20,7 +20,6 @@ import androidx.navigation.Navigation;
 
 import android.os.SystemClock;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -322,7 +321,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     }
 
     private Todo createTodoItem() {
-        return new Todo(binding.todoDescriptionEditText.getText().toString(), binding.priorityPicker.getValue(), notificationId, hasNotification, year, month, day, hour, minute);
+        return new Todo(binding.todoDescriptionEditText.getText().toString(), binding.priorityPicker.getValue(), notificationId, hasNotification, year, month, day, hour, minute, false);
     }
 
     private boolean isUndoDoubleClicked() {
@@ -334,8 +333,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         constraintSet.clone(binding.addEditTodoConstraintLayout);
 
         // When both buttons are showing, show each button on each side of the centered vertical guideline, moved towards the center
-        constraintSet.connect(R.id.addNotificationButton, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, (int)getResources().getDimension(R.dimen.notification_buttons_space_divided_by_2));
-        constraintSet.setHorizontalBias(R.id.addNotificationButton, 1.0f);
+        constraintSet.connect(R.id.add_notification_button, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, (int)getResources().getDimension(R.dimen.notification_buttons_space_divided_by_2));
+        constraintSet.setHorizontalBias(R.id.add_notification_button, 1.0f);
         constraintSet.applyTo(binding.addEditTodoConstraintLayout);
 
         binding.notificationTextView.setText(HtmlCompat.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
@@ -350,8 +349,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         constraintSet.clone(binding.addEditTodoConstraintLayout);
 
         // When only the add button is showing, center it horizontally
-        constraintSet.connect(R.id.addNotificationButton, ConstraintSet.END, R.id.addEditTodoConstraintLayout, ConstraintSet.END, 0);
-        constraintSet.setHorizontalBias(R.id.addNotificationButton, 0.5f);
+        constraintSet.connect(R.id.add_notification_button, ConstraintSet.END, R.id.add_edit_todo_constraint_layout, ConstraintSet.END, 0);
+        constraintSet.setHorizontalBias(R.id.add_notification_button, 0.5f);
         constraintSet.applyTo(binding.addEditTodoConstraintLayout);
 
         binding.addNotificationButton.setText(R.string.add_notification);

@@ -30,6 +30,10 @@ public class TodoListViewModel extends AndroidViewModel {
         repository.insert(todo);
     }
 
+    void update(Todo todo) {
+        repository.update(todo);
+    }
+
     void delete(Todo todo) {
         repository.delete(todo);
     }

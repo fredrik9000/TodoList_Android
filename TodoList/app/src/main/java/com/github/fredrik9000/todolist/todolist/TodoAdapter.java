@@ -1,11 +1,14 @@
 package com.github.fredrik9000.todolist.todolist;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -30,14 +33,15 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             return oldItem.getDescription().equals(newItem.getDescription()) &&
                     oldItem.getPriority() == newItem.getPriority() &&
                     oldItem.isNotificationEnabled() == newItem.isNotificationEnabled() &&
-                    oldItem.getNotificationId() == newItem.getNotificationId();
+                    oldItem.getNotificationId() == newItem.getNotificationId() &&
+                    oldItem.isCompleted() == newItem.isCompleted();
         }
     };
-    private final OnItemClickListener clickListener;
+    private final OnItemInteractionListener interactionListener;
 
-    TodoAdapter(OnItemClickListener clickListener) {
+    TodoAdapter(OnItemInteractionListener interactionListener) {
         super(DIFF_CALLBACK);
-        this.clickListener = clickListener;
+        this.interactionListener = interactionListener;
     }
 
     @NonNull
@@ -69,6 +73,10 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
         } else {
             todoItemViewHolder.alarmImageView.setVisibility(View.INVISIBLE);
         }
+
+        if (todoItem.isCompleted()) {
+            todoItemViewHolder.descriptionTextView.setPaintFlags(todoItemViewHolder.descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
     }
 
     private boolean isNotificationExpired(Todo todo) {
@@ -82,20 +90,23 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
         return getItem(position);
     }
 
-    public interface OnItemClickListener {
+    public interface OnItemInteractionListener {
         void onItemClick(View view, Todo todo);
-
         boolean onItemLongClick(int position);
+        void onCompletedChecked(Todo todo);
+        void onCompletedUnchecked(Todo todo);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private final ListviewItemBinding binding;
+        TextView descriptionTextView;
         ImageView alarmImageView;
         LinearLayout parentLayout;
 
-        ViewHolder(ListviewItemBinding binding) {
+        ViewHolder(final ListviewItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            descriptionTextView = binding.descriptionTextView;
             alarmImageView = binding.alarmImageView;
             parentLayout = binding.parentLayout;
 
@@ -103,8 +114,8 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    if (clickListener != null && position != RecyclerView.NO_POSITION) {
-                        clickListener.onItemClick(view, getItem(position));
+                    if (interactionListener != null && position != RecyclerView.NO_POSITION) {
+                        interactionListener.onItemClick(view, getItem(position));
                     }
                 }
             });
@@ -113,10 +124,25 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                 @Override
                 public boolean onLongClick(View view) {
                     int position = getAdapterPosition();
-                    if (clickListener != null && position != RecyclerView.NO_POSITION) {
-                        return clickListener.onItemLongClick(position);
+                    if (interactionListener != null && position != RecyclerView.NO_POSITION) {
+                        return interactionListener.onItemLongClick(position);
                     } else {
                         return false;
+                    }
+                }
+            });
+
+            binding.completeCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    int position = getAdapterPosition();
+                    if (isChecked) {
+                        binding.descriptionTextView.setPaintFlags(descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        binding.alarmImageView.setVisibility(View.INVISIBLE);
+                        interactionListener.onCompletedChecked(getItem(position));
+                    } else {
+                        binding.descriptionTextView.setPaintFlags(descriptionTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                        interactionListener.onCompletedUnchecked(getItem(position));
                     }
                 }
             });
