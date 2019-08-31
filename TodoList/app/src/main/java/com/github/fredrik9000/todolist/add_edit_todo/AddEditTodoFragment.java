@@ -10,6 +10,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -108,7 +110,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         } else {
             binding.saveTodoButton.setEnabled(true);
-            binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this.getContext(), R.color.colorAccent)));
             binding.todoDescriptionEditText.setText(todoDescription);
         }
 
@@ -222,7 +224,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
                 binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
             } else {
                 binding.saveTodoButton.setEnabled(true);
-                binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(AddEditTodoFragment.this.getContext(), R.color.colorAccent)));
             }
         }
 
@@ -336,8 +338,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         constraintSet.setHorizontalBias(R.id.addNotificationButton, 1.0f);
         constraintSet.applyTo(binding.addEditTodoConstraintLayout);
 
-        binding.notificationTextView.setText(Html.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
-                + getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime()))));
+        binding.notificationTextView.setText(HtmlCompat.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
+                + getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())), HtmlCompat.FROM_HTML_MODE_LEGACY));
         binding.notificationTextView.setVisibility(View.VISIBLE);
         binding.removeNotificationButton.setVisibility(View.VISIBLE);
         binding.addNotificationButton.setText(R.string.update_notification);
