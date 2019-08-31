@@ -34,27 +34,36 @@ public class TodoListViewModel extends AndroidViewModel {
         repository.update(todo);
     }
 
-    void delete(Todo todo) {
-        repository.delete(todo);
-    }
-
     LiveData<List<Todo>> getTodoList() {
         return todoList;
     }
 
-    List<Todo> deleteTodosWithPriorities(ArrayList<Integer> priorities, AlarmManager alarmManager) {
+    List<Todo> deleteAllTodoItems(AlarmManager alarmManager) {
         final List<Todo> removedTodoItems = new ArrayList<>();
         for (Todo todo : todoList.getValue()) {
-            if (priorities.contains(todo.getPriority())) {
-                removedTodoItems.add(todo);
-                if (todo.isNotificationEnabled()) {
-                    NotificationUtil.removeNotification(application.getApplicationContext(), alarmManager, todo.getNotificationId());
-                }
+            removedTodoItems.add(todo);
+            deleteTodo(alarmManager, todo);
+        }
+        return removedTodoItems;
+    }
 
-                repository.delete(todo);
+    List<Todo> deleteCompletedTodoItems(AlarmManager alarmManager) {
+        final List<Todo> removedTodoItems = new ArrayList<>();
+        for (Todo todo : todoList.getValue()) {
+            if (todo.isCompleted()) {
+                removedTodoItems.add(todo);
+                deleteTodo(alarmManager, todo);
             }
         }
         return removedTodoItems;
+    }
+
+    void deleteTodo(AlarmManager alarmManager, Todo todo) {
+        if (todo.isNotificationEnabled()) {
+            NotificationUtil.removeNotification(application.getApplicationContext(), alarmManager, todo.getNotificationId());
+        }
+
+        repository.delete(todo);
     }
 
     void insertTodoItems(List<Todo> todoListItems, AlarmManager alarmManager) {

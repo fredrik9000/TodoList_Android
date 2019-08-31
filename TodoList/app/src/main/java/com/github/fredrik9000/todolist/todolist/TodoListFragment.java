@@ -33,10 +33,9 @@ import com.github.fredrik9000.todolist.notifications.NotificationUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInteractionListener, DeleteTodosDialog.OnDeleteTodosDialogInteractionListener {
+public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInteractionListener {
 
     private FragmentTodoListBinding binding;
     private TodoListViewModel todoListViewModel;
@@ -105,13 +104,53 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.deletecCoreMenuButton) {
-            DeleteTodosDialog deleteTodosDialog = new DeleteTodosDialog();
-            deleteTodosDialog.setTargetFragment(TodoListFragment.this, 1);
-            deleteTodosDialog.show(getFragmentManager(), "DeleteTodosDialog");
+        if (id == R.id.delete_all_tasks_menu_item) {
+            final AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+            final List<Todo> removedTodoListItems = todoListViewModel.deleteAllTodoItems(alarmManager);
+
+            if (removedTodoListItems.size() == 0) {
+                return super.onOptionsItemSelected(item);
+            }
+
+            showDeletedItemsSnackbarWithUndo(removedTodoListItems, alarmManager);
+            return true;
+        } else if (id == R.id.delete_completed_tasks_menu_item) {
+            final AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+            final List<Todo> removedTodoListItems = todoListViewModel.deleteCompletedTodoItems(alarmManager);
+
+            if (removedTodoListItems.size() == 0) {
+                return super.onOptionsItemSelected(item);
+            }
+
+            showDeletedItemsSnackbarWithUndo(removedTodoListItems, alarmManager);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDeletedItemsSnackbarWithUndo(final List<Todo> removedTodoListItems, final AlarmManager alarmManager) {
+        Snackbar snackbar = Snackbar.make(
+                binding.coordinatorLayout,
+                R.string.items_deleted,
+                Snackbar.LENGTH_LONG
+        ).setAction(R.string.undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isUndoDoubleClicked()) {
+                    return;
+                }
+                lastClickedUndoTime = SystemClock.elapsedRealtime();
+
+                todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
+                Snackbar snackbar2 = Snackbar.make(
+                        binding.coordinatorLayout,
+                        R.string.undo_successful,
+                        Snackbar.LENGTH_SHORT
+                );
+                snackbar2.show();
+            }
+        });
+        snackbar.show();
     }
 
     @Override
@@ -163,10 +202,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.menu_delete) {
                     final Todo todo = adapter.getTodoAt(lastItemLongClickedPosition);
-                    if (todo.isNotificationEnabled()) {
-                        NotificationUtil.removeNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId());
-                    }
-                    todoListViewModel.delete(todo);
+                    todoListViewModel.deleteTodo((AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo);
                     actionMode.finish();
                     Snackbar snackbar = Snackbar.make(
                             binding.coordinatorLayout,
@@ -230,40 +266,6 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     public void onCompletedUnchecked(Todo todo) {
         todo.setCompleted(false);
         todoListViewModel.update(todo);
-    }
-
-    @Override
-    public void onDeleteTodosDialogInteraction(ArrayList<Integer> priorities) {
-        final AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        final List<Todo> removedTodoListItems = todoListViewModel.deleteTodosWithPriorities(priorities, alarmManager);
-
-        //The selected priorities didn't match any of the tasks, so no items will be removed.
-        if (removedTodoListItems.size() == 0) {
-            return;
-        }
-
-        Snackbar snackbar = Snackbar.make(
-                binding.coordinatorLayout,
-                R.string.items_deleted,
-                Snackbar.LENGTH_LONG
-        ).setAction(R.string.undo, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isUndoDoubleClicked()){
-                    return;
-                }
-                lastClickedUndoTime = SystemClock.elapsedRealtime();
-
-                todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
-                Snackbar snackbar2 = Snackbar.make(
-                        binding.coordinatorLayout,
-                        R.string.undo_successful,
-                        Snackbar.LENGTH_SHORT
-                );
-                snackbar2.show();
-            }
-        });
-        snackbar.show();
     }
 
     private boolean isUndoDoubleClicked() {

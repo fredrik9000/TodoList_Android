@@ -1,27 +1,29 @@
 <resources>
     <string name="app_name">TodoList</string>
-    <string name="title_main">Tasks in progress</string>
+
+    <string name="title_main">Things to do</string>
     <string name="title_add_todo">Add a task</string>
     <string name="title_edit_todo">Edit task</string>
+    <string name="no_tasks_added">Add tasks by tapping the plus button to get started.</string>
+
+    <string name="delete_task_button">Delete item</string>
+    <string name="item_deleted">Task deleted</string>
+    <string name="items_deleted">Tasks deleted</string>
+    <string name="undo">Undo</string>
+    <string name="undo_successful">Undo successful</string>
+
     <string name="edit_text_task_description_hint">Task description</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>
-    <string name="delete_tasks_button">Delete tasks</string>
-    <string name="delete_task_button">Delete item</string>
-    <string name="cancel">Cancel</string>
-    <string name="ok">OK</string>
     <string name="add_notification">Add notification</string>
     <string name="remove_notification">Remove notification</string>
     <string name="update_notification">Update notification</string>
     <string name="notification_pretext">Notify:</string>
     <string name="notification_time">%s</string>
-    <string name="delete_todo_items">Delete TODO\'s</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
-    <string name="no_tasks_added">Add tasks by tapping the plus button to get started.</string>
-    <string name="undo">Undo</string>
-    <string name="item_deleted">Task deleted</string>
-    <string name="items_deleted">Tasks deleted</string>
-    <string name="undo_successful">Undo successful</string>
     <string name="notification_removed">Notification removed</string>
+
+    <string name="delete_completed_tasks_menu_item">Clear completed</string>
+    <string name="delete_all_tasks_menu_item">Clear all</string>
 </resources>

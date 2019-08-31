@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/deletecCoreMenuButton"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/delete_tasks_button"
-        app:showAsAction="ifRoom" />
-    <!--<item
-        android:id="@+id/addcCoreMenuButton"
-        app:showAsAction="always"
-        android:icon="@android:drawable/ic_menu_add"
-        android:title="add task"
-        />-->
+        android:id="@+id/delete_completed_tasks_menu_item"
+        android:title="@string/delete_completed_tasks_menu_item"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/delete_all_tasks_menu_item"
+        android:title="@string/delete_all_tasks_menu_item"
+        app:showAsAction="never" />
+
 </menu>
