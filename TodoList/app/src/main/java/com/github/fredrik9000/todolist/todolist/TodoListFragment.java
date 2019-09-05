@@ -276,12 +276,14 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
     }
 
+    // Not setting the list to GONE or INVISIBLE due to a bug with the FAB in AddEditTodoFragment when there is no visible list.
+    // The bug is that when editing a new task (in which case the task list would have been invisible),
+    // then when selecting the EditText (without selecting anything else first) the FAB doesn't float up above the keyboard.
+    // However, when there is a visible list the FAB works as it should.
     private void checkForEmptyView(List<Todo> todoList) {
         if (todoList.isEmpty()) {
-            binding.todoList.setVisibility(View.GONE);
             binding.emptyView.setVisibility(View.VISIBLE);
         } else {
-            binding.todoList.setVisibility(View.VISIBLE);
             binding.emptyView.setVisibility(View.GONE);
         }
     }
