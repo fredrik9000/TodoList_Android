@@ -76,6 +76,8 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
         if (todoItem.isCompleted()) {
             todoItemViewHolder.descriptionTextView.setPaintFlags(todoItemViewHolder.descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            todoItemViewHolder.descriptionTextView.setPaintFlags(todoItemViewHolder.descriptionTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
     }
 
@@ -93,8 +95,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
     public interface OnItemInteractionListener {
         void onItemClick(View view, Todo todo);
         boolean onItemLongClick(int position);
-        void onCompletedChecked(Todo todo);
-        void onCompletedUnchecked(Todo todo);
+        void onCompletedToggled(Todo todo, boolean isChecked);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -135,15 +136,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             binding.completeCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    int position = getAdapterPosition();
-                    if (isChecked) {
-                        binding.descriptionTextView.setPaintFlags(descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        binding.alarmImageView.setVisibility(View.INVISIBLE);
-                        interactionListener.onCompletedChecked(getItem(position));
-                    } else {
-                        binding.descriptionTextView.setPaintFlags(descriptionTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-                        interactionListener.onCompletedUnchecked(getItem(position));
-                    }
+                    interactionListener.onCompletedToggled(getItem(getAdapterPosition()), isChecked);
                 }
             });
         }

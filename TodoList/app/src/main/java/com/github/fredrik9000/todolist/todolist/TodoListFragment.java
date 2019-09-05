@@ -244,28 +244,15 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     }
 
     @Override
-    public void onCompletedChecked(Todo todo) {
-        todo.setCompleted(true);
-
-        // If a notification was active for the completed task, remove it.
-        if (todo.isNotificationEnabled()) {
+    public void onCompletedToggled(Todo todo, boolean isChecked) {
+        // If a notification is active for the completed task, remove it.
+        if (isChecked && todo.isNotificationEnabled()) {
             NotificationUtil.removeNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId());
-            todo.setNotificationEnabled(false);
-            todo.setNotificationId(0);
-            todo.setNotifyYear(0);
-            todo.setNotifyMonth(0);
-            todo.setNotifyDay(0);
-            todo.setNotifyHour(0);
-            todo.setNotifyMinute(0);
         }
 
-        todoListViewModel.update(todo);
-    }
-
-    @Override
-    public void onCompletedUnchecked(Todo todo) {
-        todo.setCompleted(false);
-        todoListViewModel.update(todo);
+        Todo todoUpdated = new Todo(todo.getDescription(), todo.getPriority(), 0, false, 0, 0, 0, 0, 0, isChecked);
+        todoUpdated.setId(todo.getId());
+        todoListViewModel.update(todoUpdated);
     }
 
     private boolean isUndoDoubleClicked() {
