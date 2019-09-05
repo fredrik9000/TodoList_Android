@@ -25,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding;
@@ -72,12 +73,11 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         recyclerView.setLayoutManager(layoutManager);
         adapter = new TodoAdapter(this);
         recyclerView.setAdapter(adapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        final FloatingActionButton fab = binding.fab;
-        fab.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton addTodoButton = binding.addTodoButton;
+        addTodoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "");
                 Navigation.findNavController(view).navigate(action);
@@ -92,6 +92,12 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
                 checkForEmptyView(todoList);
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        hideSoftKeyboard();
     }
 
     @Override
@@ -253,6 +259,17 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         Todo todoUpdated = new Todo(todo.getDescription(), todo.getPriority(), 0, false, 0, 0, 0, 0, 0, isChecked);
         todoUpdated.setId(todo.getId());
         todoListViewModel.update(todoUpdated);
+    }
+
+    private void hideSoftKeyboard() {
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            // Verify if the soft keyboard is open
+            if(imm != null && imm.isAcceptingText()) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 
     private boolean isUndoDoubleClicked() {
