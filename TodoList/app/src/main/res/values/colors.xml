@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>-->
-    <color name="colorPrimary">#373737</color>
-    <color name="colorPrimaryDark">#000</color>
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#002984</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="color_title">#FFF</color>
+
+    <color name="color_title">#FFFFFF</color>
+
+    <color name="high_priority">#FF0000</color>
+    <color name="medium_priority">#00D000</color>
+    <color name="low_priority">#B0B0FF</color>
+
+    <color name="notification_active_icon">#000000</color>
+    <color name="color_fab_tint">#FFFFFF</color>
+
 </resources>

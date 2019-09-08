@@ -1,4 +1,5 @@
 <resources>
+
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="empty_view_text_size">24sp</dimen>
@@ -15,4 +16,5 @@
     <dimen name="notification_buttons_margin_top">24dp</dimen>
     <dimen name="notification_text_margin_top">24dp</dimen>
     <dimen name="notification_buttons_space_divided_by_2">8dp</dimen>
+
 </resources>

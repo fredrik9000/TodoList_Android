@@ -1,26 +1,27 @@
 package com.github.fredrik9000.todolist.todolist;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.ListviewItemBinding;
 import com.github.fredrik9000.todolist.model.Todo;
 
 import java.util.Calendar;
 
 public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
+
+    private Context context;
 
     private static final DiffUtil.ItemCallback<Todo> DIFF_CALLBACK = new DiffUtil.ItemCallback<Todo>() {
         @Override
@@ -39,9 +40,10 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
     };
     private final OnItemInteractionListener interactionListener;
 
-    TodoAdapter(OnItemInteractionListener interactionListener) {
+    TodoAdapter(Context context, OnItemInteractionListener interactionListener) {
         super(DIFF_CALLBACK);
         this.interactionListener = interactionListener;
+        this.context = context;
     }
 
     @NonNull
@@ -59,25 +61,25 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
         switch (todoItem.getPriority()) {
             case 0:
-                todoItemViewHolder.itemView.setBackgroundColor(Color.rgb(244, 244, 244));
+                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.low_priority));
                 break;
             case 1:
-                todoItemViewHolder.itemView.setBackgroundColor(Color.rgb(220, 208, 192));
+                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.medium_priority));
                 break;
             case 2:
-                todoItemViewHolder.itemView.setBackgroundColor(Color.rgb(192, 178, 131));
+                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.high_priority));
         }
 
         if (todoItem.isNotificationEnabled() && !isNotificationExpired(todoItem)) {
-            todoItemViewHolder.alarmImageView.setVisibility(View.VISIBLE);
+            todoItemViewHolder.binding.alarmImageView.setVisibility(View.VISIBLE);
         } else {
-            todoItemViewHolder.alarmImageView.setVisibility(View.INVISIBLE);
+            todoItemViewHolder.binding.alarmImageView.setVisibility(View.INVISIBLE);
         }
 
         if (todoItem.isCompleted()) {
-            todoItemViewHolder.descriptionTextView.setPaintFlags(todoItemViewHolder.descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            todoItemViewHolder.binding.descriptionTextView.setPaintFlags(todoItemViewHolder.binding.descriptionTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            todoItemViewHolder.descriptionTextView.setPaintFlags(todoItemViewHolder.descriptionTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            todoItemViewHolder.binding.descriptionTextView.setPaintFlags(todoItemViewHolder.binding.descriptionTextView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
     }
 
@@ -100,18 +102,12 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private final ListviewItemBinding binding;
-        TextView descriptionTextView;
-        ImageView alarmImageView;
-        LinearLayout parentLayout;
 
         ViewHolder(final ListviewItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            descriptionTextView = binding.descriptionTextView;
-            alarmImageView = binding.alarmImageView;
-            parentLayout = binding.parentLayout;
 
-            parentLayout.setOnClickListener(new View.OnClickListener() {
+            binding.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
@@ -121,7 +117,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                 }
             });
 
-            parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            binding.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     int position = getAdapterPosition();

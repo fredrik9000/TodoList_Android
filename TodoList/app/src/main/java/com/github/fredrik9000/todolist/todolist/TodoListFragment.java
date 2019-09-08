@@ -7,6 +7,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
@@ -71,7 +73,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new TodoAdapter(this);
+        adapter = new TodoAdapter(getContext(), this);
         recyclerView.setAdapter(adapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
@@ -129,6 +131,16 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             }
 
             showDeletedItemsSnackbarWithUndo(removedTodoListItems, alarmManager);
+            return true;
+        } else if (id == R.id.toggle_night_mode) {
+            final int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            } else if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else { // Assume light theme
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

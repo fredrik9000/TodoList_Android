@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">TodoList</string>
 
     <string name="title_main">Things to do</string>
@@ -26,4 +27,6 @@
 
     <string name="delete_completed_tasks_menu_item">Clear completed</string>
     <string name="delete_all_tasks_menu_item">Clear all</string>
+    <string name="toggle_night_mode_menu_item">Dark theme</string>
+
 </resources>
