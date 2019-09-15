@@ -18,6 +18,9 @@ The app has the following features:
 - Delete individual, all completed, or all tasks
 - Undo task deletion
 - Dark mode, which can also be toggled from within the app
+- Supports English and Norwegian languages
+
+I have also made an iOS version: [iOS Todo List](https://github.com/fredrik9000/TodoList_iOS)
 
 ## Screenshots
 
