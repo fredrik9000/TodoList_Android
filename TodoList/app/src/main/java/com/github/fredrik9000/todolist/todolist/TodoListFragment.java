@@ -273,6 +273,13 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         todoListViewModel.update(todoUpdated);
     }
 
+    @Override
+    public void onDestroyView() {
+        binding = null;
+        adapter = null;
+        super.onDestroyView();
+    }
+
     private void hideSoftKeyboard() {
         View view = getActivity().getCurrentFocus();
         if (view != null) {
