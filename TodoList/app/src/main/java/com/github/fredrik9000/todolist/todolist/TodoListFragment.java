@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,8 +44,6 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     private ActionMode actionMode;
     private TodoAdapter adapter;
     private int lastItemLongClickedPosition;
-    private long lastClickedUndoTime = 0;
-    private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
     public TodoListFragment() {
         // Required empty public constructor
@@ -81,8 +78,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         final FloatingActionButton addTodoButton = binding.addTodoButton;
         addTodoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "");
-                Navigation.findNavController(view).navigate(action);
+                Navigation.findNavController(view).navigate(TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), ""));
             }
         });
 
@@ -91,7 +87,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             @Override
             public void onChanged(@Nullable List<Todo> todoList) {
                 adapter.submitList(todoList);
-                checkForEmptyView(todoList);
+                showOrHideOnboardingView(todoList);
             }
         });
     }
@@ -136,8 +132,6 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             final int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            } else if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else { // Assume light theme
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             }
@@ -154,10 +148,10 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         ).setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isUndoDoubleClicked()) {
+                if (todoListViewModel.isUndoDoubleClicked()) {
                     return;
                 }
-                lastClickedUndoTime = SystemClock.elapsedRealtime();
+                todoListViewModel.updateLastClickedUndoTime();
 
                 todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager);
                 Snackbar snackbar2 = Snackbar.make(
@@ -173,7 +167,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
 
     @Override
     public void onItemClick(View view, Todo todo) {
-        // Tasks in completed state can't be edited
+        // Disable editing for completed tasks
         if (todo.isCompleted()) {
             return;
         }
@@ -230,13 +224,15 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
 
                         @Override
                         public void onClick(View view) {
-                            if (isUndoDoubleClicked()) {
+                            if (todoListViewModel.isUndoDoubleClicked()) {
                                 return;
                             }
-                            lastClickedUndoTime = SystemClock.elapsedRealtime();
+                            todoListViewModel.updateLastClickedUndoTime();
 
                             if (todo.isNotificationEnabled()) {
-                                NotificationUtil.addNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId(), todo.getDescription(), todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute());
+                                NotificationUtil.addNotification(getActivity().getApplicationContext(),
+                                        (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE),
+                                        todo.getNotificationId(), todo.getDescription(), todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute());
                             }
                             todoListViewModel.insert(todo);
                             Snackbar snackbar2 = Snackbar.make(
@@ -291,19 +287,15 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         }
     }
 
-    private boolean isUndoDoubleClicked() {
-        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
-    }
-
     // Not setting the list to GONE or INVISIBLE due to a bug with the FAB in AddEditTodoFragment when there is no visible list.
     // The bug is that when editing a new task (in which case the task list would have been invisible),
     // then when selecting the EditText (without selecting anything else first) the FAB doesn't float up above the keyboard.
     // However, when there is a visible list the FAB works as it should.
-    private void checkForEmptyView(List<Todo> todoList) {
+    private void showOrHideOnboardingView(List<Todo> todoList) {
         if (todoList.isEmpty()) {
-            binding.emptyView.setVisibility(View.VISIBLE);
+            binding.onboardingView.setVisibility(View.VISIBLE);
         } else {
-            binding.emptyView.setVisibility(View.GONE);
+            binding.onboardingView.setVisibility(View.GONE);
         }
     }
 }

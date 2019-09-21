@@ -8,14 +8,14 @@
         tools:context=".todolist.TodoListFragment">
 
         <TextView
-            android:id="@+id/empty_view"
+            android:id="@+id/onboarding_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/empty_view_margin"
+            android:layout_margin="@dimen/onboarding_view_margin"
             android:gravity="center"
-            android:lineSpacingExtra="@dimen/empty_view_line_spacing_extra"
-            android:text="@string/no_tasks_added"
-            android:textSize="@dimen/empty_view_text_size"
+            android:lineSpacingExtra="@dimen/onboarding_view_line_spacing_extra"
+            android:text="@string/onboarding_explanatory_text"
+            android:textSize="@dimen/onboarding_view_text_size"
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView

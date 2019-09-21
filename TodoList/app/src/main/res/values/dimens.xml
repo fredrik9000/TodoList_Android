@@ -2,9 +2,9 @@
 
     <dimen name="fab_margin">16dp</dimen>
 
-    <dimen name="empty_view_text_size">24sp</dimen>
-    <dimen name="empty_view_margin">16dp</dimen>
-    <dimen name="empty_view_line_spacing_extra">8sp</dimen>
+    <dimen name="onboarding_view_text_size">24sp</dimen>
+    <dimen name="onboarding_view_margin">16dp</dimen>
+    <dimen name="onboarding_view_line_spacing_extra">8sp</dimen>
 
     <dimen name="list_item_text_size">20sp</dimen>
     <dimen name="list_item_vertical_padding">8dp</dimen>

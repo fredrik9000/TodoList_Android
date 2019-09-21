@@ -8,6 +8,7 @@ import android.os.Build;
 
 public class App extends Application {
     public static final String NOTIFICATION_CHANNEL_ID = "main_channel";
+    private static final String NOTIFICATION_CHANNEL_NAME = "Task Reminders";
 
     @Override
     public void onCreate() {
@@ -17,7 +18,7 @@ public class App extends Application {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);

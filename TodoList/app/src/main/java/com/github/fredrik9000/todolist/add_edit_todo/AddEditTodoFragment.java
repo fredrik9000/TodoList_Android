@@ -1,6 +1,5 @@
 package com.github.fredrik9000.todolist.add_edit_todo;
 
-
 import android.app.AlarmManager;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -18,7 +17,6 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -29,40 +27,28 @@ import android.widget.Toast;
 
 import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding;
-import com.github.fredrik9000.todolist.model.Todo;
-import com.github.fredrik9000.todolist.notifications.NotificationUtil;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Random;
 
 public class AddEditTodoFragment extends Fragment implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
-
-    private static final String DESCRIPTION_SAVED_STATE = "TODO_DESCRIPTION";
-    private static final String PRIORITY_SAVED_STATE = "TODO_PRIORITY";
-    private static final String NOTIFICATION_YEAR_SAVED_STATE = "NOTIFICATION_YEAR";
-    private static final String NOTIFICATION_MONTH_SAVED_STATE = "NOTIFICATION_MONTH";
-    private static final String NOTIFICATION_DAY_SAVED_STATE = "NOTIFICATION_DAY";
-    private static final String NOTIFICATION_HOUR_SAVED_STATE = "NOTIFICATION_HOUR";
-    private static final String NOTIFICATION_MINUTE_SAVED_STATE = "NOTIFICATION_MINUTE";
-    private static final String NOTIFICATION_ID_SAVED_STATE = "NOTIFICATION_ID";
-    private static final String HAS_NOTIFICATION_SAVED_STATE = "HAS_NOTIFICATION";
-    private static final String HAS_ADDED_NOTIFICATION_SAVED_STATE = "HAS_ADDED_NOTIFICATION";
-    private static final String HAS_REMOVED_NOTIFICATION_SAVED_STATE = "HAS_REMOVED_NOTIFICATION";
 
     private FragmentAddEditTodoBinding binding;
     private AddEditTodoViewModel addEditTodoViewModel;
 
-    private int todoId = -1;
-    private int dayTemp, day, monthTemp, month, yearTemp, year, hour, minute;
-    private int notificationId;
-    private boolean hasNotification = false;
-    private boolean hasAddedNotification = false;
-    private boolean hasRemovedNotification = false;
-    private long lastClickedUndoTime = 0;
-    private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
+    private static final String DESCRIPTION_SAVED_STATE = "TODO_DESCRIPTION";
+    private static final String PRIORITY_SAVED_STATE = "TODO_PRIORITY";
+    static final String NOTIFICATION_YEAR_SAVED_STATE = "NOTIFICATION_YEAR";
+    static final String NOTIFICATION_MONTH_SAVED_STATE = "NOTIFICATION_MONTH";
+    static final String NOTIFICATION_DAY_SAVED_STATE = "NOTIFICATION_DAY";
+    static final String NOTIFICATION_HOUR_SAVED_STATE = "NOTIFICATION_HOUR";
+    static final String NOTIFICATION_MINUTE_SAVED_STATE = "NOTIFICATION_MINUTE";
+    static final String NOTIFICATION_ID_SAVED_STATE = "NOTIFICATION_ID";
+    private static final String HAS_NOTIFICATION_SAVED_STATE = "HAS_NOTIFICATION";
+    private static final String HAS_ADDED_NOTIFICATION_SAVED_STATE = "HAS_ADDED_NOTIFICATION";
+    private static final String HAS_REMOVED_NOTIFICATION_SAVED_STATE = "HAS_REMOVED_NOTIFICATION";
 
     public AddEditTodoFragment() {
         // Required empty public constructor
@@ -81,13 +67,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
         addEditTodoViewModel = ViewModelProviders.of(this).get(AddEditTodoViewModel.class);
 
-        NumberPicker priorityPicker = binding.priorityPicker;
-        priorityPicker.setMinValue(0);
-        priorityPicker.setMaxValue(2);
-        priorityPicker.setDisplayedValues(new String[]{getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority)});
-
         AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
-        todoId = args.getId();
+        addEditTodoViewModel.todoId = args.getId();
 
         int todoPriority;
         String todoDescription;
@@ -95,13 +76,13 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         if (savedInstanceState != null) {
             todoDescription = savedInstanceState.getString(DESCRIPTION_SAVED_STATE);
             todoPriority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
-            hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
-            hasAddedNotification = savedInstanceState.getBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE);
-            hasRemovedNotification = savedInstanceState.getBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE);
+            addEditTodoViewModel.hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
+            addEditTodoViewModel.hasAddedNotification = savedInstanceState.getBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE);
+            addEditTodoViewModel.hasRemovedNotification = savedInstanceState.getBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE);
         } else {
             todoDescription = args.getDescription();
             todoPriority = args.getPriority();
-            hasNotification = args.getHasNotification();
+            addEditTodoViewModel.hasNotification = args.getHasNotification();
         }
 
         if (todoDescription.length() == 0) {
@@ -113,6 +94,21 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             binding.todoDescriptionEditText.setText(todoDescription);
         }
 
+        setupPriorityPicker(todoPriority);
+        setupNotificationState(savedInstanceState);
+
+        binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher);
+        binding.saveTodoButton.setOnClickListener(saveButtonListener);
+        binding.removeNotificationButton.setOnClickListener(removeNotificationButtonListener);
+        binding.addNotificationButton.setOnClickListener(addNotificationButtonListener);
+    }
+
+    private void setupPriorityPicker(int todoPriority) {
+        NumberPicker priorityPicker = binding.priorityPicker;
+        priorityPicker.setMinValue(0);
+        priorityPicker.setMaxValue(2);
+        priorityPicker.setDisplayedValues(new String[]{getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority)});
+
         switch (todoPriority) {
             case 0:
                 priorityPicker.setValue(0);
@@ -123,39 +119,36 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             case 2:
                 priorityPicker.setValue(2);
         }
+    }
 
-        setupNotificationState(savedInstanceState);
+    private void setupNotificationState(@Nullable Bundle savedInstanceState) {
+        if (addEditTodoViewModel.hasNotification) {
+            if (savedInstanceState != null) {
+                addEditTodoViewModel.setNotificationValuesFromBundle(savedInstanceState);
+                displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
+            } else {
+                AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
+                addEditTodoViewModel.setNotificationValuesFromArguments(args);
 
-        binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher);
-        binding.saveTodoButton.setOnClickListener(saveButtonListener);
-        binding.removeNotificationButton.setOnClickListener(removeNotificationButtonListener);
-        binding.addNotificationButton.setOnClickListener(addNotificationButtonListener);
+                if (addEditTodoViewModel.isNotificationExpired()) {
+                    addEditTodoViewModel.clearNotificationValues();
+                    addEditTodoViewModel.generateNewNotificationId();
+                } else {
+                    displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
+                }
+            }
+        } else {
+            // Tasks without notification will be given a generated notification id for later use
+            // If the task is saved without a notification it wont be included
+            addEditTodoViewModel.generateNewNotificationId();
+        }
     }
 
     private View.OnClickListener saveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (hasAddedNotification) {
-                AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-                NotificationUtil.addNotification(getActivity().getApplicationContext(), alarmManager, notificationId, binding.todoDescriptionEditText.getText().toString(), year, month, day, hour, minute);
-            } else if (hasRemovedNotification) {
-                AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-                NotificationUtil.removeNotification(getActivity().getApplicationContext(), alarmManager, notificationId);
-            }
-
-            if (!hasNotification) {
-                notificationId = 0;
-            }
-
-            Todo todo = createTodoItem();
-
-            if (todoId == -1) {
-                addEditTodoViewModel.insert(todo);
-            } else {
-                todo.setId(todoId);
-                addEditTodoViewModel.update(todo);
-            }
-
+            AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.priorityPicker.getValue());
             NavController controller = Navigation.findNavController(getView());
             controller.navigateUp();
         }
@@ -165,10 +158,10 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         @Override
         public void onClick(View view) {
             displayNotificationNotAddedState();
-            hasNotification = false;
-            hasRemovedNotification = true;
-            final boolean currentHasAddedNotification = hasAddedNotification;
-            hasAddedNotification = false;
+            addEditTodoViewModel.hasNotification = false;
+            addEditTodoViewModel.hasRemovedNotification = true;
+            final boolean currentHasAddedNotification = addEditTodoViewModel.hasAddedNotification;
+            addEditTodoViewModel.hasAddedNotification = false;
 
             Snackbar snackbar = Snackbar.make(
                     binding.addEditTodoCoordinatorLayout,
@@ -177,16 +170,18 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             ).setAction(R.string.undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (isUndoDoubleClicked()) {
+                    if (addEditTodoViewModel.isUndoDoubleClicked()) {
                         return;
                     }
-                    lastClickedUndoTime = SystemClock.elapsedRealtime();
+
+                    addEditTodoViewModel.updateLastClickedUndoTime();
+
                     // When undoing, set hasAddedNotification to what it was previously.
                     // This is because one could be undoing either a newly added or an already existing notification.
-                    hasAddedNotification = currentHasAddedNotification;
-                    hasRemovedNotification = false;
-                    hasNotification = true;
-                    displayNotificationAddedState(createNotificationCalendar());
+                    addEditTodoViewModel.hasAddedNotification = currentHasAddedNotification;
+                    addEditTodoViewModel.hasRemovedNotification = false;
+                    addEditTodoViewModel.hasNotification = true;
+                    displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
 
                     Snackbar snackbar2 = Snackbar.make(
                             binding.addEditTodoCoordinatorLayout,
@@ -233,101 +228,6 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         }
     };
 
-    private void setupNotificationState(@Nullable Bundle savedInstanceState) {
-        if (hasNotification) {
-            if (savedInstanceState != null) {
-                year = savedInstanceState.getInt(NOTIFICATION_YEAR_SAVED_STATE);
-                month = savedInstanceState.getInt(NOTIFICATION_MONTH_SAVED_STATE);
-                day = savedInstanceState.getInt(NOTIFICATION_DAY_SAVED_STATE);
-                hour = savedInstanceState.getInt(NOTIFICATION_HOUR_SAVED_STATE);
-                minute = savedInstanceState.getInt(NOTIFICATION_MINUTE_SAVED_STATE);
-                notificationId = savedInstanceState.getInt(NOTIFICATION_ID_SAVED_STATE);
-                displayNotificationAddedState(createNotificationCalendar());
-            } else {
-                AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
-                year = args.getNotificationYear();
-                month = args.getNotificationMonth();
-                day = args.getNotificationDay();
-                hour = args.getNotificationHour();
-                minute = args.getNotificationMinute();
-                notificationId = args.getNotificationId();
-
-                // Reset expired notification when first creating the activity
-                Calendar notificationCalendar = createNotificationCalendar();
-                Calendar currentTimeCalendar = Calendar.getInstance();
-
-                if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
-                    year = 0;
-                    month = 0;
-                    day = 0;
-                    hour = 0;
-                    minute = 0;
-                    hasNotification = false;
-                    notificationId = new Random().nextInt();
-                } else {
-                    displayNotificationAddedState(notificationCalendar);
-                }
-            }
-        } else {
-            // Tasks without notification will be given a generated notification id for later use
-            // If the task is saved without a notification it wont be included
-            notificationId = new Random().nextInt();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(PRIORITY_SAVED_STATE, binding.priorityPicker.getValue());
-        outState.putString(DESCRIPTION_SAVED_STATE, binding.todoDescriptionEditText.getText().toString());
-        outState.putInt(NOTIFICATION_YEAR_SAVED_STATE, year);
-        outState.putInt(NOTIFICATION_MONTH_SAVED_STATE, month);
-        outState.putInt(NOTIFICATION_DAY_SAVED_STATE, day);
-        outState.putInt(NOTIFICATION_HOUR_SAVED_STATE, hour);
-        outState.putInt(NOTIFICATION_MINUTE_SAVED_STATE, minute);
-        outState.putInt(NOTIFICATION_ID_SAVED_STATE, notificationId);
-        outState.putBoolean(HAS_NOTIFICATION_SAVED_STATE, hasNotification);
-        outState.putBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE, hasAddedNotification);
-        outState.putBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE, hasRemovedNotification);
-    }
-
-    @Override
-    public void onSelectDateDialogInteraction(int year, int month, int day) {
-        this.yearTemp = year;
-        this.monthTemp = month;
-        this.dayTemp = day;
-        TimePickerFragment timePickerFragment = new TimePickerFragment();
-        timePickerFragment.setTargetFragment(AddEditTodoFragment.this, 2);
-        timePickerFragment.show(getFragmentManager(), "timePicker");
-    }
-
-    @Override
-    public void onSelectTimeDialogInteraction(int hour, int minute) {
-        Calendar notificationCalendar = Calendar.getInstance();
-        notificationCalendar.set(yearTemp, monthTemp, dayTemp, hour, minute, 0);
-        Calendar currentTimeCalendar = Calendar.getInstance();
-        if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
-            Toast.makeText(getActivity().getApplicationContext(), R.string.invalid_time, Toast.LENGTH_LONG).show();
-        } else {
-            hasNotification = true;
-            hasAddedNotification = true;
-            displayNotificationAddedState(notificationCalendar);
-            this.year = yearTemp;
-            this.month = monthTemp;
-            this.day = dayTemp;
-            this.hour = hour;
-            this.minute = minute;
-        }
-    }
-
-    private Todo createTodoItem() {
-        return new Todo(binding.todoDescriptionEditText.getText().toString(), binding.priorityPicker.getValue(), notificationId, hasNotification, year, month, day, hour, minute, false);
-    }
-
-    private boolean isUndoDoubleClicked() {
-        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
-    }
-
     private void displayNotificationAddedState(Calendar notificationCalendar) {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(binding.addEditTodoConstraintLayout);
@@ -338,7 +238,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         constraintSet.applyTo(binding.addEditTodoConstraintLayout);
 
         binding.notificationTextView.setText(HtmlCompat.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
-                + getString(R.string.notification_time, DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime())), HtmlCompat.FROM_HTML_MODE_LEGACY));
+                + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime()), HtmlCompat.FROM_HTML_MODE_LEGACY));
         binding.notificationTextView.setVisibility(View.VISIBLE);
         binding.removeNotificationButton.setVisibility(View.VISIBLE);
         binding.addNotificationButton.setText(R.string.update_notification);
@@ -358,9 +258,42 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         binding.removeNotificationButton.setVisibility(View.GONE);
     }
 
-    private Calendar createNotificationCalendar() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day, hour, minute, 0);
-        return calendar;
+    @Override
+    public void onSelectDateDialogInteraction(int year, int month, int day) {
+        addEditTodoViewModel.setTemporaryNotificationDateValues(year, month, day);
+        TimePickerFragment timePickerFragment = new TimePickerFragment();
+        timePickerFragment.setTargetFragment(AddEditTodoFragment.this, 2);
+        timePickerFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    @Override
+    public void onSelectTimeDialogInteraction(int hour, int minute) {
+        Calendar notificationCalendar = Calendar.getInstance();
+        notificationCalendar.set(addEditTodoViewModel.yearTemp, addEditTodoViewModel.monthTemp, addEditTodoViewModel.dayTemp, hour, minute, 0);
+        Calendar currentTimeCalendar = Calendar.getInstance();
+        if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
+            Toast.makeText(getActivity().getApplicationContext(), R.string.invalid_time, Toast.LENGTH_LONG).show();
+        } else {
+            addEditTodoViewModel.hasNotification = true;
+            addEditTodoViewModel.hasAddedNotification = true;
+            addEditTodoViewModel.setFinallySelectedNotificationValues(hour, minute);
+            displayNotificationAddedState(notificationCalendar);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(PRIORITY_SAVED_STATE, binding.priorityPicker.getValue());
+        outState.putString(DESCRIPTION_SAVED_STATE, binding.todoDescriptionEditText.getText().toString());
+        outState.putInt(NOTIFICATION_YEAR_SAVED_STATE, addEditTodoViewModel.year);
+        outState.putInt(NOTIFICATION_MONTH_SAVED_STATE, addEditTodoViewModel.month);
+        outState.putInt(NOTIFICATION_DAY_SAVED_STATE, addEditTodoViewModel.day);
+        outState.putInt(NOTIFICATION_HOUR_SAVED_STATE, addEditTodoViewModel.hour);
+        outState.putInt(NOTIFICATION_MINUTE_SAVED_STATE, addEditTodoViewModel.minute);
+        outState.putInt(NOTIFICATION_ID_SAVED_STATE, addEditTodoViewModel.notificationId);
+        outState.putBoolean(HAS_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasNotification);
+        outState.putBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasAddedNotification);
+        outState.putBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasRemovedNotification);
     }
 }

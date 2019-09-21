@@ -5,13 +5,11 @@
     <color name="colorPrimaryDark">#002984</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="color_title">#FFFFFF</color>
+    <color name="notification_active_icon">#000000</color>
+    <color name="color_fab_tint">#FFFFFF</color>
 
     <color name="high_priority">#FF0000</color>
     <color name="medium_priority">#00D000</color>
     <color name="low_priority">#B0B0FF</color>
-
-    <color name="notification_active_icon">#000000</color>
-    <color name="color_fab_tint">#FFFFFF</color>
 
 </resources>

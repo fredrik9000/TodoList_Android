@@ -5,7 +5,7 @@
     <string name="title_main">Things to do</string>
     <string name="title_add_todo">Add task</string>
     <string name="title_edit_todo">Edit task</string>
-    <string name="no_tasks_added">Add tasks by tapping the plus button to get started.</string>
+    <string name="onboarding_explanatory_text">Add tasks by tapping the plus button to get started.</string>
 
     <string name="delete_task_button">Delete item</string>
     <string name="item_deleted">Task deleted</string>
@@ -21,7 +21,6 @@
     <string name="remove_notification">Remove notification</string>
     <string name="update_notification">Update notification</string>
     <string name="notification_pretext">Notify:</string>
-    <string name="notification_time">%s</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
     <string name="notification_removed">Notification removed</string>
 

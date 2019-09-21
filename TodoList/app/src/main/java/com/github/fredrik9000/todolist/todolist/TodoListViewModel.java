@@ -2,6 +2,7 @@ package com.github.fredrik9000.todolist.todolist;
 
 import android.app.AlarmManager;
 import android.app.Application;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -18,6 +19,8 @@ public class TodoListViewModel extends AndroidViewModel {
     private LiveData<List<Todo>> todoList;
     private Application application;
     private TodoRepository repository;
+    private long lastClickedUndoTime = 0;
+    private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
 
     public TodoListViewModel(@NonNull Application application) {
         super(application);
@@ -73,5 +76,13 @@ public class TodoListViewModel extends AndroidViewModel {
             }
         }
         repository.insertTodoItems(todoListItems);
+    }
+
+    boolean isUndoDoubleClicked() {
+        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS;
+    }
+
+    void updateLastClickedUndoTime() {
+        lastClickedUndoTime = SystemClock.elapsedRealtime();
     }
 }
