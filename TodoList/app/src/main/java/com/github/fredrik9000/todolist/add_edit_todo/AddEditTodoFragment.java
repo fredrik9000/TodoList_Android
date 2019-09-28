@@ -47,8 +47,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     static final String NOTIFICATION_MINUTE_SAVED_STATE = "NOTIFICATION_MINUTE";
     static final String NOTIFICATION_ID_SAVED_STATE = "NOTIFICATION_ID";
     private static final String HAS_NOTIFICATION_SAVED_STATE = "HAS_NOTIFICATION";
-    private static final String HAS_ADDED_NOTIFICATION_SAVED_STATE = "HAS_ADDED_NOTIFICATION";
-    private static final String HAS_REMOVED_NOTIFICATION_SAVED_STATE = "HAS_REMOVED_NOTIFICATION";
+    private static final String NOTIFICATION_UPDATE_STATE_SAVED_STATE = "NOTIFICATION_UPDATE_STATE";
 
     public AddEditTodoFragment() {
         // Required empty public constructor
@@ -77,8 +76,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             todoDescription = savedInstanceState.getString(DESCRIPTION_SAVED_STATE);
             todoPriority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
             addEditTodoViewModel.hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
-            addEditTodoViewModel.hasAddedNotification = savedInstanceState.getBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE);
-            addEditTodoViewModel.hasRemovedNotification = savedInstanceState.getBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE);
+            addEditTodoViewModel.notificationUpdateState = (NotificationUpdateState) savedInstanceState.getSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE);
         } else {
             todoDescription = args.getDescription();
             todoPriority = args.getPriority();
@@ -159,9 +157,9 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         public void onClick(View view) {
             displayNotificationNotAddedState();
             addEditTodoViewModel.hasNotification = false;
-            addEditTodoViewModel.hasRemovedNotification = true;
-            final boolean currentHasAddedNotification = addEditTodoViewModel.hasAddedNotification;
-            addEditTodoViewModel.hasAddedNotification = false;
+            final NotificationUpdateState tempNotificationUpdateState = addEditTodoViewModel.notificationUpdateState;
+            addEditTodoViewModel.notificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION;
+
 
             Snackbar snackbar = Snackbar.make(
                     binding.addEditTodoCoordinatorLayout,
@@ -176,10 +174,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
                     addEditTodoViewModel.updateLastClickedUndoTime();
 
-                    // When undoing, set hasAddedNotification to what it was previously.
-                    // This is because one could be undoing either a newly added or an already existing notification.
-                    addEditTodoViewModel.hasAddedNotification = currentHasAddedNotification;
-                    addEditTodoViewModel.hasRemovedNotification = false;
+                    // When undoing, set the notification update state to what it was previously.
+                    addEditTodoViewModel.notificationUpdateState = tempNotificationUpdateState;
                     addEditTodoViewModel.hasNotification = true;
                     displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
 
@@ -274,8 +270,6 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.invalid_time, Toast.LENGTH_LONG).show();
         } else {
-            addEditTodoViewModel.hasNotification = true;
-            addEditTodoViewModel.hasAddedNotification = true;
             addEditTodoViewModel.setFinallySelectedNotificationValues(hour, minute);
             displayNotificationAddedState(notificationCalendar);
         }
@@ -293,7 +287,6 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         outState.putInt(NOTIFICATION_MINUTE_SAVED_STATE, addEditTodoViewModel.minute);
         outState.putInt(NOTIFICATION_ID_SAVED_STATE, addEditTodoViewModel.notificationId);
         outState.putBoolean(HAS_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasNotification);
-        outState.putBoolean(HAS_ADDED_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasAddedNotification);
-        outState.putBoolean(HAS_REMOVED_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasRemovedNotification);
+        outState.putSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE, addEditTodoViewModel.notificationUpdateState);
     }
 }

@@ -25,9 +25,9 @@ public class AddEditTodoViewModel extends AndroidViewModel {
     int notificationId;
     boolean hasNotification = false;
 
-    // Flags to keep track of whether the user has added a new, or removed an existing notification. Notifications will only be scheduled when the task is saved.
-    boolean hasAddedNotification = false;
-    boolean hasRemovedNotification = false;
+    // notificationUpdateState keeps track of whether the user has added a new, or removed an existing notification.
+    // Notifications will only be scheduled when the task is saved.
+    NotificationUpdateState notificationUpdateState = NotificationUpdateState.NOT_UPDATED;
 
     public AddEditTodoViewModel(@NonNull Application application) {
         super(application);
@@ -82,6 +82,9 @@ public class AddEditTodoViewModel extends AndroidViewModel {
         this.day = dayTemp;
         this.hour = hour;
         this.minute = minute;
+
+        hasNotification = true;
+        notificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION;
     }
 
     // This is not optimal as the notification id might not be unique. TODO: fix unique notification id retrieval.
@@ -102,9 +105,9 @@ public class AddEditTodoViewModel extends AndroidViewModel {
     }
 
     void saveTodoItem(AlarmManager alarmManager, String description, int priority) {
-        if (hasAddedNotification) {
+        if (notificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
             NotificationUtil.addNotification(application.getApplicationContext(), alarmManager, notificationId, description, year, month, day, hour, minute);
-        } else if (hasRemovedNotification) {
+        } else if (notificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
             NotificationUtil.removeNotification(application.getApplicationContext(), alarmManager, notificationId);
         }
 
