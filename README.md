@@ -8,7 +8,7 @@ This is a simple todo list application for Android. It is written in Java and wi
 - LiveData
 - Data Binding
 
-The app has the following features:
+#### The app has the following features:
 
 - Adding and editing tasks
 - Setting a priority level for each task (low, medium, high)
@@ -19,6 +19,14 @@ The app has the following features:
 - Undo task deletion
 - Dark mode, which can also be toggled from within the app
 - Supports English and Norwegian languages
+
+#### Potential improvements:
+
+- Improve the design of the add/edit tasks screen
+- A way of adding more notes to a task, maybe increase the description field or add an additional one
+- Ability to search todo items
+- Notification reminders that will be triggered by location(geofencing)
+- (Adaptive) launcher icons
 
 I have also made an iOS version: [iOS Todo List](https://github.com/fredrik9000/TodoList_iOS)
 
