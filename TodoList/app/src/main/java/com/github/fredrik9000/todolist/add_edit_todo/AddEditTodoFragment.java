@@ -5,6 +5,12 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,17 +19,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.NumberPicker;
-import android.widget.Toast;
 
 import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding;
@@ -65,25 +63,23 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        addEditTodoViewModel = ViewModelProviders.of(this).get(AddEditTodoViewModel.class);
-
+        addEditTodoViewModel = new ViewModelProvider(this).get(AddEditTodoViewModel.class);
         AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
         addEditTodoViewModel.todoId = args.getId();
 
-        int todoPriority;
         String todoDescription;
         String todoNote;
 
         if (savedInstanceState != null) {
             todoDescription = savedInstanceState.getString(DESCRIPTION_SAVED_STATE);
             todoNote = savedInstanceState.getString(NOTE_SAVED_STATE);
-            todoPriority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
+            addEditTodoViewModel.priority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
             addEditTodoViewModel.hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
             addEditTodoViewModel.notificationUpdateState = (NotificationUpdateState) savedInstanceState.getSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE);
         } else {
             todoDescription = args.getDescription();
             todoNote = args.getNote();
-            todoPriority = args.getPriority();
+            addEditTodoViewModel.priority = args.getPriority();
             addEditTodoViewModel.hasNotification = args.getHasNotification();
         }
 
@@ -98,7 +94,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
         binding.todoNoteEditText.setText(todoNote);
 
-        setupPriorityPicker(todoPriority);
+        setupPriorityPicker();
         setupNotificationState(savedInstanceState);
 
         binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher);
@@ -107,22 +103,23 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         binding.addNotificationButton.setOnClickListener(addNotificationButtonListener);
     }
 
-    private void setupPriorityPicker(int todoPriority) {
-        NumberPicker priorityPicker = binding.priorityPicker;
-        priorityPicker.setMinValue(0);
-        priorityPicker.setMaxValue(2);
-        priorityPicker.setDisplayedValues(new String[]{getResources().getString(R.string.low_priority), getResources().getString(R.string.medium_priority), getResources().getString(R.string.high_priority)});
-
-        switch (todoPriority) {
-            case 0:
-                priorityPicker.setValue(0);
-                break;
-            case 1:
-                priorityPicker.setValue(1);
-                break;
-            case 2:
-                priorityPicker.setValue(2);
-        }
+    private void setupPriorityPicker() {
+        binding.priorityPickerButton.setText(addEditTodoViewModel.getLabelForCurrentPriority());
+        binding.priorityPickerButton.setTextColor(addEditTodoViewModel.getColorForCurrentPriority());
+        binding.priorityPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (addEditTodoViewModel.priority == 0) {
+                    addEditTodoViewModel.priority = 1;
+                } else if (addEditTodoViewModel.priority == 1) {
+                    addEditTodoViewModel.priority = 2;
+                } else {
+                    addEditTodoViewModel.priority = 0;
+                }
+                binding.priorityPickerButton.setText(addEditTodoViewModel.getLabelForCurrentPriority());
+                binding.priorityPickerButton.setTextColor(addEditTodoViewModel.getColorForCurrentPriority());
+            }
+        });
     }
 
     private void setupNotificationState(@Nullable Bundle savedInstanceState) {
@@ -152,7 +149,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         @Override
         public void onClick(View view) {
             AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.todoNoteEditText.getText().toString(), binding.priorityPicker.getValue());
+            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.todoNoteEditText.getText().toString(), addEditTodoViewModel.convertPriorityLabelToValue(binding.priorityPickerButton.getText().toString()));
             NavController controller = Navigation.findNavController(getView());
             controller.navigateUp();
         }
@@ -165,7 +162,6 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             addEditTodoViewModel.hasNotification = false;
             final NotificationUpdateState tempNotificationUpdateState = addEditTodoViewModel.notificationUpdateState;
             addEditTodoViewModel.notificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION;
-
 
             Snackbar snackbar = Snackbar.make(
                     binding.addEditTodoCoordinatorLayout,
@@ -202,7 +198,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         public void onClick(View view) {
             DatePickerFragment datePickerFragment = new DatePickerFragment();
             datePickerFragment.setTargetFragment(AddEditTodoFragment.this, 1);
-            datePickerFragment.show(getFragmentManager(), "datePicker");
+            datePickerFragment.show(getParentFragmentManager(), "datePicker");
         }
     };
 
@@ -265,7 +261,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         addEditTodoViewModel.setTemporaryNotificationDateValues(year, month, day);
         TimePickerFragment timePickerFragment = new TimePickerFragment();
         timePickerFragment.setTargetFragment(AddEditTodoFragment.this, 2);
-        timePickerFragment.show(getFragmentManager(), "timePicker");
+        timePickerFragment.show(getParentFragmentManager(), "timePicker");
     }
 
     @Override
@@ -284,7 +280,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(PRIORITY_SAVED_STATE, binding.priorityPicker.getValue());
+        outState.putInt(PRIORITY_SAVED_STATE, addEditTodoViewModel.priority);
         outState.putString(DESCRIPTION_SAVED_STATE, binding.todoDescriptionEditText.getText().toString());
         outState.putString(NOTE_SAVED_STATE, binding.todoNoteEditText.getText().toString());
         outState.putInt(NOTIFICATION_YEAR_SAVED_STATE, addEditTodoViewModel.year);

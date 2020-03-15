@@ -9,9 +9,10 @@
     <color name="note_icon">#000000</color>
     <color name="note_border_color">#808080</color>
     <color name="color_fab_tint">#FFFFFF</color>
+    <color name="color_button_background_tint">#F3F3F3</color>
 
     <color name="high_priority">#FF0000</color>
-    <color name="medium_priority">#00D000</color>
-    <color name="low_priority">#B0B0FF</color>
+    <color name="medium_priority">#00B700</color>
+    <color name="low_priority">#A0A0FF</color>
 
 </resources>

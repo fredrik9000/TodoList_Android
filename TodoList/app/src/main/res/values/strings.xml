@@ -15,6 +15,7 @@
 
     <string name="edit_text_task_description_hint">Short description</string>
     <string name="edit_text_task_note_hint">Additional info</string>
+    <string name="priority_label">Priority</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>

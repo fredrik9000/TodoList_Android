@@ -7,7 +7,8 @@
 
     <color name="notification_active_icon">#FFFFFF</color>
     <color name="note_icon">#FFFFFF</color>
-    <color name="note_border_color">#FFFFFF</color>
+    <color name="note_border_color">#C0C0C0</color>
     <color name="color_fab_tint">#000000</color>
+    <color name="color_button_background_tint">#373737</color>
 
 </resources>

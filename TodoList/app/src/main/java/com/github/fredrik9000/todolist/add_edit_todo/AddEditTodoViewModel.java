@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.model.Todo;
 import com.github.fredrik9000.todolist.model.TodoRepository;
 import com.github.fredrik9000.todolist.notifications.NotificationUtil;
@@ -24,6 +25,7 @@ public class AddEditTodoViewModel extends AndroidViewModel {
     int dayTemp, day, monthTemp, month, yearTemp, year, hour, minute;
     int notificationId;
     boolean hasNotification = false;
+    int priority = 1; // Default to medium priority (0=low, 1=medium, 2=high)
 
     // notificationUpdateState keeps track of whether the user has added a new, or removed an existing notification.
     // Notifications will only be scheduled when the task is saved.
@@ -102,6 +104,44 @@ public class AddEditTodoViewModel extends AndroidViewModel {
         Calendar notificationCalendar = createNotificationCalendar();
         Calendar currentTimeCalendar = Calendar.getInstance();
         return notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis();
+    }
+
+    public String getLabelForCurrentPriority() {
+        switch (priority) {
+            case 0:
+                return application.getApplicationContext().getString(R.string.low_priority);
+            case 2:
+                return application.getApplicationContext().getString(R.string.high_priority);
+            case 1:
+            default:
+                return application.getApplicationContext().getString(R.string.medium_priority);
+        }
+    }
+
+    public int getColorForCurrentPriority() {
+        switch (priority) {
+            case 0:
+                return application.getApplicationContext().getResources().getColor(R.color.low_priority);
+            case 2:
+                return application.getApplicationContext().getResources().getColor(R.color.high_priority);
+            case 1:
+            default:
+                return application.getApplicationContext().getResources().getColor(R.color.medium_priority);
+        }
+    }
+
+    public int convertPriorityLabelToValue(String todoPriority) {
+        if (todoPriority.equals(application.getApplicationContext().getString(R.string.low_priority)))
+        {
+            return 0;
+        } else if (todoPriority.equals(application.getApplicationContext().getString(R.string.medium_priority)))
+        {
+            return 1;
+        } else if (todoPriority.equals(application.getApplicationContext().getString(R.string.high_priority)))
+        {
+            return 2;
+        }
+        return 1;
     }
 
     void saveTodoItem(AlarmManager alarmManager, String description, String note, int priority) {

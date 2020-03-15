@@ -22,8 +22,6 @@ This is a simple todo list application for Android. It is written in Java and wi
 
 #### Potential improvements:
 
-- Improve the design of the add/edit tasks screen
-- A way of adding more notes to a task, maybe increase the description field or add an additional one
 - Ability to search todo items
 - Notification reminders that will be triggered by location(geofencing)
 - (Adaptive) launcher icons

@@ -9,6 +9,7 @@ import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.CompoundButtonCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,13 +63,13 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
         switch (todoItem.getPriority()) {
             case 0:
-                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.low_priority));
+                CompoundButtonCompat.setButtonTintList(todoItemViewHolder.binding.completeCheckbox, ContextCompat.getColorStateList(context, R.color.low_priority));
                 break;
             case 1:
-                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.medium_priority));
+                CompoundButtonCompat.setButtonTintList(todoItemViewHolder.binding.completeCheckbox, ContextCompat.getColorStateList(context, R.color.medium_priority));
                 break;
             case 2:
-                todoItemViewHolder.binding.completeCheckbox.setSupportButtonTintList(ContextCompat.getColorStateList(context, R.color.high_priority));
+                CompoundButtonCompat.setButtonTintList(todoItemViewHolder.binding.completeCheckbox, ContextCompat.getColorStateList(context, R.color.high_priority));
         }
 
         if (todoItem.isNotificationEnabled() && !isNotificationExpired(todoItem)) {

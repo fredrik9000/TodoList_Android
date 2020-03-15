@@ -51,7 +51,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|end"
             android:layout_marginStart="@dimen/list_item_text_horizontal_margin"
-            android:layout_marginLeft="@dimen/list_item_text_horizontal_margin"
             android:src="@drawable/ic_note_black_24dp"
             android:tint="@color/note_icon"
             android:visibility="gone"
