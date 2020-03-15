@@ -6,6 +6,8 @@
     <color name="colorAccent">#E04CFA</color>
 
     <color name="notification_active_icon">#FFFFFF</color>
+    <color name="note_icon">#FFFFFF</color>
+    <color name="note_border_color">#FFFFFF</color>
     <color name="color_fab_tint">#000000</color>
 
 </resources>

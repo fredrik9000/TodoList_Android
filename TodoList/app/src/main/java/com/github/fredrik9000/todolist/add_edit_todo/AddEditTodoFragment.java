@@ -39,6 +39,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     private AddEditTodoViewModel addEditTodoViewModel;
 
     private static final String DESCRIPTION_SAVED_STATE = "TODO_DESCRIPTION";
+    private static final String NOTE_SAVED_STATE = "TODO_PRIORITY";
     private static final String PRIORITY_SAVED_STATE = "TODO_PRIORITY";
     static final String NOTIFICATION_YEAR_SAVED_STATE = "NOTIFICATION_YEAR";
     static final String NOTIFICATION_MONTH_SAVED_STATE = "NOTIFICATION_MONTH";
@@ -71,14 +72,17 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
         int todoPriority;
         String todoDescription;
+        String todoNote;
 
         if (savedInstanceState != null) {
             todoDescription = savedInstanceState.getString(DESCRIPTION_SAVED_STATE);
+            todoNote = savedInstanceState.getString(NOTE_SAVED_STATE);
             todoPriority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
             addEditTodoViewModel.hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
             addEditTodoViewModel.notificationUpdateState = (NotificationUpdateState) savedInstanceState.getSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE);
         } else {
             todoDescription = args.getDescription();
+            todoNote = args.getNote();
             todoPriority = args.getPriority();
             addEditTodoViewModel.hasNotification = args.getHasNotification();
         }
@@ -91,6 +95,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
             binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this.getContext(), R.color.colorAccent)));
             binding.todoDescriptionEditText.setText(todoDescription);
         }
+
+        binding.todoNoteEditText.setText(todoNote);
 
         setupPriorityPicker(todoPriority);
         setupNotificationState(savedInstanceState);
@@ -146,7 +152,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         @Override
         public void onClick(View view) {
             AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.priorityPicker.getValue());
+            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.todoNoteEditText.getText().toString(), binding.priorityPicker.getValue());
             NavController controller = Navigation.findNavController(getView());
             controller.navigateUp();
         }
@@ -280,6 +286,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         super.onSaveInstanceState(outState);
         outState.putInt(PRIORITY_SAVED_STATE, binding.priorityPicker.getValue());
         outState.putString(DESCRIPTION_SAVED_STATE, binding.todoDescriptionEditText.getText().toString());
+        outState.putString(NOTE_SAVED_STATE, binding.todoNoteEditText.getText().toString());
         outState.putInt(NOTIFICATION_YEAR_SAVED_STATE, addEditTodoViewModel.year);
         outState.putInt(NOTIFICATION_MONTH_SAVED_STATE, addEditTodoViewModel.month);
         outState.putInt(NOTIFICATION_DAY_SAVED_STATE, addEditTodoViewModel.day);

@@ -104,7 +104,7 @@ public class AddEditTodoViewModel extends AndroidViewModel {
         return notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis();
     }
 
-    void saveTodoItem(AlarmManager alarmManager, String description, int priority) {
+    void saveTodoItem(AlarmManager alarmManager, String description, String note, int priority) {
         if (notificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
             NotificationUtil.addNotification(application.getApplicationContext(), alarmManager, notificationId, description, year, month, day, hour, minute);
         } else if (notificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
@@ -115,7 +115,7 @@ public class AddEditTodoViewModel extends AndroidViewModel {
             notificationId = 0;
         }
 
-        Todo todo = createTodoItem(description, priority);
+        Todo todo = createTodoItem(description, note, priority);
 
         if (todoId == -1) {
             insert(todo);
@@ -133,7 +133,7 @@ public class AddEditTodoViewModel extends AndroidViewModel {
         repository.update(todo);
     }
 
-    private Todo createTodoItem(String description, int priority) {
-        return new Todo(description, priority, notificationId, hasNotification, year, month, day, hour, minute, false);
+    private Todo createTodoItem(String description, String note, int priority) {
+        return new Todo(description, note, priority, notificationId, hasNotification, year, month, day, hour, minute, false);
     }
 }

@@ -32,6 +32,9 @@
             android:name="description"
             app:argType="string" />
         <argument
+            android:name="note"
+            app:argType="string" />
+        <argument
             android:name="priority"
             app:argType="integer"
             android:defaultValue="1" />

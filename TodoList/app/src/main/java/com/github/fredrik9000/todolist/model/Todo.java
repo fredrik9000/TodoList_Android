@@ -8,15 +8,19 @@ public class Todo {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String description;
-    private int priority, notificationId, notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
+    private String note;
+    private int priority;
+    private int notificationId;
+    private int notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
     private boolean notificationEnabled;
     private boolean isCompleted;
 
     public Todo() {
     }
 
-    public Todo(String description, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute, boolean isCompleted) {
+    public Todo(String description, String note, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute, boolean isCompleted) {
         this.description = description;
+        this.note = note;
         this.priority = priority;
         this.notificationId = notificationId;
         this.notificationEnabled = hasNotification;
@@ -90,6 +94,14 @@ public class Todo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public int getNotificationId() {

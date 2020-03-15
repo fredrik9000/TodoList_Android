@@ -32,6 +32,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
         @Override
         public boolean areContentsTheSame(@NonNull Todo oldItem, @NonNull Todo newItem) {
             return oldItem.getDescription().equals(newItem.getDescription()) &&
+                    oldItem.getNote().equals(newItem.getNote()) &&
                     oldItem.getPriority() == newItem.getPriority() &&
                     oldItem.isNotificationEnabled() == newItem.isNotificationEnabled() &&
                     oldItem.getNotificationId() == newItem.getNotificationId() &&
@@ -73,7 +74,13 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
         if (todoItem.isNotificationEnabled() && !isNotificationExpired(todoItem)) {
             todoItemViewHolder.binding.alarmImageView.setVisibility(View.VISIBLE);
         } else {
-            todoItemViewHolder.binding.alarmImageView.setVisibility(View.INVISIBLE);
+            todoItemViewHolder.binding.alarmImageView.setVisibility(View.GONE);
+        }
+
+        if (todoItem.getNote() != null && todoItem.getNote().length() > 0) {
+            todoItemViewHolder.binding.noteImageView.setVisibility(View.VISIBLE);
+        } else {
+            todoItemViewHolder.binding.noteImageView.setVisibility(View.GONE);
         }
 
         if (todoItem.isCompleted()) {

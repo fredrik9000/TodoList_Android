@@ -78,7 +78,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         final FloatingActionButton addTodoButton = binding.addTodoButton;
         addTodoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Navigation.findNavController(view).navigate(TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), ""));
+                Navigation.findNavController(view).navigate(TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "", ""));
             }
         });
 
@@ -172,9 +172,10 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             return;
         }
 
-        TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_edit_todo), "");
+        TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_edit_todo), "", "");
         action.setId(todo.getId());
         action.setDescription(todo.getDescription());
+        action.setNote(todo.getNote());
         action.setPriority(todo.getPriority());
         action.setHasNotification(todo.isNotificationEnabled());
 
@@ -264,7 +265,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             NotificationUtil.removeNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId());
         }
 
-        Todo todoUpdated = new Todo(todo.getDescription(), todo.getPriority(), 0, false, 0, 0, 0, 0, 0, isChecked);
+        Todo todoUpdated = new Todo(todo.getDescription(), todo.getNote(), todo.getPriority(), 0, false, 0, 0, 0, 0, 0, isChecked);
         todoUpdated.setId(todo.getId());
         todoListViewModel.update(todoUpdated);
     }
