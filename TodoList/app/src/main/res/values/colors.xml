@@ -12,7 +12,7 @@
     <color name="color_button_background_tint">#F3F3F3</color>
 
     <color name="high_priority">#FF0000</color>
-    <color name="medium_priority">#00B700</color>
+    <color name="medium_priority">#00C000</color>
     <color name="low_priority">#A0A0FF</color>
 
 </resources>

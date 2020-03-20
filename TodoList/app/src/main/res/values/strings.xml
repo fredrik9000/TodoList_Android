@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">TodoList</string>
+    <string name="app_name">Todo List</string>
 
     <string name="title_main">Things to do</string>
     <string name="title_add_todo">Add task</string>
@@ -14,7 +14,7 @@
     <string name="undo_successful">Undo successful</string>
 
     <string name="edit_text_task_description_hint">Short description</string>
-    <string name="edit_text_task_note_hint">Additional info</string>
+    <string name="edit_text_task_note_hint">Additional notes</string>
     <string name="priority_label">Priority</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
@@ -29,5 +29,6 @@
     <string name="delete_completed_tasks_menu_item">Clear completed</string>
     <string name="delete_all_tasks_menu_item">Clear all</string>
     <string name="toggle_night_mode_menu_item">Dark theme</string>
+    <string name="search_menu_item">Search for tasks</string>
 
 </resources>

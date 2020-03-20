@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.SearchView;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -100,7 +101,22 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.mymenu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                todoListViewModel.searchTodoList(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                todoListViewModel.searchTodoList(newText);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -198,7 +214,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
 
         lastItemLongClickedPosition = position;
 
-        actionMode = ((AppCompatActivity)getActivity()).startSupportActionMode(new ActionMode.Callback() {
+        actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                 actionMode.getMenuInflater().inflate(R.menu.context_main, menu);
@@ -281,7 +297,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             // Verify if the soft keyboard is open
-            if(imm != null && imm.isAcceptingText()) {
+            if (imm != null && imm.isAcceptingText()) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         }

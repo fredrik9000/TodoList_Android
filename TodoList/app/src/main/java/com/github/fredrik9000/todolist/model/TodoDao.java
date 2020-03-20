@@ -29,4 +29,7 @@ public interface TodoDao {
 
     @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, description ASC")
     LiveData<List<Todo>> getAllTodos();
+
+    @Query("SELECT * FROM todo_table WHERE description LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, description ASC")
+    LiveData<List<Todo>> getTodosWithText(String searchValue);
 }

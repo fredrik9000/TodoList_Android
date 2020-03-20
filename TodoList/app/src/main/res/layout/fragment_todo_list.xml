@@ -22,7 +22,9 @@
             android:id="@+id/todoList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/listview_item" />
+            tools:listitem="@layout/listview_item"
+            android:paddingBottom="@dimen/todo_list_padding_bottom"
+            android:clipToPadding="false" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_todo_button"

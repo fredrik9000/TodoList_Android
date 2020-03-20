@@ -22,7 +22,6 @@ This is a simple todo list application for Android. It is written in Java and wi
 
 #### Potential improvements:
 
-- Ability to search todo items
 - Notification reminders that will be triggered by location(geofencing)
 - (Adaptive) launcher icons
 

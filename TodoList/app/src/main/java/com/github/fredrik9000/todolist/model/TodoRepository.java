@@ -9,12 +9,10 @@ import java.util.List;
 
 public class TodoRepository {
     private TodoDao todoDao;
-    private LiveData<List<Todo>> allTodos;
 
     public TodoRepository(Application application) {
         TodoDatabase database = TodoDatabase.getInstance(application);
         todoDao = database.todoDao();
-        allTodos = todoDao.getAllTodos();
     }
 
     public void insert(Todo todo) {
@@ -34,7 +32,11 @@ public class TodoRepository {
     }
 
     public LiveData<List<Todo>> getAllTodos() {
-        return allTodos;
+        return todoDao.getAllTodos();
+    }
+
+    public LiveData<List<Todo>> getTodosWithText(String searchValue) {
+        return todoDao.getTodosWithText(searchValue);
     }
 
     private static class InsertTodoAsyncTask extends AsyncTask<Todo, Void, Void> {

@@ -10,6 +10,7 @@
     <dimen name="list_item_vertical_padding">8dp</dimen>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
     <dimen name="list_item_text_horizontal_margin">16dp</dimen>
+    <dimen name="todo_list_padding_bottom">88dp</dimen>
 
     <dimen name="add_edit_todo_text_content_padding">16dp</dimen>
     <dimen name="priority_picker_margin_top">24dp</dimen>
