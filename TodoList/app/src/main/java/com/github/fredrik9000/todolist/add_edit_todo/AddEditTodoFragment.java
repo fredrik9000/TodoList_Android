@@ -236,7 +236,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         constraintSet.applyTo(binding.addEditTodoConstraintLayout);
 
         binding.notificationTextView.setText(HtmlCompat.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
-                + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM, Locale.US).format(notificationCalendar.getTime()), HtmlCompat.FROM_HTML_MODE_LEGACY));
+                + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.getTime()), HtmlCompat.FROM_HTML_MODE_LEGACY));
         binding.notificationTextView.setVisibility(View.VISIBLE);
         binding.removeNotificationButton.setVisibility(View.VISIBLE);
         binding.addNotificationButton.setText(R.string.update_notification);
