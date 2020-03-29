@@ -26,6 +26,7 @@ public class TodoListViewModel extends AndroidViewModel {
     private long lastClickedUndoTime = 0;
     private static final int MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000;
     private static final int MINIMUM_SEARCH_LENGTH = 2;
+    private boolean isSearching = false;
 
     public TodoListViewModel(@NonNull Application application) {
         super(application);
@@ -35,8 +36,10 @@ public class TodoListViewModel extends AndroidViewModel {
             @Override
             public LiveData<List<Todo>> apply(String value) {
                 if (value != null && value.length() >= MINIMUM_SEARCH_LENGTH) {
+                    isSearching = true;
                     return repository.getTodosWithText(value);
                 } else {
+                    isSearching = false;
                     return repository.getAllTodos();
                 }
             }
@@ -103,5 +106,13 @@ public class TodoListViewModel extends AndroidViewModel {
 
     void updateLastClickedUndoTime() {
         lastClickedUndoTime = SystemClock.elapsedRealtime();
+    }
+
+    boolean isSearching() {
+        return isSearching;
+    }
+
+    public void setSearching(boolean searching) {
+        isSearching = searching;
     }
 }

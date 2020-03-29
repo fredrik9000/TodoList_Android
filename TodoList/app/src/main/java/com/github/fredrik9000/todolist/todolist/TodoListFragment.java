@@ -83,6 +83,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         });
 
         todoListViewModel = new ViewModelProvider(this).get(TodoListViewModel.class);
+        todoListViewModel.setSearching(false); // Need to reset this after rotating
         todoListViewModel.getTodoList().observe(getViewLifecycleOwner(), new Observer<List<Todo>>() {
             @Override
             public void onChanged(@Nullable List<Todo> todoList) {
@@ -308,7 +309,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     // then when selecting the EditText (without selecting anything else first) the FAB doesn't float up above the keyboard.
     // However, when there is a visible list the FAB works as it should.
     private void showOrHideOnboardingView(List<Todo> todoList) {
-        if (todoList.isEmpty()) {
+        if (todoList.isEmpty() && !todoListViewModel.isSearching()) {
             binding.onboardingView.setVisibility(View.VISIBLE);
         } else {
             binding.onboardingView.setVisibility(View.GONE);
