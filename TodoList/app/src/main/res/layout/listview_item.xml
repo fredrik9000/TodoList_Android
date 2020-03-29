@@ -17,7 +17,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:checked="@{todo.isCompleted}" />
+            android:checked="@{todo.isCompleted}"
+            android:padding="@dimen/list_item_checkbox_padding"
+            android:scaleX="1.4"
+            android:scaleY="1.4"
+            android:layout_marginStart="@dimen/list_item_checkbox_scale_correction_padding"
+            android:layout_marginTop="@dimen/list_item_checkbox_scale_correction_padding"
+            />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/description_text_view"

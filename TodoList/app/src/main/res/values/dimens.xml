@@ -10,6 +10,8 @@
     <dimen name="list_item_vertical_padding">8dp</dimen>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
     <dimen name="list_item_text_horizontal_margin">16dp</dimen>
+    <dimen name="list_item_checkbox_padding">8dp</dimen>
+    <dimen name="list_item_checkbox_scale_correction_padding">2dp</dimen>
     <dimen name="todo_list_padding_bottom">88dp</dimen>
 
     <dimen name="add_edit_todo_text_content_padding">16dp</dimen>
