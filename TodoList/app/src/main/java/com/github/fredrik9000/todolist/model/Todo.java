@@ -13,16 +13,21 @@ public class Todo {
     private int notificationId;
     private int notifyYear, notifyMonth, notifyDay, notifyHour, notifyMinute;
     private boolean notificationEnabled;
+    private int geofenceNotificationId;
+    private double geofenceLatitude, getGeofenceLongitude;
+    private int geofenceRadius;
+    private boolean geofenceNotificationEnabled;
     private boolean isCompleted;
 
     public Todo() {
     }
 
-    public Todo(String description, String note, int priority, int notificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute, boolean isCompleted) {
+    public Todo(String description, String note, int priority, int notificationId, int geofenceNotificationId, boolean hasNotification, int notifyYear, int notifyMonth, int notifyDay, int notifyHour, int notifyMinute, boolean hasGeofenceNotification, double geofenceLatitude, double getGeofenceLongitude, int geofenceRadius, boolean isCompleted) {
         this.description = description;
         this.note = note;
         this.priority = priority;
         this.notificationId = notificationId;
+        this.geofenceNotificationId = geofenceNotificationId;
         this.notificationEnabled = hasNotification;
         this.notifyYear = notifyYear;
         this.notifyMonth = notifyMonth;
@@ -30,6 +35,10 @@ public class Todo {
         this.notifyHour = notifyHour;
         this.notifyMinute = notifyMinute;
         this.isCompleted = isCompleted;
+        this.geofenceNotificationEnabled = hasGeofenceNotification;
+        this.geofenceLatitude = geofenceLatitude;
+        this.getGeofenceLongitude = getGeofenceLongitude;
+        this.geofenceRadius = geofenceRadius;
     }
 
     public int getNotifyYear() {
@@ -80,6 +89,14 @@ public class Todo {
         this.notificationEnabled = notificationEnabled;
     }
 
+    public boolean isGeofenceNotificationEnabled() {
+        return geofenceNotificationEnabled;
+    }
+
+    public void setGeofenceNotificationEnabled(boolean geofenceNotificationEnabled) {
+        this.geofenceNotificationEnabled = geofenceNotificationEnabled;
+    }
+
     public int getPriority() {
         return priority;
     }
@@ -110,6 +127,38 @@ public class Todo {
 
     public void setNotificationId(int notificationId) {
         this.notificationId = notificationId;
+    }
+
+    public int getGeofenceNotificationId() {
+        return geofenceNotificationId;
+    }
+
+    public void setGeofenceNotificationId(int geofenceNotificationId) {
+        this.geofenceNotificationId = geofenceNotificationId;
+    }
+
+    public double getGeofenceLatitude() {
+        return geofenceLatitude;
+    }
+
+    public void setGeofenceLatitude(double geofenceLatitude) {
+        this.geofenceLatitude = geofenceLatitude;
+    }
+
+    public double getGetGeofenceLongitude() {
+        return getGeofenceLongitude;
+    }
+
+    public void setGetGeofenceLongitude(double getGeofenceLongitude) {
+        this.getGeofenceLongitude = getGeofenceLongitude;
+    }
+
+    public int getGeofenceRadius() {
+        return geofenceRadius;
+    }
+
+    public void setGeofenceRadius(int geofenceRadius) {
+        this.geofenceRadius = geofenceRadius;
     }
 
     public boolean isCompleted() {

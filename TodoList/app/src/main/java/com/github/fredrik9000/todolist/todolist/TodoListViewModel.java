@@ -47,7 +47,17 @@ public class TodoListViewModel extends AndroidViewModel {
         searchValueLiveData.setValue(null); // Sets the todoList live data to contain all todos.
     }
 
-    void insert(Todo todo) {
+    void insertTodo(Todo todo, AlarmManager alarmManager) {
+        if (todo.isNotificationEnabled()) {
+            NotificationUtil.addNotification(application.getApplicationContext(),
+                    alarmManager,
+                    todo.getNotificationId(), todo.getDescription(), todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute());
+        }
+
+        if (todo.isGeofenceNotificationEnabled()) {
+            NotificationUtil.addGeofenceNotification(application.getApplicationContext(), todo.getGeofenceNotificationId(), todo.getDescription(), todo.getGeofenceRadius(), todo.getGeofenceLatitude(), todo.getGetGeofenceLongitude());
+        }
+
         repository.insert(todo);
     }
 
@@ -72,7 +82,7 @@ public class TodoListViewModel extends AndroidViewModel {
         return removedTodoItems;
     }
 
-    List<Todo> deleteCompletedTodoItems(AlarmManager alarmManager) {
+    List<Todo> deleteAllCompletedTodoItems(AlarmManager alarmManager) {
         final List<Todo> removedTodoItems = new ArrayList<>();
         for (Todo todo : todoList.getValue()) {
             if (todo.isCompleted()) {
@@ -88,6 +98,10 @@ public class TodoListViewModel extends AndroidViewModel {
             NotificationUtil.removeNotification(application.getApplicationContext(), alarmManager, todo.getNotificationId());
         }
 
+        if (todo.isGeofenceNotificationEnabled()) {
+            NotificationUtil.removeGeofenceNotification(application.getApplicationContext(), todo.getGeofenceNotificationId());
+        }
+
         repository.delete(todo);
     }
 
@@ -95,6 +109,9 @@ public class TodoListViewModel extends AndroidViewModel {
         for (Todo todo : todoListItems) {
             if (todo.isNotificationEnabled()) {
                 NotificationUtil.addNotification(application.getApplicationContext(), alarmManager, todo.getNotificationId(), todo.getDescription(), todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute());
+            }
+            if (todo.isGeofenceNotificationEnabled()) {
+                NotificationUtil.addGeofenceNotification(application.getApplicationContext(), todo.getNotificationId(), todo.getDescription(), todo.getGeofenceRadius(), todo.getGeofenceLatitude(), todo.getGetGeofenceLongitude());
             }
         }
         repository.insertTodoItems(todoListItems);

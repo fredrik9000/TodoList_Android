@@ -1,6 +1,5 @@
 package com.github.fredrik9000.todolist.todolist;
 
-
 import android.app.AlarmManager;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -19,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.SearchView;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.fredrik9000.todolist.R;
+import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoFragment;
 import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding;
 import com.github.fredrik9000.todolist.model.Todo;
 import com.github.fredrik9000.todolist.notifications.NotificationUtil;
@@ -58,7 +57,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo_list, container, false);
+        binding = FragmentTodoListBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -78,7 +77,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
         final FloatingActionButton addTodoButton = binding.addTodoButton;
         addTodoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Navigation.findNavController(view).navigate(TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_add_todo), "", ""));
+                Navigation.findNavController(view).navigate(R.id.action_todoListFragment_to_addEditTodoFragment);
             }
         });
 
@@ -100,7 +99,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.mymenu, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -136,7 +135,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             return true;
         } else if (id == R.id.delete_completed_tasks_menu_item) {
             final AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-            final List<Todo> removedTodoListItems = todoListViewModel.deleteCompletedTodoItems(alarmManager);
+            final List<Todo> removedTodoListItems = todoListViewModel.deleteAllCompletedTodoItems(alarmManager);
 
             if (removedTodoListItems.size() == 0) {
                 return super.onOptionsItemSelected(item);
@@ -188,23 +187,31 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             return;
         }
 
-        TodoListFragmentDirections.ActionTodoListFragmentToAddEditTodoFragment action = TodoListFragmentDirections.actionTodoListFragmentToAddEditTodoFragment(getString(R.string.title_edit_todo), "", "");
-        action.setId(todo.getId());
-        action.setDescription(todo.getDescription());
-        action.setNote(todo.getNote());
-        action.setPriority(todo.getPriority());
-        action.setHasNotification(todo.isNotificationEnabled());
-
+        // Double cannot be passed as safe args, which is used for latitude and longitude, so must create a bundle instead
+        Bundle bundle = new Bundle();
+        bundle.putInt(AddEditTodoFragment.ARGUMENT_TODO_ID, todo.getId());
+        bundle.putString(AddEditTodoFragment.ARGUMENT_DESCRIPTION, todo.getDescription());
+        bundle.putString(AddEditTodoFragment.ARGUMENT_NOTE, todo.getNote());
+        bundle.putInt(AddEditTodoFragment.ARGUMENT_PRIORITY, todo.getPriority());
+        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION, todo.isNotificationEnabled());
         if (todo.isNotificationEnabled()) {
-            action.setNotificationId(todo.getNotificationId());
-            action.setNotificationYear(todo.getNotifyYear());
-            action.setNotificationMonth(todo.getNotifyMonth());
-            action.setNotificationDay(todo.getNotifyDay());
-            action.setNotificationHour(todo.getNotifyHour());
-            action.setNotificationMinute(todo.getNotifyMinute());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID, todo.getNotificationId());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_YEAR, todo.getNotifyYear());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MONTH, todo.getNotifyMonth());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_DAY, todo.getNotifyDay());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_HOUR, todo.getNotifyHour());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MINUTE, todo.getNotifyMinute());
         }
 
-        Navigation.findNavController(view).navigate(action);
+        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, todo.isGeofenceNotificationEnabled());
+        if (todo.isGeofenceNotificationEnabled()) {
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_NOTIFICATION_ID, todo.getGeofenceNotificationId());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_RADIUS, todo.getGeofenceRadius());
+            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LATITUDE, todo.getGeofenceLatitude());
+            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LONGITUDE, todo.getGetGeofenceLongitude());
+        }
+
+        Navigation.findNavController(view).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, bundle);
     }
 
     @Override
@@ -246,12 +253,8 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
                             }
                             todoListViewModel.updateLastClickedUndoTime();
 
-                            if (todo.isNotificationEnabled()) {
-                                NotificationUtil.addNotification(getActivity().getApplicationContext(),
-                                        (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE),
-                                        todo.getNotificationId(), todo.getDescription(), todo.getNotifyYear(), todo.getNotifyMonth(), todo.getNotifyDay(), todo.getNotifyHour(), todo.getNotifyMinute());
-                            }
-                            todoListViewModel.insert(todo);
+                            todoListViewModel.insertTodo(todo, (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE));
+
                             Snackbar snackbar2 = Snackbar.make(
                                     binding.coordinatorLayout,
                                     R.string.undo_successful,
@@ -277,11 +280,18 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
     @Override
     public void onCompletedToggled(Todo todo, boolean isChecked) {
         // If a notification is active for the completed task, remove it.
-        if (isChecked && todo.isNotificationEnabled()) {
-            NotificationUtil.removeNotification(getActivity().getApplicationContext(), (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE), todo.getNotificationId());
+        if (isChecked) {
+            if (todo.isNotificationEnabled()) {
+                AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+                NotificationUtil.removeNotification(getActivity().getApplicationContext(), alarmManager, todo.getNotificationId());
+            }
+
+            if (todo.isGeofenceNotificationEnabled()) {
+                NotificationUtil.removeGeofenceNotification(getActivity().getApplicationContext(), todo.getGeofenceNotificationId());
+            }
         }
 
-        Todo todoUpdated = new Todo(todo.getDescription(), todo.getNote(), todo.getPriority(), 0, false, 0, 0, 0, 0, 0, isChecked);
+        Todo todoUpdated = new Todo(todo.getDescription(), todo.getNote(), todo.getPriority(), 0, 0, false, 0, 0, 0, 0, 0, false, 0, 0, 0, isChecked);
         todoUpdated.setId(todo.getId());
         todoListViewModel.update(todoUpdated);
     }

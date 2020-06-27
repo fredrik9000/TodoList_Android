@@ -24,6 +24,9 @@ public interface TodoDao {
     @Query("UPDATE todo_table SET notificationEnabled = 0, notificationId = 0, notifyYear = 0, notifyMonth = 0, notifyDay = 0, notifyHour = 0, notifyMinute = 0 WHERE notificationId = :notificationId")
     void disableNotificationWithId(int notificationId);
 
+    @Query("UPDATE todo_table SET geofenceNotificationEnabled = 0, geofenceNotificationId = 0, geofenceLatitude = 0, getGeofenceLongitude = 0, geofenceRadius = 0 WHERE geofenceNotificationId = :geofenceNotificationId")
+    void disableGeofenceNotificationWithId(int geofenceNotificationId);
+
     @Delete
     void delete(Todo todo);
 
@@ -32,4 +35,7 @@ public interface TodoDao {
 
     @Query("SELECT * FROM todo_table WHERE description LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, description ASC")
     LiveData<List<Todo>> getTodosWithText(String searchValue);
+
+    @Query("SELECT * FROM todo_table WHERE geofenceNotificationEnabled = 1")
+    List<Todo> getTodosWithGeofence();
 }

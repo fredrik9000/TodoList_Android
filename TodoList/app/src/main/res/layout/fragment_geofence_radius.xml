@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/geofence_options"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/geofence_radius_fragment_height"
+    android:layout_gravity="bottom"
+    android:alpha="0.8"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/geofence_radius_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/geofence_radius_fragment_title_margin"
+        android:text="@string/set_geofence_radius_title"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/geofence_radius_fragment_title_size" />
+
+    <SeekBar
+        android:id="@+id/geofence_radius_seek_bar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/geofence_radius_fragment_seekbar_left_right_margin"
+        android:layout_marginRight="@dimen/geofence_radius_fragment_seekbar_left_right_margin"
+        android:max="4"
+        android:progress="1" />
+
+    <TextView
+        android:id="@+id/radius_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_marginLeft="@dimen/geofence_radius_fragment_description_left_right_margin"
+        android:layout_marginTop="@dimen/geofence_radius_fragment_description_top_bottom_margin"
+        android:layout_marginRight="@dimen/geofence_radius_fragment_description_left_right_margin"
+        android:layout_marginBottom="@dimen/geofence_radius_fragment_description_top_bottom_margin"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

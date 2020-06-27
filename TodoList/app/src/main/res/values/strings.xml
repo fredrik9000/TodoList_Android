@@ -5,6 +5,7 @@
     <string name="title_main">Things to do</string>
     <string name="title_add_todo">Add task</string>
     <string name="title_edit_todo">Edit task</string>
+    <string name="fragment_geofence_map">Set geofence</string>
     <string name="onboarding_explanatory_text">Add tasks by tapping the plus button to get started.</string>
 
     <string name="delete_task_button">Delete item</string>
@@ -19,16 +20,39 @@
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>
     <string name="high_priority">High priority</string>
-    <string name="add_notification">Add notification</string>
+    <string name="add_timed_notification">New timed notification</string>
+    <string name="add_geofence_notification">New geofence notification</string>
     <string name="remove_notification">Remove notification</string>
     <string name="update_notification">Update notification</string>
-    <string name="notification_pretext">Notify:</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
     <string name="notification_removed">Notification removed</string>
+    <string name="notification_by_time_not_set_heading">Notify at time</string>
+    <string name="notification_by_time_set_heading">Notify at time: %1$s</string>
+    <string name="notification_by_location_not_set_heading">Notify at location</string>
+    <string name="notification_by_location_set_heading">Notify at location: %1$s</string>
 
     <string name="delete_completed_tasks_menu_item">Clear completed</string>
     <string name="delete_all_tasks_menu_item">Clear all</string>
     <string name="toggle_night_mode_menu_item">Dark theme</string>
     <string name="search_menu_item">Search for tasks</string>
+
+    <string name="add_todo_item">Add a new task</string>
+    <string name="save_todo_item">Save task</string>
+
+    <string name="radius_description">Radius: %1$s meters</string>
+
+    <string name="timed_notification_title">Task reminder</string>
+    <string name="geofence_notification_title">Task location reminder</string>
+
+    <string name="set_geofence_radius_title">Set geofence size</string>
+    <string name="geofence_not_available">Geofence not available</string>
+    <string name="too_many_geofences">Too many geofences</string>
+    <string name="too_many_pending_intents">The geofence has too many pending intents</string>
+    <string name="unknown_geofence_error">Unknown geofence error</string>
+    <string name="geofence_transition_invalid_type">The geofence transition type: %1$d is invalid</string>
+    <string name="geofence_removed">Geofence removed</string>
+    <string name="geofence_added">Geofence added</string>
+    <string name="geofence_removal_failed">Failed to remove geofence</string>
+    <string name="adding_geofence_failed">Failed to add geofence</string>
 
 </resources>

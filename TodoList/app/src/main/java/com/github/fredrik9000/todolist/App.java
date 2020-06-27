@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Build;
 
 public class App extends Application {
+
     public static final String NOTIFICATION_CHANNEL_ID = "main_channel";
     private static final String NOTIFICATION_CHANNEL_NAME = "Task Reminders";
 

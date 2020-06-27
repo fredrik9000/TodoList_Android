@@ -5,10 +5,12 @@
     <color name="colorPrimaryDark">#121212</color>
     <color name="colorAccent">#E04CFA</color>
 
-    <color name="notification_active_icon">#FFFFFF</color>
-    <color name="note_icon">#FFFFFF</color>
+    <color name="list_item_icon">#FFFFFF</color>
     <color name="note_border_color">#C0C0C0</color>
-    <color name="color_fab_tint">#000000</color>
-    <color name="color_button_background_tint">#373737</color>
+    <color name="fab_tint">#000000</color>
+    <color name="button_background_tint">#373737</color>
+
+    <color name="geofence_stroke">#AA1F1A24</color>
+    <color name="geofence_fill">#77E04CFA</color>
 
 </resources>

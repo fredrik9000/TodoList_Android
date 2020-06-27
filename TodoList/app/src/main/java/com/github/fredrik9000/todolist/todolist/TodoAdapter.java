@@ -36,10 +36,13 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
                     oldItem.getNote().equals(newItem.getNote()) &&
                     oldItem.getPriority() == newItem.getPriority() &&
                     oldItem.isNotificationEnabled() == newItem.isNotificationEnabled() &&
+                    oldItem.isGeofenceNotificationEnabled() == newItem.isGeofenceNotificationEnabled() &&
                     oldItem.getNotificationId() == newItem.getNotificationId() &&
+                    oldItem.getGeofenceNotificationId() == newItem.getGeofenceNotificationId() &&
                     oldItem.isCompleted() == newItem.isCompleted();
         }
     };
+
     private final OnItemInteractionListener interactionListener;
 
     TodoAdapter(Context context, OnItemInteractionListener interactionListener) {
@@ -52,8 +55,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        ListviewItemBinding binding = ListviewItemBinding.inflate(inflater, viewGroup, false);
-        return new ViewHolder(binding);
+        return new ViewHolder(ListviewItemBinding.inflate(inflater, viewGroup, false));
     }
 
     @Override
@@ -76,6 +78,12 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             todoItemViewHolder.binding.alarmImageView.setVisibility(View.VISIBLE);
         } else {
             todoItemViewHolder.binding.alarmImageView.setVisibility(View.GONE);
+        }
+
+        if (todoItem.isGeofenceNotificationEnabled()) {
+            todoItemViewHolder.binding.geofenceImageView.setVisibility(View.VISIBLE);
+        } else {
+            todoItemViewHolder.binding.geofenceImageView.setVisibility(View.GONE);
         }
 
         if (todoItem.getNote() != null && todoItem.getNote().length() > 0) {
@@ -104,7 +112,9 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
 
     public interface OnItemInteractionListener {
         void onItemClick(View view, Todo todo);
+
         boolean onItemLongClick(int position);
+
         void onCompletedToggled(Todo todo, boolean isChecked);
     }
 
@@ -118,7 +128,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             binding.parentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int position = getAdapterPosition();
+                    int position = getBindingAdapterPosition();
                     if (interactionListener != null && position != RecyclerView.NO_POSITION) {
                         interactionListener.onItemClick(view, getItem(position));
                     }
@@ -128,7 +138,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             binding.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    int position = getAdapterPosition();
+                    int position = getBindingAdapterPosition();
                     if (interactionListener != null && position != RecyclerView.NO_POSITION) {
                         return interactionListener.onItemLongClick(position);
                     } else {
@@ -140,7 +150,7 @@ public class TodoAdapter extends ListAdapter<Todo, TodoAdapter.ViewHolder> {
             binding.completeCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    interactionListener.onCompletedToggled(getItem(getAdapterPosition()), isChecked);
+                    interactionListener.onCompletedToggled(getItem(getBindingAdapterPosition()), isChecked);
                 }
             });
         }

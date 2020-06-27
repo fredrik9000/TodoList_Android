@@ -4,9 +4,12 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+
+import com.github.fredrik9000.todolist.add_edit_todo.GeofenceRadiusFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +24,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        FragmentManager fragmentManager = getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager();
+
+        if (fragmentManager.findFragmentByTag(GeofenceRadiusFragment.TAG) != null) {
+            GeofenceRadiusFragment.disableAnimations = true;
+            fragmentManager.popBackStackImmediate();
+            GeofenceRadiusFragment.disableAnimations = false;
+        }
+
         NavController controller = Navigation.findNavController(this, R.id.nav_host_fragment);
         return controller.navigateUp();
     }

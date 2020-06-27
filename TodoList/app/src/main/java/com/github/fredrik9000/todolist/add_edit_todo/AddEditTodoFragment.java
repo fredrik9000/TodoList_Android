@@ -1,12 +1,17 @@
 package com.github.fredrik9000.todolist.add_edit_todo;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.location.Geocoder;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,37 +21,48 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class AddEditTodoFragment extends Fragment implements DatePickerFragment.OnSelectDateDialogInteractionListener, TimePickerFragment.OnSelectTimeDialogInteractionListener {
 
+    private static final String TAG = "AddEditTodoFragment";
+
+    public static final String ARGUMENT_TODO_ID = "ARGUMENT_TODO_ID";
+    public static final String ARGUMENT_DESCRIPTION = "ARGUMENT_DESCRIPTION";
+    public static final String ARGUMENT_NOTE = "ARGUMENT_NOTE";
+    public static final String ARGUMENT_PRIORITY = "ARGUMENT_PRIORITY";
+    public static final String ARGUMENT_HAS_NOTIFICATION = "ARGUMENT_HAS_NOTIFICATION";
+    public static final String ARGUMENT_NOTIFICATION_ID = "ARGUMENT_NOTIFICATION_ID";
+    public static final String ARGUMENT_NOTIFICATION_YEAR = "ARGUMENT_NOTIFICATION_YEAR";
+    public static final String ARGUMENT_NOTIFICATION_MONTH = "ARGUMENT_NOTIFICATION_MONTH";
+    public static final String ARGUMENT_NOTIFICATION_DAY = "ARGUMENT_NOTIFICATION_DAY";
+    public static final String ARGUMENT_NOTIFICATION_HOUR = "ARGUMENT_NOTIFICATION_HOUR";
+    public static final String ARGUMENT_NOTIFICATION_MINUTE = "ARGUMENT_NOTIFICATION_MINUTE";
+    public static final String ARGUMENT_HAS_GEOFENCE_NOTIFICATION = "ARGUMENT_HAS_GEOFENCE_NOTIFICATION";
+    public static final String ARGUMENT_GEOFENCE_NOTIFICATION_ID = "ARGUMENT_GEOFENCE_NOTIFICATION_ID";
+    public static final String ARGUMENT_GEOFENCE_RADIUS = "ARGUMENT_GEOFENCE_RADIUS";
+    public static final String ARGUMENT_GEOFENCE_LATITUDE = "ARGUMENT_GEOFENCE_LATITUDE";
+    public static final String ARGUMENT_GEOFENCE_LONGITUDE = "ARGUMENT_GEOFENCE_LONGITUDE";
+
+    private static final int LOCATION_REQUEST_CODE = 1;
+
     private FragmentAddEditTodoBinding binding;
     private AddEditTodoViewModel addEditTodoViewModel;
-
-    private static final String DESCRIPTION_SAVED_STATE = "TODO_DESCRIPTION";
-    private static final String NOTE_SAVED_STATE = "TODO_PRIORITY";
-    private static final String PRIORITY_SAVED_STATE = "TODO_PRIORITY";
-    static final String NOTIFICATION_YEAR_SAVED_STATE = "NOTIFICATION_YEAR";
-    static final String NOTIFICATION_MONTH_SAVED_STATE = "NOTIFICATION_MONTH";
-    static final String NOTIFICATION_DAY_SAVED_STATE = "NOTIFICATION_DAY";
-    static final String NOTIFICATION_HOUR_SAVED_STATE = "NOTIFICATION_HOUR";
-    static final String NOTIFICATION_MINUTE_SAVED_STATE = "NOTIFICATION_MINUTE";
-    static final String NOTIFICATION_ID_SAVED_STATE = "NOTIFICATION_ID";
-    private static final String HAS_NOTIFICATION_SAVED_STATE = "HAS_NOTIFICATION";
-    private static final String NOTIFICATION_UPDATE_STATE_SAVED_STATE = "NOTIFICATION_UPDATE_STATE";
 
     public AddEditTodoFragment() {
         // Required empty public constructor
@@ -55,7 +71,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_edit_todo, container, false);
+        binding = FragmentAddEditTodoBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -64,43 +80,79 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         super.onViewCreated(view, savedInstanceState);
 
         addEditTodoViewModel = new ViewModelProvider(this).get(AddEditTodoViewModel.class);
-        AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
-        addEditTodoViewModel.todoId = args.getId();
 
-        String todoDescription;
-        String todoNote;
-
-        if (savedInstanceState != null) {
-            todoDescription = savedInstanceState.getString(DESCRIPTION_SAVED_STATE);
-            todoNote = savedInstanceState.getString(NOTE_SAVED_STATE);
-            addEditTodoViewModel.priority = savedInstanceState.getInt(PRIORITY_SAVED_STATE);
-            addEditTodoViewModel.hasNotification = savedInstanceState.getBoolean(HAS_NOTIFICATION_SAVED_STATE);
-            addEditTodoViewModel.notificationUpdateState = (NotificationUpdateState) savedInstanceState.getSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE);
+        // If arguments is not null we are editing an existing task
+        if (getArguments() != null) {
+            getActivity().setTitle(getResources().getString(R.string.title_edit_todo));
+            addEditTodoViewModel.setValuesFromArgumentsOrSavedState(getArguments());
         } else {
-            todoDescription = args.getDescription();
-            todoNote = args.getNote();
-            addEditTodoViewModel.priority = args.getPriority();
-            addEditTodoViewModel.hasNotification = args.getHasNotification();
+            getActivity().setTitle(getResources().getString(R.string.title_add_todo));
         }
 
-        if (todoDescription.length() == 0) {
+        if (addEditTodoViewModel.isDescriptionEmpty()) {
             binding.saveTodoButton.setEnabled(false);
             binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
         } else {
             binding.saveTodoButton.setEnabled(true);
             binding.saveTodoButton.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this.getContext(), R.color.colorAccent)));
-            binding.todoDescriptionEditText.setText(todoDescription);
+            binding.todoDescriptionEditText.setText(addEditTodoViewModel.getDescription());
         }
 
-        binding.todoNoteEditText.setText(todoNote);
+        binding.todoNoteEditText.setText(addEditTodoViewModel.getNote());
 
         setupPriorityPicker();
-        setupNotificationState(savedInstanceState);
+        setupNotificationState();
+        setupGeofenceNotificationState();
 
         binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher);
         binding.saveTodoButton.setOnClickListener(saveButtonListener);
         binding.removeNotificationButton.setOnClickListener(removeNotificationButtonListener);
-        binding.addNotificationButton.setOnClickListener(addNotificationButtonListener);
+        binding.addUpdateNotificationButton.setOnClickListener(addNotificationButtonListener);
+        binding.removeGeofenceNotificationButton.setOnClickListener(removeGeofenceNotificationButtonListener);
+        binding.addUpdateGeofenceNotificationButton.setOnClickListener(addGeofenceNotificationButtonListener);
+
+        setGeofenceObservers();
+    }
+
+    private void setGeofenceObservers() {
+        final SavedStateHandle savedStateHandle = NavHostFragment.findNavController(this).getCurrentBackStackEntry().getSavedStateHandle();
+        MutableLiveData<Integer> radiusLiveData = savedStateHandle.getLiveData(GeofenceMapViewModel.GEOFENCE_RADIUS_STATE);
+        radiusLiveData.observe(getViewLifecycleOwner(), new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer radius) {
+                addEditTodoViewModel.setGeofenceRadius(radius);
+                savedStateHandle.remove(GeofenceMapViewModel.GEOFENCE_RADIUS_STATE);
+            }
+        });
+
+        MutableLiveData<Double> latitudeLiveData = savedStateHandle.getLiveData(GeofenceMapViewModel.GEOFENCE_CENTER_LAT_STATE);
+        latitudeLiveData.observe(getViewLifecycleOwner(), new Observer<Double>() {
+            @Override
+            public void onChanged(Double latitude) {
+                addEditTodoViewModel.setGeofenceLatitude(latitude);
+                savedStateHandle.remove(GeofenceMapViewModel.GEOFENCE_CENTER_LAT_STATE);
+            }
+        });
+
+        MutableLiveData<Double> longitudeLiveData = savedStateHandle.getLiveData(GeofenceMapViewModel.GEOFENCE_CENTER_LONG_STATE);
+        longitudeLiveData.observe(getViewLifecycleOwner(), new Observer<Double>() {
+            @Override
+            public void onChanged(Double longitude) {
+                addEditTodoViewModel.setGeofenceLongitude(longitude);
+                savedStateHandle.remove(GeofenceMapViewModel.GEOFENCE_CENTER_LONG_STATE);
+            }
+        });
+
+        MutableLiveData<Boolean> hasGeofenceLiveData = savedStateHandle.getLiveData(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE);
+        hasGeofenceLiveData.observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean hasGeofence) {
+                addEditTodoViewModel.setHasGeofenceNotification(hasGeofence);
+                addEditTodoViewModel.setGeofenceNotificationUpdateState(NotificationUpdateState.ADDED_NOTIFICATION);
+                savedStateHandle.remove(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE);
+                displayGeofenceNotificationAddedState();
+            }
+        });
     }
 
     private void setupPriorityPicker() {
@@ -109,49 +161,99 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         binding.priorityPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (addEditTodoViewModel.priority == 0) {
-                    addEditTodoViewModel.priority = 1;
-                } else if (addEditTodoViewModel.priority == 1) {
-                    addEditTodoViewModel.priority = 2;
-                } else {
-                    addEditTodoViewModel.priority = 0;
-                }
+                addEditTodoViewModel.togglePriorityValue();
                 binding.priorityPickerButton.setText(addEditTodoViewModel.getLabelForCurrentPriority());
                 binding.priorityPickerButton.setTextColor(addEditTodoViewModel.getColorForCurrentPriority());
             }
         });
     }
 
-    private void setupNotificationState(@Nullable Bundle savedInstanceState) {
-        if (addEditTodoViewModel.hasNotification) {
-            if (savedInstanceState != null) {
-                addEditTodoViewModel.setNotificationValuesFromBundle(savedInstanceState);
-                displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
-            } else {
-                AddEditTodoFragmentArgs args = AddEditTodoFragmentArgs.fromBundle(getArguments());
-                addEditTodoViewModel.setNotificationValuesFromArguments(args);
-
-                if (addEditTodoViewModel.isNotificationExpired()) {
-                    addEditTodoViewModel.clearNotificationValues();
-                    addEditTodoViewModel.generateNewNotificationId();
-                } else {
-                    displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
-                }
-            }
-        } else {
-            // Tasks without notification will be given a generated notification id for later use
-            // If the task is saved without a notification it wont be included
-            addEditTodoViewModel.generateNewNotificationId();
+    private void setupNotificationState() {
+        addEditTodoViewModel.setupNotificationState(getArguments());
+        if (addEditTodoViewModel.hasNotification() && !addEditTodoViewModel.isNotificationExpired()) {
+            displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
         }
+    }
+
+    private void displayNotificationAddedState(Calendar notificationCalendar) {
+        constrainAddNotificationButtonToAddedState(R.id.add_update_notification_button);
+        binding.notificationTextView.setText(getString(R.string.notification_by_time_set_heading,
+                DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.getTime())));
+        binding.removeNotificationButton.setVisibility(View.VISIBLE);
+        binding.addUpdateNotificationButton.setText(R.string.update_notification);
+    }
+
+    private void displayNotificationNotAddedState() {
+        constrainAddNotificationButtonToRemovedState(R.id.add_update_notification_button);
+        binding.notificationTextView.setText(getString(R.string.notification_by_time_not_set_heading));
+        binding.addUpdateNotificationButton.setText(R.string.add_timed_notification);
+        binding.removeNotificationButton.setVisibility(View.GONE);
+    }
+
+    private void setupGeofenceNotificationState() {
+        addEditTodoViewModel.setupGeofenceNotificationState(getArguments());
+        if (addEditTodoViewModel.hasGeofenceNotification()) {
+            displayGeofenceNotificationAddedState();
+        }
+    }
+
+    private void displayGeofenceNotificationAddedState() {
+        constrainAddNotificationButtonToAddedState(R.id.add_update_geofence_notification_button);
+        binding.geofenceNotificationTextView.setText(getString(R.string.notification_by_location_set_heading, getAddressFromLatLong(addEditTodoViewModel.getGeofenceLatitude(), addEditTodoViewModel.getGeofenceLongitude())));
+        binding.removeGeofenceNotificationButton.setVisibility(View.VISIBLE);
+        binding.addUpdateGeofenceNotificationButton.setText(R.string.update_notification);
+    }
+
+    private void displayGeofenceNotificationNotAddedState() {
+        constrainAddNotificationButtonToRemovedState(R.id.add_update_geofence_notification_button);
+        binding.geofenceNotificationTextView.setText(getString(R.string.notification_by_location_not_set_heading));
+        binding.addUpdateGeofenceNotificationButton.setText(R.string.add_geofence_notification);
+        binding.removeGeofenceNotificationButton.setVisibility(View.GONE);
+    }
+
+    private String getAddressFromLatLong(double latitude, double longitude) {
+        String address = null;
+        try {
+            address = new Geocoder(getContext(), Locale.getDefault()).getFromLocation(latitude, longitude, 1).get(0).getAddressLine(0);
+        } catch (IOException e) {
+            Log.w(TAG, "Could not get city from latitude and longitude: " + e.getMessage());
+        }
+        return address != null ? address : "Unknown";
+    }
+
+    // When both the add and remove buttons are showing, show each button on each side of the centered vertical guideline, moved towards the center
+    private void constrainAddNotificationButtonToAddedState(int addNotificationButton) {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(binding.addEditTodoConstraintLayout);
+        constraintSet.connect(addNotificationButton, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, (int) getResources().getDimension(R.dimen.notification_buttons_space_divided_by_2));
+        constraintSet.setHorizontalBias(addNotificationButton, 1.0f);
+        constraintSet.applyTo(binding.addEditTodoConstraintLayout);
+    }
+
+    // When only the add button is showing, center it horizontally
+    private void constrainAddNotificationButtonToRemovedState(int addNotificationButton) {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(binding.addEditTodoConstraintLayout);
+        constraintSet.connect(addNotificationButton, ConstraintSet.END, R.id.add_edit_todo_constraint_layout, ConstraintSet.END, 0);
+        constraintSet.setHorizontalBias(addNotificationButton, 0.5f);
+        constraintSet.applyTo(binding.addEditTodoConstraintLayout);
     }
 
     private View.OnClickListener saveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.todoNoteEditText.getText().toString(), addEditTodoViewModel.convertPriorityLabelToValue(binding.priorityPickerButton.getText().toString()));
-            NavController controller = Navigation.findNavController(getView());
-            controller.navigateUp();
+            addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.getText().toString(), binding.todoNoteEditText.getText().toString());
+            Navigation.findNavController(getView()).navigateUp();
+        }
+    };
+
+    private View.OnClickListener addNotificationButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            DatePickerFragment datePickerFragment = new DatePickerFragment();
+            datePickerFragment.setTargetFragment(AddEditTodoFragment.this, 1);
+            datePickerFragment.show(getParentFragmentManager(), "datePicker");
         }
     };
 
@@ -159,9 +261,9 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         @Override
         public void onClick(View view) {
             displayNotificationNotAddedState();
-            addEditTodoViewModel.hasNotification = false;
-            final NotificationUpdateState tempNotificationUpdateState = addEditTodoViewModel.notificationUpdateState;
-            addEditTodoViewModel.notificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION;
+            addEditTodoViewModel.setHasNotification(false);
+            final NotificationUpdateState tempNotificationUpdateState = addEditTodoViewModel.getNotificationUpdateState();
+            addEditTodoViewModel.setNotificationUpdateState(NotificationUpdateState.REMOVED_NOTIFICATION);
 
             Snackbar snackbar = Snackbar.make(
                     binding.addEditTodoCoordinatorLayout,
@@ -177,8 +279,8 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
                     addEditTodoViewModel.updateLastClickedUndoTime();
 
                     // When undoing, set the notification update state to what it was previously.
-                    addEditTodoViewModel.notificationUpdateState = tempNotificationUpdateState;
-                    addEditTodoViewModel.hasNotification = true;
+                    addEditTodoViewModel.setNotificationUpdateState(tempNotificationUpdateState);
+                    addEditTodoViewModel.setHasNotification(true);
                     displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar());
 
                     Snackbar snackbar2 = Snackbar.make(
@@ -193,12 +295,78 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         }
     };
 
-    private View.OnClickListener addNotificationButtonListener = new View.OnClickListener() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                navigateToGeofenceMap();
+            }
+        }
+    }
+
+    private View.OnClickListener addGeofenceNotificationButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            DatePickerFragment datePickerFragment = new DatePickerFragment();
-            datePickerFragment.setTargetFragment(AddEditTodoFragment.this, 1);
-            datePickerFragment.show(getParentFragmentManager(), "datePicker");
+            if (ContextCompat.checkSelfPermission(AddEditTodoFragment.this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(AddEditTodoFragment.this.getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                navigateToGeofenceMap();
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION}, LOCATION_REQUEST_CODE);
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+                }
+            }
+        }
+    };
+
+    private void navigateToGeofenceMap() {
+        Bundle bundle = new Bundle();
+        if (addEditTodoViewModel.hasGeofenceNotification()) {
+            bundle.putBoolean(GeofenceMapFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, addEditTodoViewModel.hasGeofenceNotification());
+            bundle.putInt(GeofenceMapFragment.ARGUMENT_GEOFENCE_RADIUS, addEditTodoViewModel.getGeofenceRadius());
+            bundle.putDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LATITUDE, addEditTodoViewModel.getGeofenceLatitude());
+            bundle.putDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LONGITUDE, addEditTodoViewModel.getGeofenceLongitude());
+        }
+        Navigation.findNavController(getView()).navigate(R.id.action_addEditTodoFragment_to_geofenceMapFragment, bundle);
+    }
+
+    private View.OnClickListener removeGeofenceNotificationButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            displayGeofenceNotificationNotAddedState();
+            addEditTodoViewModel.setHasGeofenceNotification(false);
+            final NotificationUpdateState tempNotificationUpdateState = addEditTodoViewModel.getGeofenceNotificationUpdateState();
+            addEditTodoViewModel.setGeofenceNotificationUpdateState(NotificationUpdateState.REMOVED_NOTIFICATION);
+
+            Snackbar snackbar = Snackbar.make(
+                    binding.addEditTodoCoordinatorLayout,
+                    R.string.notification_removed,
+                    Snackbar.LENGTH_LONG
+            ).setAction(R.string.undo, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (addEditTodoViewModel.isUndoDoubleClicked()) {
+                        return;
+                    }
+
+                    addEditTodoViewModel.updateLastClickedUndoTime();
+
+                    // When undoing, set the notification update state to what it was previously.
+                    addEditTodoViewModel.setGeofenceNotificationUpdateState(tempNotificationUpdateState);
+                    addEditTodoViewModel.setHasGeofenceNotification(true);
+                    displayGeofenceNotificationAddedState();
+
+                    Snackbar snackbar2 = Snackbar.make(
+                            binding.addEditTodoCoordinatorLayout,
+                            R.string.undo_successful,
+                            Snackbar.LENGTH_SHORT
+                    );
+                    snackbar2.show();
+                }
+            });
+            snackbar.show();
         }
     };
 
@@ -226,36 +394,6 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
         }
     };
 
-    private void displayNotificationAddedState(Calendar notificationCalendar) {
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(binding.addEditTodoConstraintLayout);
-
-        // When both buttons are showing, show each button on each side of the centered vertical guideline, moved towards the center
-        constraintSet.connect(R.id.add_notification_button, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, (int)getResources().getDimension(R.dimen.notification_buttons_space_divided_by_2));
-        constraintSet.setHorizontalBias(R.id.add_notification_button, 1.0f);
-        constraintSet.applyTo(binding.addEditTodoConstraintLayout);
-
-        binding.notificationTextView.setText(HtmlCompat.fromHtml("<b>" + getString(R.string.notification_pretext) + "</b> "
-                + DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.getTime()), HtmlCompat.FROM_HTML_MODE_LEGACY));
-        binding.notificationTextView.setVisibility(View.VISIBLE);
-        binding.removeNotificationButton.setVisibility(View.VISIBLE);
-        binding.addNotificationButton.setText(R.string.update_notification);
-    }
-
-    private void displayNotificationNotAddedState() {
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(binding.addEditTodoConstraintLayout);
-
-        // When only the add button is showing, center it horizontally
-        constraintSet.connect(R.id.add_notification_button, ConstraintSet.END, R.id.add_edit_todo_constraint_layout, ConstraintSet.END, 0);
-        constraintSet.setHorizontalBias(R.id.add_notification_button, 0.5f);
-        constraintSet.applyTo(binding.addEditTodoConstraintLayout);
-
-        binding.addNotificationButton.setText(R.string.add_notification);
-        binding.notificationTextView.setVisibility(View.GONE);
-        binding.removeNotificationButton.setVisibility(View.GONE);
-    }
-
     @Override
     public void onSelectDateDialogInteraction(int year, int month, int day) {
         addEditTodoViewModel.setTemporaryNotificationDateValues(year, month, day);
@@ -266,13 +404,12 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
     @Override
     public void onSelectTimeDialogInteraction(int hour, int minute) {
-        Calendar notificationCalendar = Calendar.getInstance();
-        notificationCalendar.set(addEditTodoViewModel.yearTemp, addEditTodoViewModel.monthTemp, addEditTodoViewModel.dayTemp, hour, minute, 0);
-        Calendar currentTimeCalendar = Calendar.getInstance();
-        if (notificationCalendar.getTimeInMillis() < currentTimeCalendar.getTimeInMillis()) {
+        addEditTodoViewModel.setTemporaryNotificationTimeValues(hour, minute);
+        Calendar notificationCalendar = addEditTodoViewModel.createTemporaryNotificationCalendar();
+        if (notificationCalendar.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.invalid_time, Toast.LENGTH_LONG).show();
         } else {
-            addEditTodoViewModel.setFinallySelectedNotificationValues(hour, minute);
+            addEditTodoViewModel.setFinallySelectedNotificationValues();
             displayNotificationAddedState(notificationCalendar);
         }
     }
@@ -280,16 +417,12 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(PRIORITY_SAVED_STATE, addEditTodoViewModel.priority);
-        outState.putString(DESCRIPTION_SAVED_STATE, binding.todoDescriptionEditText.getText().toString());
-        outState.putString(NOTE_SAVED_STATE, binding.todoNoteEditText.getText().toString());
-        outState.putInt(NOTIFICATION_YEAR_SAVED_STATE, addEditTodoViewModel.year);
-        outState.putInt(NOTIFICATION_MONTH_SAVED_STATE, addEditTodoViewModel.month);
-        outState.putInt(NOTIFICATION_DAY_SAVED_STATE, addEditTodoViewModel.day);
-        outState.putInt(NOTIFICATION_HOUR_SAVED_STATE, addEditTodoViewModel.hour);
-        outState.putInt(NOTIFICATION_MINUTE_SAVED_STATE, addEditTodoViewModel.minute);
-        outState.putInt(NOTIFICATION_ID_SAVED_STATE, addEditTodoViewModel.notificationId);
-        outState.putBoolean(HAS_NOTIFICATION_SAVED_STATE, addEditTodoViewModel.hasNotification);
-        outState.putSerializable(NOTIFICATION_UPDATE_STATE_SAVED_STATE, addEditTodoViewModel.notificationUpdateState);
+
+        // If one has navigated further, then the ViewModel will be null on the second rotation
+        if (addEditTodoViewModel != null) {
+            addEditTodoViewModel.setDescription(binding.todoDescriptionEditText.getText().toString().trim());
+            addEditTodoViewModel.setNote(binding.todoNoteEditText.getText().toString());
+            addEditTodoViewModel.saveState();
+        }
     }
 }
