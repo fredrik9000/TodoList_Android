@@ -187,31 +187,7 @@ public class TodoListFragment extends Fragment implements TodoAdapter.OnItemInte
             return;
         }
 
-        // Double cannot be passed as safe args, which is used for latitude and longitude, so must create a bundle instead
-        Bundle bundle = new Bundle();
-        bundle.putInt(AddEditTodoFragment.ARGUMENT_TODO_ID, todo.getId());
-        bundle.putString(AddEditTodoFragment.ARGUMENT_DESCRIPTION, todo.getDescription());
-        bundle.putString(AddEditTodoFragment.ARGUMENT_NOTE, todo.getNote());
-        bundle.putInt(AddEditTodoFragment.ARGUMENT_PRIORITY, todo.getPriority());
-        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION, todo.isNotificationEnabled());
-        if (todo.isNotificationEnabled()) {
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID, todo.getNotificationId());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_YEAR, todo.getNotifyYear());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MONTH, todo.getNotifyMonth());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_DAY, todo.getNotifyDay());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_HOUR, todo.getNotifyHour());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MINUTE, todo.getNotifyMinute());
-        }
-
-        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, todo.isGeofenceNotificationEnabled());
-        if (todo.isGeofenceNotificationEnabled()) {
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_NOTIFICATION_ID, todo.getGeofenceNotificationId());
-            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_RADIUS, todo.getGeofenceRadius());
-            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LATITUDE, todo.getGeofenceLatitude());
-            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LONGITUDE, todo.getGetGeofenceLongitude());
-        }
-
-        Navigation.findNavController(view).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, bundle);
+        Navigation.findNavController(view).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, AddEditTodoFragment.createBundleForTodoItem(todo));
     }
 
     @Override

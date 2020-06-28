@@ -12,10 +12,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.navigation.NavDeepLinkBuilder;
 
 import com.github.fredrik9000.todolist.App;
-import com.github.fredrik9000.todolist.MainActivity;
 import com.github.fredrik9000.todolist.R;
+import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoFragment;
+import com.github.fredrik9000.todolist.model.Todo;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -32,16 +34,16 @@ public class NotificationUtil {
     public static final String TAG = "NotificationUtil";
 
     public static void removeNotification(Context applicationContext, AlarmManager alarmManager, int notificationId) {
-        Intent notificationIntent = new Intent(applicationContext, AlarmReceiver.class);
+        Intent notificationIntent = new Intent(applicationContext, TimedNotificationAlarmReceiver.class);
         PendingIntent pendingIntent = getNotificationPendingIntent(applicationContext, notificationId, notificationIntent);
         alarmManager.cancel(pendingIntent);
         pendingIntent.cancel();
     }
 
     public static void addNotification(Context applicationContext, AlarmManager alarmManager, int notificationId, String description, int year, int month, int day, int hour, int minute) {
-        Intent notificationIntent = new Intent(applicationContext, AlarmReceiver.class);
-        notificationIntent.putExtra(AlarmReceiver.TODO_DESCRIPTION, description);
-        notificationIntent.putExtra(AlarmReceiver.NOTIFICATION_ID, notificationId);
+        Intent notificationIntent = new Intent(applicationContext, TimedNotificationAlarmReceiver.class);
+        notificationIntent.putExtra(TimedNotificationAlarmReceiver.TODO_DESCRIPTION, description);
+        notificationIntent.putExtra(TimedNotificationAlarmReceiver.NOTIFICATION_ID, notificationId);
         PendingIntent pendingIntent = getNotificationPendingIntent(applicationContext, notificationId, notificationIntent);
 
         Calendar notificationCalendar = Calendar.getInstance();
@@ -112,14 +114,16 @@ public class NotificationUtil {
         return PendingIntent.getBroadcast(applicationContext, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public static void sendNotification(Context context, String title, String details, int icon, int notificationId) {
-        Intent intMain = new Intent(context, MainActivity.class);
-        intMain.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intMain, PendingIntent.FLAG_ONE_SHOT);
+    public static void sendNotification(Context context, String title, Todo todo, int icon, int notificationId) {
+        PendingIntent pendingIntent = new NavDeepLinkBuilder(context)
+                .setGraph(R.navigation.navigation_graph)
+                .setDestination(R.id.addEditTodoFragment)
+                .setArguments(AddEditTodoFragment.createBundleForTodoItem(todo))
+                .createPendingIntent();
 
         Notification notification = new NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(title)
-                .setContentText(details)
+                .setContentText(todo.getDescription())
                 .setSmallIcon(icon)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})

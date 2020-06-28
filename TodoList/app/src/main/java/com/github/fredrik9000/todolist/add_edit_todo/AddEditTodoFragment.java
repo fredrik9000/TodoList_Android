@@ -31,6 +31,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.github.fredrik9000.todolist.R;
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding;
+import com.github.fredrik9000.todolist.model.Todo;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
@@ -66,6 +67,35 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
     public AddEditTodoFragment() {
         // Required empty public constructor
+    }
+
+    public static Bundle createBundleForTodoItem(Todo todo) {
+        // Double cannot be passed as safe args, which is used for latitude and longitude, so must create a bundle instead
+        Bundle bundle = new Bundle();
+        bundle.putInt(AddEditTodoFragment.ARGUMENT_TODO_ID, todo.getId());
+        bundle.putString(AddEditTodoFragment.ARGUMENT_DESCRIPTION, todo.getDescription());
+        bundle.putString(AddEditTodoFragment.ARGUMENT_NOTE, todo.getNote());
+        bundle.putInt(AddEditTodoFragment.ARGUMENT_PRIORITY, todo.getPriority());
+
+        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION, todo.isNotificationEnabled());
+        if (todo.isNotificationEnabled()) {
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID, todo.getNotificationId());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_YEAR, todo.getNotifyYear());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MONTH, todo.getNotifyMonth());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_DAY, todo.getNotifyDay());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_HOUR, todo.getNotifyHour());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_MINUTE, todo.getNotifyMinute());
+        }
+
+        bundle.putBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, todo.isGeofenceNotificationEnabled());
+        if (todo.isGeofenceNotificationEnabled()) {
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_NOTIFICATION_ID, todo.getGeofenceNotificationId());
+            bundle.putInt(AddEditTodoFragment.ARGUMENT_GEOFENCE_RADIUS, todo.getGeofenceRadius());
+            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LATITUDE, todo.getGeofenceLatitude());
+            bundle.putDouble(AddEditTodoFragment.ARGUMENT_GEOFENCE_LONGITUDE, todo.getGetGeofenceLongitude());
+        }
+
+        return bundle;
     }
 
     @Override
