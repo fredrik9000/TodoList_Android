@@ -3,9 +3,12 @@ package com.github.fredrik9000.todolist;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
@@ -20,6 +23,25 @@ public class MainActivity extends AppCompatActivity {
 
         NavController controller = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, controller);
+
+        // We have to dynamically set the title for each fragment, because the label of any fragment will stick around and override setTitle
+        controller.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                int destinationId = destination.getId();
+                if (destinationId == R.id.mainFragment) {
+                    setTitle(R.string.title_main);
+                } else if (destinationId == R.id.addEditTodoFragment) {
+                    if (arguments == null) {
+                        setTitle(R.string.title_add_todo);
+                    } else {
+                        setTitle(R.string.title_edit_todo);
+                    }
+                } else if (destinationId == R.id.todoGeofenceMapFragment) {
+                    setTitle(R.string.title_set_geofence);
+                }
+            }
+        });
     }
 
     @Override

@@ -5,7 +5,8 @@
     <string name="title_main">Things to do</string>
     <string name="title_add_todo">Add task</string>
     <string name="title_edit_todo">Edit task</string>
-    <string name="fragment_geofence_map">Set geofence</string>
+    <string name="title_set_geofence">Set geofence</string>
+
     <string name="onboarding_explanatory_text">Add tasks by tapping the plus button to get started.</string>
 
     <string name="delete_task_button">Delete item</string>

@@ -113,10 +113,7 @@ public class AddEditTodoFragment extends Fragment implements DatePickerFragment.
 
         // If arguments is not null we are editing an existing task
         if (getArguments() != null) {
-            getActivity().setTitle(getResources().getString(R.string.title_edit_todo));
             addEditTodoViewModel.setValuesFromArgumentsOrSavedState(getArguments());
-        } else {
-            getActivity().setTitle(getResources().getString(R.string.title_add_todo));
         }
 
         if (addEditTodoViewModel.isDescriptionEmpty()) {
