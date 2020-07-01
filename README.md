@@ -1,6 +1,6 @@
 # Todo List
 
-This todo list application for Android is written in Java and with a modern MVVM architecture using the repository pattern and with several of the Android architecture components:
+This todo list application for Android is written in Kotlin and with a modern MVVM architecture using the repository pattern and with several of the Android architecture components:
 
 - Navigation component
 - ViewModel
