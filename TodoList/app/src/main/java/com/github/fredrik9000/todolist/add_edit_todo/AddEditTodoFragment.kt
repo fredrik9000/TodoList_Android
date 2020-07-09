@@ -16,7 +16,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -127,16 +126,11 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     }
 
     private fun displayNotificationAddedState(notificationCalendar: Calendar) {
-        constrainAddNotificationButtonToAddedState(R.id.add_update_notification_button)
-        binding.notificationTextView.text = getString(R.string.notification_by_time_set_heading,
-                DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time))
         binding.removeNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateNotificationButton.setText(R.string.update_notification)
+        binding.addUpdateNotificationButton.setText(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time))
     }
 
     private fun displayNotificationNotAddedState() {
-        constrainAddNotificationButtonToRemovedState(R.id.add_update_notification_button)
-        binding.notificationTextView.text = getString(R.string.notification_by_time_not_set_heading)
         binding.addUpdateNotificationButton.setText(R.string.add_timed_notification)
         binding.removeNotificationButton.visibility = View.GONE
     }
@@ -149,15 +143,11 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     }
 
     private fun displayGeofenceNotificationAddedState() {
-        constrainAddNotificationButtonToAddedState(R.id.add_update_geofence_notification_button)
-        binding.geofenceNotificationTextView.text = getString(R.string.notification_by_location_set_heading, getAddressFromLatLong(addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude))
         binding.removeGeofenceNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateGeofenceNotificationButton.setText(R.string.update_notification)
+        binding.addUpdateGeofenceNotificationButton.setText(getAddressFromLatLong(addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude))
     }
 
     private fun displayGeofenceNotificationNotAddedState() {
-        constrainAddNotificationButtonToRemovedState(R.id.add_update_geofence_notification_button)
-        binding.geofenceNotificationTextView.text = getString(R.string.notification_by_location_not_set_heading)
         binding.addUpdateGeofenceNotificationButton.setText(R.string.add_geofence_notification)
         binding.removeGeofenceNotificationButton.visibility = View.GONE
     }
@@ -170,26 +160,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             Log.w(TAG, "Could not get city from latitude and longitude: " + e.message)
         }
         return address ?: "Unknown"
-    }
-
-    // When both the add and remove buttons are showing, show each button on each side of the centered vertical guideline, moved towards the center
-    private fun constrainAddNotificationButtonToAddedState(addNotificationButton: Int) {
-        ConstraintSet().apply {
-            clone(binding.addEditTodoConstraintLayout)
-            connect(addNotificationButton, ConstraintSet.END, R.id.centered_vertical_guideline, ConstraintSet.END, resources.getDimension(R.dimen.notification_buttons_space_divided_by_2).toInt())
-            setHorizontalBias(addNotificationButton, 1.0f)
-            applyTo(binding.addEditTodoConstraintLayout)
-        }
-    }
-
-    // When only the add button is showing, center it horizontally
-    private fun constrainAddNotificationButtonToRemovedState(addNotificationButton: Int) {
-        ConstraintSet().apply {
-            clone(binding.addEditTodoConstraintLayout)
-            connect(addNotificationButton, ConstraintSet.END, R.id.add_edit_todo_constraint_layout, ConstraintSet.END, 0)
-            setHorizontalBias(addNotificationButton, 0.5f)
-            applyTo(binding.addEditTodoConstraintLayout)
-        }
     }
 
     private val saveButtonListener: View.OnClickListener? = View.OnClickListener {

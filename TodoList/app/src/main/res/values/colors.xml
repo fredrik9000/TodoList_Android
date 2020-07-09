@@ -9,6 +9,7 @@
     <color name="note_border_color">#808080</color>
     <color name="fab_tint">#FFFFFF</color>
     <color name="button_background_tint">#F3F3F3</color>
+    <color name="button_drawable_tint">#000000</color>
 
     <color name="high_priority">#FF0000</color>
     <color name="medium_priority">#00C000</color>

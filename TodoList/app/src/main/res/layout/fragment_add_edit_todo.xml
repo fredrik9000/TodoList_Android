@@ -92,35 +92,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/notification_text_margin_top"
-                android:text="@string/notification_by_time_not_set_heading"
+                android:text="@string/notification_by_time_heading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/priority_picker_button" />
 
             <Button
                 android:id="@+id/add_update_notification_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/button_background_tint"
+                android:drawableStart="@drawable/ic_notifications_active_black_24dp"
+                android:drawablePadding="@dimen/button_drawable_padding"
                 android:labelFor="@id/notification_text_view"
                 android:text="@string/add_timed_notification"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:drawableTint="@color/button_drawable_tint"
+                app:layout_constraintEnd_toStartOf="@id/remove_notification_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/notification_text_view" />
 
             <Button
                 android:id="@+id/remove_notification_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
+                android:layout_height="0dp"
                 android:backgroundTint="@color/button_background_tint"
                 android:text="@string/remove_notification"
                 android:visibility="gone"
-                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="@id/add_update_notification_button"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/centered_vertical_guideline"
                 app:layout_constraintTop_toBottomOf="@+id/notification_text_view" />
 
             <TextView
@@ -128,43 +127,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/notification_text_margin_top"
-                android:text="@string/notification_by_location_not_set_heading"
+                android:text="@string/notification_by_location_heading"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/add_update_notification_button" />
 
             <Button
                 android:id="@+id/add_update_geofence_notification_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/button_background_tint"
+                android:drawableStart="@drawable/ic_baseline_location_searching_black_24dp"
+                android:drawablePadding="@dimen/button_drawable_padding"
                 android:labelFor="@id/geofence_notification_text_view"
                 android:text="@string/add_geofence_notification"
-                app:layout_constrainedWidth="true"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:drawableTint="@color/button_drawable_tint"
+                app:layout_constraintEnd_toStartOf="@+id/remove_geofence_notification_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/geofence_notification_text_view" />
 
             <Button
                 android:id="@+id/remove_geofence_notification_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/notification_buttons_space_divided_by_2"
+                android:layout_height="0dp"
                 android:backgroundTint="@color/button_background_tint"
                 android:text="@string/remove_notification"
                 android:visibility="gone"
-                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="@id/add_update_geofence_notification_button"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/centered_vertical_guideline"
                 app:layout_constraintTop_toBottomOf="@+id/geofence_notification_text_view" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/centered_vertical_guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
