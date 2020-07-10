@@ -41,15 +41,15 @@ class TodoAdapter(private val context: Context, private val interactionListener:
         } else {
             todoItemViewHolder.binding.geofenceImageView.visibility = View.GONE
         }
-        if (!todoItem.note.isNullOrEmpty()) {
-            todoItemViewHolder.binding.noteImageView.visibility = View.VISIBLE
+        if (!todoItem.description.isNullOrEmpty()) {
+            todoItemViewHolder.binding.descriptionImageView.visibility = View.VISIBLE
         } else {
-            todoItemViewHolder.binding.noteImageView.visibility = View.GONE
+            todoItemViewHolder.binding.descriptionImageView.visibility = View.GONE
         }
         if (todoItem.isCompleted) {
-            todoItemViewHolder.binding.descriptionTextView.paintFlags = todoItemViewHolder.binding.descriptionTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            todoItemViewHolder.binding.titleTextView.paintFlags = todoItemViewHolder.binding.titleTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         } else {
-            todoItemViewHolder.binding.descriptionTextView.paintFlags = todoItemViewHolder.binding.descriptionTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            todoItemViewHolder.binding.titleTextView.paintFlags = todoItemViewHolder.binding.titleTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
         }
     }
 
@@ -99,8 +99,8 @@ class TodoAdapter(private val context: Context, private val interactionListener:
             }
 
             override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-                return oldItem.description == newItem.description &&
-                        oldItem.note == newItem.note &&
+                return oldItem.title == newItem.title &&
+                        oldItem.description == newItem.description &&
                         oldItem.priority == newItem.priority &&
                         oldItem.notificationEnabled == newItem.notificationEnabled &&
                         oldItem.geofenceNotificationEnabled == newItem.geofenceNotificationEnabled &&

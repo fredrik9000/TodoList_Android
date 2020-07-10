@@ -44,11 +44,11 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         if (todo.notificationEnabled) {
             NotificationUtil.addNotification(getApplication<Application>().applicationContext,
                     alarmManager,
-                    todo.notificationId, todo.description, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
+                    todo.notificationId, todo.title, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
         }
 
         if (todo.geofenceNotificationEnabled) {
-            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.geofenceNotificationId, todo.description, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
+            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.geofenceNotificationId, todo.title, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
         }
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(todo)
@@ -106,11 +106,11 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
     fun insertTodoItems(todoListItems: MutableList<Todo>, alarmManager: AlarmManager) {
         for (todo in todoListItems) {
             if (todo.notificationEnabled) {
-                NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, todo.notificationId, todo.description, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
+                NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, todo.notificationId, todo.title, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
             }
 
             if (todo.geofenceNotificationEnabled) {
-                NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.notificationId, todo.description, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
+                NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.notificationId, todo.title, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
             }
         }
 

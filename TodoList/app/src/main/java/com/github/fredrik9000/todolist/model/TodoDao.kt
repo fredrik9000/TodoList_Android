@@ -35,10 +35,10 @@ interface TodoDao {
     @Delete
     fun delete(todo: Todo)
 
-    @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, description ASC")
+    @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, title ASC")
     fun getAllTodos(): LiveData<MutableList<Todo>>
 
-    @Query("SELECT * FROM todo_table WHERE description LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, description ASC")
+    @Query("SELECT * FROM todo_table WHERE title LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, title ASC")
     fun getTodosWithText(searchValue: String?): LiveData<MutableList<Todo>>
 
     @Query("SELECT * FROM todo_table WHERE geofenceNotificationEnabled = 1")

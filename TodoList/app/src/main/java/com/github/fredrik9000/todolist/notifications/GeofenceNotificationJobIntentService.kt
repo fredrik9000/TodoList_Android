@@ -24,7 +24,7 @@ class GeofenceNotificationJobIntentService : JobIntentService() {
         if (todosWithGeofenceNotificationId.isNotEmpty()) {
             val todo = todosWithGeofenceNotificationId[0]
             todo.geofenceNotificationId = 0 // Finally clearing the geofence notification id
-            NotificationUtil.sendNotification(applicationContext, applicationContext.resources.getString(R.string.geofence_notification_title), todosWithGeofenceNotificationId[0], R.drawable.ic_baseline_location_searching_black_24dp, notificationId)
+            NotificationUtil.sendNotification(applicationContext, applicationContext.resources.getString(R.string.geofence_notification_title), todosWithGeofenceNotificationId[0], R.drawable.ic_geofence_location_black_24dp, notificationId)
         }
     }
 

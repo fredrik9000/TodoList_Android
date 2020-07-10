@@ -14,7 +14,7 @@ class ReRegisterGeofencesJobIntentService : JobIntentService() {
             NotificationUtil.addGeofenceNotification(
                     applicationContext,
                     todo.geofenceNotificationId,
-                    todo.description,
+                    todo.title,
                     todo.geofenceRadius,
                     todo.geofenceLatitude,
                     todo.geofenceLongitude)

@@ -229,8 +229,8 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
         todoListViewModel.update(Todo(
                 todo.id,
+                todo.title,
                 todo.description,
-                todo.note,
                 todo.priority,
                 0,
                 0,

@@ -63,23 +63,23 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             }
         }
 
-        if (addEditTodoViewModel.description.isEmpty()) {
+        if (addEditTodoViewModel.title.isEmpty()) {
             binding.saveTodoButton.isEnabled = false
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
         } else {
             binding.saveTodoButton.isEnabled = true
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccent))
-            binding.todoDescriptionEditText.setText(addEditTodoViewModel.description)
+            binding.todoTitleEditText.setText(addEditTodoViewModel.title)
         }
 
-        binding.todoNoteEditText.setText(addEditTodoViewModel.note)
+        binding.todoDescriptionEditText.setText(addEditTodoViewModel.description)
 
         setupPriorityPicker()
 
         displayNotificationAddedStateIfActive()
         displayGeofenceNotificationAddedStateIfActive()
 
-        binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher)
+        binding.todoTitleEditText.addTextChangedListener(titleTextWatcher)
         binding.saveTodoButton.setOnClickListener(saveButtonListener)
         binding.removeNotificationButton.setOnClickListener(removeNotificationButtonListener)
         binding.addUpdateNotificationButton.setOnClickListener(addNotificationButtonListener)
@@ -173,7 +173,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     private val saveButtonListener: View.OnClickListener? = View.OnClickListener {
         val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoDescriptionEditText.text.toString(), binding.todoNoteEditText.text.toString())
+        addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoTitleEditText.text.toString(), binding.todoDescriptionEditText.text.toString())
         Navigation.findNavController(requireView()).navigateUp()
     }
 
@@ -274,7 +274,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         }.show()
     }
 
-    private val descriptionTextWatcher: TextWatcher? = object : TextWatcher {
+    private val titleTextWatcher: TextWatcher? = object : TextWatcher {
         override fun beforeTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {}
         override fun onTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
             if (charSequence.toString().trim().isEmpty()) {
@@ -312,8 +312,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
         // If one has navigated further, then the ViewModel will be null on the second rotation
         if (this::addEditTodoViewModel.isInitialized) {
-            addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString().trim()
-            addEditTodoViewModel.note = binding.todoNoteEditText.text.toString()
+            addEditTodoViewModel.title = binding.todoTitleEditText.text.toString().trim()
+            addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString()
             addEditTodoViewModel.saveState()
         }
     }
@@ -323,8 +323,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         private const val LOCATION_REQUEST_CODE = 1
 
         const val ARGUMENT_TODO_ID: String = "ARGUMENT_TODO_ID"
+        const val ARGUMENT_TITLE: String = "ARGUMENT_TITLE"
         const val ARGUMENT_DESCRIPTION: String = "ARGUMENT_DESCRIPTION"
-        const val ARGUMENT_NOTE: String = "ARGUMENT_NOTE"
         const val ARGUMENT_PRIORITY: String = "ARGUMENT_PRIORITY"
         const val ARGUMENT_HAS_NOTIFICATION: String = "ARGUMENT_HAS_NOTIFICATION"
         const val ARGUMENT_NOTIFICATION_ID: String = "ARGUMENT_NOTIFICATION_ID"
@@ -343,8 +343,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             // Double cannot be passed as safe args, which is used for latitude and longitude, so must create a bundle instead
             val bundle = Bundle()
             bundle.putInt(ARGUMENT_TODO_ID, todo.id)
+            bundle.putString(ARGUMENT_TITLE, todo.title)
             bundle.putString(ARGUMENT_DESCRIPTION, todo.description)
-            bundle.putString(ARGUMENT_NOTE, todo.note)
             bundle.putInt(ARGUMENT_PRIORITY, todo.priority)
             bundle.putBoolean(ARGUMENT_HAS_NOTIFICATION, todo.notificationEnabled)
             if (todo.notificationEnabled) {

@@ -15,8 +15,8 @@
     <string name="undo">Undo</string>
     <string name="undo_successful">Undo successful</string>
 
-    <string name="edit_text_task_description_hint">Title</string>
-    <string name="edit_text_task_note_hint">Description</string>
+    <string name="title_label">Title</string>
+    <string name="description_label">Description</string>
     <string name="priority_label">Priority</string>
     <string name="low_priority">Low priority</string>
     <string name="medium_priority">Medium priority</string>

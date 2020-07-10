@@ -21,47 +21,47 @@
             android:padding="@dimen/add_edit_todo_text_content_padding">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/todo_description_text_input_layout"
+                android:id="@+id/todo_title_text_input_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/edit_text_task_description_hint"
+                android:hint="@string/title_label"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/todo_description_edit_text"
+                    android:id="@+id/todo_title_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
-                android:id="@+id/todo_note_label"
+                android:id="@+id/todo_description_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/note_margin_top"
-                android:text="@string/edit_text_task_note_hint"
+                android:layout_marginTop="@dimen/description_margin_top"
+                android:text="@string/description_label"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todo_description_text_input_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/todo_title_text_input_layout" />
 
             <EditText
-                android:id="@+id/todo_note_edit_text"
+                android:id="@+id/todo_description_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/note_label_margin"
-                android:background="@drawable/shape_note_border"
+                android:layout_marginTop="@dimen/description_label_margin"
+                android:background="@drawable/shape_description_border"
                 android:gravity="top"
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine"
-                android:labelFor="@id/todo_note_label"
+                android:labelFor="@id/todo_description_label"
                 android:maxLines="5"
                 android:minLines="5"
                 android:padding="@dimen/add_edit_todo_text_content_padding"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todo_note_label"
+                app:layout_constraintTop_toBottomOf="@+id/todo_description_label"
                 tools:ignore="LabelFor" />
 
             <TextView
@@ -72,7 +72,7 @@
                 android:text="@string/priority_label"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/todo_note_edit_text" />
+                app:layout_constraintTop_toBottomOf="@+id/todo_description_edit_text" />
 
             <Button
                 android:id="@+id/priority_picker_button"
@@ -137,7 +137,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/button_background_tint"
-                android:drawableStart="@drawable/ic_baseline_location_searching_black_24dp"
+                android:drawableStart="@drawable/ic_geofence_location_black_24dp"
                 android:drawablePadding="@dimen/button_drawable_padding"
                 android:labelFor="@id/geofence_notification_text_view"
                 android:text="@string/add_geofence_notification"

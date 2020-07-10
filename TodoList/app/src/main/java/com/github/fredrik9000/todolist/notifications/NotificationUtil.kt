@@ -30,9 +30,9 @@ object NotificationUtil {
         pendingIntent?.cancel()
     }
 
-    fun addNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int, description: String?, year: Int, month: Int, day: Int, hour: Int, minute: Int) {
+    fun addNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int, title: String?, year: Int, month: Int, day: Int, hour: Int, minute: Int) {
         val notificationIntent = Intent(applicationContext, TimedNotificationAlarmReceiver::class.java).apply {
-            putExtra(TimedNotificationAlarmReceiver.TODO_DESCRIPTION, description)
+            putExtra(TimedNotificationAlarmReceiver.TODO_TITLE, title)
             putExtra(TimedNotificationAlarmReceiver.NOTIFICATION_ID, notificationId)
         }
 
@@ -49,9 +49,9 @@ object NotificationUtil {
     }
 
     @SuppressLint("MissingPermission")
-    fun addGeofenceNotification(applicationContext: Context, notificationId: Int, description: String?, radius: Int, latitude: Double, longitude: Double) {
+    fun addGeofenceNotification(applicationContext: Context, notificationId: Int, title: String?, radius: Int, latitude: Double, longitude: Double) {
         val notificationIntent = Intent(applicationContext, GeofenceReceiver::class.java).apply {
-            putExtra(GeofenceReceiver.TODO_DESCRIPTION, description)
+            putExtra(GeofenceReceiver.TODO_TITLE, title)
             putExtra(GeofenceReceiver.NOTIFICATION_ID, notificationId)
         }
 
@@ -89,7 +89,7 @@ object NotificationUtil {
 
         val notification = NotificationCompat.Builder(context, App.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(title)
-                .setContentText(todo.description)
+                .setContentText(todo.title)
                 .setSmallIcon(icon)
                 .setAutoCancel(true)
                 .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))

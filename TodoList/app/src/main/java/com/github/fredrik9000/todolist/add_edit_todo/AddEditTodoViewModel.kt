@@ -27,8 +27,8 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     private var lastClickedUndoTime: Long = 0
     private var todoId = TODO_ID_NOT_SET
 
+    var title: String = ""
     var description: String = ""
-    var note: String = ""
     var hasNotification = false
     var hasGeofenceNotification = false
     var geofenceLatitude = 0.0
@@ -50,7 +50,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     private var geofenceNotificationId = 0
 
     private val savedStateHandleContainsValues
-        get() = savedStateHandle.contains(DESCRIPTION_STATE)
+        get() = savedStateHandle.contains(TITLE_STATE)
 
     val hasActiveTimedNotification
         get() = hasNotification && !isNotificationExpired
@@ -213,15 +213,15 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         }
     }
 
-    fun saveTodoItem(alarmManager: AlarmManager, description: String, note: String) {
+    fun saveTodoItem(alarmManager: AlarmManager, title: String, description: String) {
         if (notificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, notificationId, description, year, month, day, hour, minute)
+            NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, notificationId, title, year, month, day, hour, minute)
         } else if (notificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
             NotificationUtil.removeNotification(getApplication<Application>().applicationContext, alarmManager, notificationId)
         }
 
         if (geofenceNotificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId, description, geofenceRadius, geofenceLatitude, geofenceLongitude)
+            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId, title, geofenceRadius, geofenceLatitude, geofenceLongitude)
         } else if (geofenceNotificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
             NotificationUtil.removeGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId)
         }
@@ -234,7 +234,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             geofenceNotificationId = 0
         }
 
-        val todo = createTodoItem(description, note)
+        val todo = createTodoItem(title, description)
         if (todoId == TODO_ID_NOT_SET) {
             insert(todo)
         } else {
@@ -255,10 +255,10 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         }
     }
 
-    private fun createTodoItem(description: String, note: String): Todo {
+    private fun createTodoItem(title: String, description: String): Todo {
         return Todo(0,
+                title,
                 description,
-                note,
                 priority,
                 notificationId,
                 geofenceNotificationId,
@@ -276,8 +276,8 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     fun saveState() {
+        savedStateHandle.set(TITLE_STATE, title)
         savedStateHandle.set(DESCRIPTION_STATE, description)
-        savedStateHandle.set(NOTE_STATE, note)
         savedStateHandle.set(PRIORITY_STATE, priority)
         savedStateHandle.set(NOTIFICATION_YEAR_STATE, year)
         savedStateHandle.set(NOTIFICATION_MONTH_STATE, month)
@@ -298,16 +298,16 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     fun setValuesFromArgumentsOrSavedState(args: Bundle) {
         todoId = args.getInt(AddEditTodoFragment.ARGUMENT_TODO_ID)
         if (savedStateHandleContainsValues) {
+            title = savedStateHandle.get(TITLE_STATE)!!
             description = savedStateHandle.get(DESCRIPTION_STATE)!!
-            note = savedStateHandle.get(NOTE_STATE)!!
             priority = savedStateHandle.get(PRIORITY_STATE)!!
             hasNotification = savedStateHandle.get(HAS_NOTIFICATION_STATE)!!
             hasGeofenceNotification = savedStateHandle.get(HAS_GEOFENCE_NOTIFICATION_STATE)!!
             notificationUpdateState = savedStateHandle.get(NOTIFICATION_UPDATE_STATE_STATE)!!
             geofenceNotificationUpdateState = savedStateHandle.get(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE)!!
         } else {
+            title = args.getString(AddEditTodoFragment.ARGUMENT_TITLE)!!
             description = args.getString(AddEditTodoFragment.ARGUMENT_DESCRIPTION)!!
-            note = args.getString(AddEditTodoFragment.ARGUMENT_NOTE)!!
             priority = args.getInt(AddEditTodoFragment.ARGUMENT_PRIORITY)
             hasNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION)
             hasGeofenceNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION)
@@ -318,8 +318,8 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     companion object {
+        private const val TITLE_STATE: String = "TITLE"
         private const val DESCRIPTION_STATE: String = "DESCRIPTION"
-        private const val NOTE_STATE: String = "NOTE"
         private const val PRIORITY_STATE: String = "PRIORITY"
         private const val HAS_NOTIFICATION_STATE: String = "HAS_NOTIFICATION"
         private const val HAS_GEOFENCE_NOTIFICATION_STATE: String = "HAS_GEOFENCE_NOTIFICATION"

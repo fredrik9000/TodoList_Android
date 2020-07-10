@@ -6,7 +6,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="list_item_icon">#000000</color>
-    <color name="note_border_color">#808080</color>
+    <color name="description_border_color">#808080</color>
     <color name="fab_tint">#FFFFFF</color>
     <color name="button_background_tint">#F3F3F3</color>
     <color name="button_drawable_tint">#000000</color>

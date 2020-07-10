@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "todo_table")
 class Todo(@PrimaryKey(autoGenerate = true) var id: Int = 0,
+           var title: String? = null,
            var description: String? = null,
-           var note: String? = null,
            var priority: Int = 0,
            var notificationId: Int = 0,
            var geofenceNotificationId: Int = 0,
