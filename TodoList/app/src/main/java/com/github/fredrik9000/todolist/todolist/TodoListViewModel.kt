@@ -17,7 +17,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
     private val searchValueLiveData: MutableLiveData<String?> = MutableLiveData()
     private val todoList: LiveData<MutableList<Todo>>
     private var lastClickedUndoTime: Long = 0
-    private var isSearching = false
+    var isSearching = false
 
     init {
         todoList = Transformations.switchMap(searchValueLiveData) { value ->
@@ -31,6 +31,13 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         }
 
         searchValueLiveData.value = null // Sets the todoList live data to contain all todos.
+    }
+
+    val isUndoDoubleClicked
+        get() = SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS
+
+    fun updateLastClickedUndoTime() {
+        lastClickedUndoTime = SystemClock.elapsedRealtime()
     }
 
     fun insertTodo(todo: Todo, alarmManager: AlarmManager) {
@@ -110,22 +117,6 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertTodoItems(todoListItems)
         }
-    }
-
-    fun isUndoDoubleClicked(): Boolean {
-        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS
-    }
-
-    fun updateLastClickedUndoTime() {
-        lastClickedUndoTime = SystemClock.elapsedRealtime()
-    }
-
-    fun isSearching(): Boolean {
-        return isSearching
-    }
-
-    fun setSearching(searching: Boolean) {
-        isSearching = searching
     }
 
     companion object {

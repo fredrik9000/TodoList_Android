@@ -49,23 +49,31 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     private var notificationId = 0
     private var geofenceNotificationId = 0
 
-    fun isUndoDoubleClicked(): Boolean {
-        return SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS
-    }
+    private val savedStateHandleContainsValues
+        get() = savedStateHandle.contains(DESCRIPTION_STATE)
+
+    val hasActiveTimedNotification
+        get() = hasNotification && !isNotificationExpired
+
+    private val isNotificationExpired
+        get() = createNotificationCalendar().timeInMillis < Calendar.getInstance().timeInMillis
+
+    val isUndoDoubleClicked
+        get() = SystemClock.elapsedRealtime() - lastClickedUndoTime < MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS
 
     fun updateLastClickedUndoTime() {
         lastClickedUndoTime = SystemClock.elapsedRealtime()
     }
 
-    fun setupNotificationState(args: Bundle?) {
+    private fun setupNotificationState(args: Bundle?) {
         if (hasNotification) {
-            if (savedStateHandleContainsValues()) {
+            if (savedStateHandleContainsValues) {
                 setNotificationValuesFromSavedState()
             } else args?.let {
                 setNotificationValuesFromArguments(it)
             }
 
-            if (isNotificationExpired()) {
+            if (isNotificationExpired) {
                 clearNotificationValues()
                 generateNewNotificationId()
             }
@@ -94,9 +102,9 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         notificationId = args.getInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID)
     }
 
-    fun setupGeofenceNotificationState(args: Bundle?) {
+    private fun setupGeofenceNotificationState(args: Bundle?) {
         if (hasGeofenceNotification) {
-            if (savedStateHandleContainsValues()) {
+            if (savedStateHandleContainsValues) {
                 setGeofenceNotificationValuesFromSavedState()
             } else args?.let {
                 setGeofenceNotificationValuesFromArguments(it)
@@ -171,10 +179,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         val notificationCalendar = Calendar.getInstance()
         notificationCalendar[yearTemp, monthTemp, dayTemp, hourTemp, minuteTemp] = 0
         return notificationCalendar
-    }
-
-    fun isNotificationExpired(): Boolean {
-        return createNotificationCalendar().timeInMillis < Calendar.getInstance().timeInMillis
     }
 
     fun togglePriorityValue() {
@@ -293,7 +297,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
 
     fun setValuesFromArgumentsOrSavedState(args: Bundle) {
         todoId = args.getInt(AddEditTodoFragment.ARGUMENT_TODO_ID)
-        if (savedStateHandle.contains(DESCRIPTION_STATE)) {
+        if (savedStateHandleContainsValues) {
             description = savedStateHandle.get(DESCRIPTION_STATE)!!
             note = savedStateHandle.get(NOTE_STATE)!!
             priority = savedStateHandle.get(PRIORITY_STATE)!!
@@ -308,14 +312,9 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             hasNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION)
             hasGeofenceNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION)
         }
-    }
 
-    private fun savedStateHandleContainsValues(): Boolean {
-        return savedStateHandle.contains(DESCRIPTION_STATE)
-    }
-
-    fun isDescriptionEmpty(): Boolean {
-        return description.isEmpty()
+        setupNotificationState(args)
+        setupGeofenceNotificationState(args)
     }
 
     companion object {

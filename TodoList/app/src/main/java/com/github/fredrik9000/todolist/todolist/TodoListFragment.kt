@@ -26,9 +26,12 @@ import com.google.android.material.snackbar.Snackbar
 
 class TodoListFragment : Fragment(), OnItemInteractionListener {
 
-    private lateinit var binding: FragmentTodoListBinding
+    private var _binding: FragmentTodoListBinding? = null
+    private val binding get() = _binding!!
+    private var _adapter: TodoAdapter? = null
+    private val adapter get() = _adapter!!
+
     private lateinit var todoListViewModel: TodoListViewModel
-    private lateinit var adapter: TodoAdapter
     private var actionMode: ActionMode? = null
     private var lastItemLongClickedPosition = 0
 
@@ -39,8 +42,14 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        binding = FragmentTodoListBinding.inflate(inflater, container, false)
+        _binding = FragmentTodoListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _adapter = null
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,12 +59,12 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
         recyclerView.setHasFixedSize(true)
         val layoutManager = LinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
-        adapter = TodoAdapter(requireContext(), this)
+        _adapter = TodoAdapter(requireContext(), this)
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, layoutManager.orientation))
 
         todoListViewModel = ViewModelProvider(this).get(TodoListViewModel::class.java)
-        todoListViewModel.setSearching(false) // Need to reset this after rotating
+        todoListViewModel.isSearching = false // Need to reset this after rotating
         todoListViewModel.getTodoList().observe(viewLifecycleOwner, Observer { todoList ->
             adapter.submitList(todoList)
             showOrHideOnboardingView(todoList)
@@ -130,7 +139,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
                 R.string.items_deleted,
                 Snackbar.LENGTH_LONG
         ).setAction(R.string.undo, View.OnClickListener {
-            if (todoListViewModel.isUndoDoubleClicked()) {
+            if (todoListViewModel.isUndoDoubleClicked) {
                 return@OnClickListener
             }
 
@@ -181,7 +190,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
                             R.string.item_deleted,
                             Snackbar.LENGTH_LONG
                     ).setAction(R.string.undo, View.OnClickListener {
-                        if (todoListViewModel.isUndoDoubleClicked()) {
+                        if (todoListViewModel.isUndoDoubleClicked) {
                             return@OnClickListener
                         }
 
@@ -255,7 +264,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
     // then when selecting the EditText (without selecting anything else first) the FAB doesn't float up above the keyboard.
     // However, when there is a visible list the FAB works as it should.
     private fun showOrHideOnboardingView(todoList: MutableList<Todo>) {
-        if (todoList.isEmpty() && !todoListViewModel.isSearching()) {
+        if (todoList.isEmpty() && !todoListViewModel.isSearching) {
             binding.onboardingView.visibility = View.VISIBLE
         } else {
             binding.onboardingView.visibility = View.GONE

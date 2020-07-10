@@ -34,26 +34,36 @@ import java.util.*
 
 class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, OnSelectTimeDialogInteractionListener {
 
-    private lateinit var binding: FragmentAddEditTodoBinding
+    private var _binding: FragmentAddEditTodoBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var addEditTodoViewModel: AddEditTodoViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
+        _binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
+        // Since onViewCreated will run when navigating back with Navigation Component we don't want to override the view model with arguments or saved state
+        if (!this::addEditTodoViewModel.isInitialized) {
+            addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
 
-        // If arguments is not null we are editing an existing task
-        if (arguments != null) {
-            addEditTodoViewModel.setValuesFromArgumentsOrSavedState(requireArguments())
+            // If arguments is not null we are editing an existing task
+            if (arguments != null) {
+                addEditTodoViewModel.setValuesFromArgumentsOrSavedState(requireArguments())
+            }
         }
 
-        if (addEditTodoViewModel.isDescriptionEmpty()) {
+        if (addEditTodoViewModel.description.isEmpty()) {
             binding.saveTodoButton.isEnabled = false
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
         } else {
@@ -65,8 +75,9 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.todoNoteEditText.setText(addEditTodoViewModel.note)
 
         setupPriorityPicker()
-        setupNotificationState()
-        setupGeofenceNotificationState()
+
+        displayNotificationAddedStateIfActive()
+        displayGeofenceNotificationAddedStateIfActive()
 
         binding.todoDescriptionEditText.addTextChangedListener(descriptionTextWatcher)
         binding.saveTodoButton.setOnClickListener(saveButtonListener)
@@ -100,8 +111,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         })
 
         val hasGeofenceLiveData = savedStateHandle.getLiveData<Boolean>(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE)
-        hasGeofenceLiveData.observe(viewLifecycleOwner, Observer { hasGeofence ->
-            addEditTodoViewModel.hasGeofenceNotification = hasGeofence
+        hasGeofenceLiveData.observe(viewLifecycleOwner, Observer {
+            addEditTodoViewModel.hasGeofenceNotification = true
             addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
             savedStateHandle.remove<Boolean>(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE)
             displayGeofenceNotificationAddedState()
@@ -118,16 +129,15 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         }
     }
 
-    private fun setupNotificationState() {
-        addEditTodoViewModel.setupNotificationState(arguments)
-        if (addEditTodoViewModel.hasNotification && !addEditTodoViewModel.isNotificationExpired()) {
+    private fun displayNotificationAddedStateIfActive() {
+        if (addEditTodoViewModel.hasActiveTimedNotification) {
             displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar())
         }
     }
 
     private fun displayNotificationAddedState(notificationCalendar: Calendar) {
         binding.removeNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateNotificationButton.setText(DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time))
+        binding.addUpdateNotificationButton.text = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time)
     }
 
     private fun displayNotificationNotAddedState() {
@@ -135,8 +145,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.removeNotificationButton.visibility = View.GONE
     }
 
-    private fun setupGeofenceNotificationState() {
-        addEditTodoViewModel.setupGeofenceNotificationState(arguments)
+    private fun displayGeofenceNotificationAddedStateIfActive() {
         if (addEditTodoViewModel.hasGeofenceNotification) {
             displayGeofenceNotificationAddedState()
         }
@@ -144,7 +153,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     private fun displayGeofenceNotificationAddedState() {
         binding.removeGeofenceNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateGeofenceNotificationButton.setText(getAddressFromLatLong(addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude))
+        binding.addUpdateGeofenceNotificationButton.text = getAddressFromLatLong(addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude)
     }
 
     private fun displayGeofenceNotificationNotAddedState() {
@@ -185,7 +194,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
                 R.string.notification_removed,
                 Snackbar.LENGTH_LONG
         ).setAction(R.string.undo) {
-            if (addEditTodoViewModel.isUndoDoubleClicked()) {
+            if (addEditTodoViewModel.isUndoDoubleClicked) {
                 return@setAction
             }
             addEditTodoViewModel.updateLastClickedUndoTime()
@@ -247,7 +256,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
                 R.string.notification_removed,
                 Snackbar.LENGTH_LONG
         ).setAction(R.string.undo) {
-            if (addEditTodoViewModel.isUndoDoubleClicked()) {
+            if (addEditTodoViewModel.isUndoDoubleClicked) {
                 return@setAction
             }
             addEditTodoViewModel.updateLastClickedUndoTime()
@@ -302,9 +311,11 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         super.onSaveInstanceState(outState)
 
         // If one has navigated further, then the ViewModel will be null on the second rotation
-        addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString().trim()
-        addEditTodoViewModel.note = binding.todoNoteEditText.text.toString()
-        addEditTodoViewModel.saveState()
+        if (this::addEditTodoViewModel.isInitialized) {
+            addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString().trim()
+            addEditTodoViewModel.note = binding.todoNoteEditText.text.toString()
+            addEditTodoViewModel.saveState()
+        }
     }
 
     companion object {
