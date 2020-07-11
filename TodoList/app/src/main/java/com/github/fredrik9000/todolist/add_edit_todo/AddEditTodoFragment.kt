@@ -1,14 +1,17 @@
 package com.github.fredrik9000.todolist.add_edit_todo
 
 import android.Manifest
+import android.app.Activity.RESULT_OK
 import android.app.AlarmManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
+import android.speech.RecognizerIntent.*
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -80,6 +83,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         displayGeofenceNotificationAddedStateIfActive()
 
         binding.todoTitleEditText.addTextChangedListener(titleTextWatcher)
+        binding.titleMic.setOnClickListener(titleSpeechToTextListener)
+        binding.descriptionMic.setOnClickListener(descriptionSpeechToTextListener)
         binding.saveTodoButton.setOnClickListener(saveButtonListener)
         binding.removeNotificationButton.setOnClickListener(removeNotificationButtonListener)
         binding.addUpdateNotificationButton.setOnClickListener(addNotificationButtonListener)
@@ -169,6 +174,44 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             Log.w(TAG, "Could not get city from latitude and longitude: " + e.message)
         }
         return address ?: "Unknown"
+    }
+
+    private val titleSpeechToTextListener: View.OnClickListener? = View.OnClickListener {
+        initiateSpeechToText(TITLE_SPEECH_REQUEST_CODE)
+    }
+
+    private val descriptionSpeechToTextListener: View.OnClickListener? = View.OnClickListener {
+        initiateSpeechToText(DESCRIPTION_SPEECH_REQUEST_CODE)
+    }
+
+    private fun initiateSpeechToText(requestCode: Int) {
+        val intent = Intent((ACTION_RECOGNIZE_SPEECH)).apply {
+            putExtra(EXTRA_LANGUAGE_MODEL, LANGUAGE_MODEL_FREE_FORM)
+            putExtra(EXTRA_LANGUAGE, Locale.getDefault())
+        }
+
+        try {
+            startActivityForResult(intent, requestCode)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), R.string.cant_initiate_speech_recognition, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @ExperimentalStdlibApi
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == TITLE_SPEECH_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                val result = data.getStringArrayListExtra(EXTRA_RESULTS)
+                binding.todoTitleEditText.append(result[0].capitalize(Locale.getDefault()))
+            }
+        } else if (requestCode == DESCRIPTION_SPEECH_REQUEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                val result = data.getStringArrayListExtra(EXTRA_RESULTS)
+                binding.todoDescriptionEditText.append(result[0].capitalize(Locale.getDefault()))
+            }
+        }
     }
 
     private val saveButtonListener: View.OnClickListener? = View.OnClickListener {
@@ -321,6 +364,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     companion object {
         private const val TAG: String = "AddEditTodoFragment"
         private const val LOCATION_REQUEST_CODE = 1
+        private const val TITLE_SPEECH_REQUEST_CODE = 2
+        private const val DESCRIPTION_SPEECH_REQUEST_CODE = 3
 
         const val ARGUMENT_TODO_ID: String = "ARGUMENT_TODO_ID"
         const val ARGUMENT_TITLE: String = "ARGUMENT_TITLE"

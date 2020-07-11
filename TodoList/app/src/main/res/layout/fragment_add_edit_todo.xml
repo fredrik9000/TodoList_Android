@@ -25,7 +25,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="@string/title_label"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/title_mic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -36,15 +36,37 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <ImageView
+                android:id="@+id/title_mic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/enter_title_by_voice"
+                android:src="@drawable/ic_mic_24"
+                app:layout_constraintBottom_toBottomOf="@id/todo_title_text_input_layout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/todo_title_text_input_layout"
+                app:layout_constraintTop_toTopOf="@id/todo_title_text_input_layout" />
+
             <TextView
                 android:id="@+id/todo_description_label"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/description_margin_top"
                 android:text="@string/description_label"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/description_mic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/todo_title_text_input_layout" />
+
+            <ImageView
+                android:id="@+id/description_mic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/enter_description_by_voice"
+                android:src="@drawable/ic_mic_24"
+                app:layout_constraintBottom_toBottomOf="@id/todo_description_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/todo_description_label"
+                app:layout_constraintTop_toTopOf="@id/todo_description_label" />
 
             <EditText
                 android:id="@+id/todo_description_edit_text"

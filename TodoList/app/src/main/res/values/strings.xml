@@ -28,6 +28,9 @@
     <string name="notification_removed">Notification removed</string>
     <string name="notification_by_time_heading">Remind me on date and time</string>
     <string name="notification_by_location_heading">Remind me when entering location</string>
+    <string name="enter_title_by_voice">Enter title by voice command</string>
+    <string name="enter_description_by_voice">Enter description by voice command</string>
+    <string name="cant_initiate_speech_recognition">Unable to initiate voice recognition</string>
 
     <string name="delete_completed_tasks_menu_item">Clear completed</string>
     <string name="delete_all_tasks_menu_item">Clear all</string>
