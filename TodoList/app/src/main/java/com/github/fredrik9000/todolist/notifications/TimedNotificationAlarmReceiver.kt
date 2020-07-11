@@ -13,7 +13,6 @@ class TimedNotificationAlarmReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val TODO_TITLE: String = "TODO_TITLE"
         const val NOTIFICATION_ID: String = "NOTIFICATION_ID"
     }
 }

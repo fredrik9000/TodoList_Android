@@ -223,7 +223,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
                 NotificationUtil.removeNotification(requireActivity().applicationContext, alarmManager, todo.notificationId)
             }
             if (todo.geofenceNotificationEnabled) {
-                NotificationUtil.removeGeofenceNotification(requireActivity().applicationContext, todo.geofenceNotificationId)
+                NotificationUtil.removeGeofence(requireActivity().applicationContext, todo.geofenceNotificationId)
             }
         }
 

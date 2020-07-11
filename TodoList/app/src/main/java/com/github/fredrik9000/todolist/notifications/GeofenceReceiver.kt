@@ -20,9 +20,9 @@ class GeofenceReceiver : BroadcastReceiver() {
         }
         val geofenceTransition = geofencingEvent.geofenceTransition
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            val geofenceNotificationJobIntentServiceIntent = Intent(context, GeofenceNotificationJobIntentService::class.java)
-            geofenceNotificationJobIntentServiceIntent.putExtra(NOTIFICATION_ID, intent.getIntExtra(NOTIFICATION_ID, 0))
-            GeofenceNotificationJobIntentService.enqueueWork(context, geofenceNotificationJobIntentServiceIntent)
+            GeofenceNotificationJobIntentService.enqueueWork(context, Intent(context, GeofenceNotificationJobIntentService::class.java).apply {
+                putIntegerArrayListExtra(NOTIFICATION_ID, ArrayList(geofencingEvent.triggeringGeofences.map { it.requestId.toInt() }))
+            })
         } else {
             Log.e(TAG, context.resources.getString(R.string.geofence_transition_invalid_type, geofenceTransition))
         }
@@ -39,7 +39,6 @@ class GeofenceReceiver : BroadcastReceiver() {
 
     companion object {
         const val TAG: String = "GeofenceReceiver"
-        const val TODO_TITLE: String = "TODO_TITLE"
         const val NOTIFICATION_ID: String = "NOTIFICATION_ID"
     }
 }

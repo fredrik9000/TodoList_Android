@@ -50,6 +50,8 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     override fun onDestroyView() {
         super.onDestroyView()
+        addEditTodoViewModel.title = binding.todoTitleEditText.text.toString().trim()
+        addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString()
         _binding = null
     }
 
@@ -60,10 +62,14 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         if (!this::addEditTodoViewModel.isInitialized) {
             addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
 
-            // If arguments is not null we are editing an existing task
+            // If arguments is not null we are editing an existing task and must set up the tasks values
             if (arguments != null) {
                 addEditTodoViewModel.setValuesFromArgumentsOrSavedState(requireArguments())
             }
+
+            // Need to set up the notification state for both new and existing tasks, since tasks without a notification will be given a new notification id
+            addEditTodoViewModel.setupNotificationState(arguments)
+            addEditTodoViewModel.setupGeofenceNotificationState(arguments)
         }
 
         if (addEditTodoViewModel.title.isEmpty()) {
@@ -355,8 +361,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
         // If one has navigated further, then the ViewModel will be null on the second rotation
         if (this::addEditTodoViewModel.isInitialized) {
-            addEditTodoViewModel.title = binding.todoTitleEditText.text.toString().trim()
-            addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString()
             addEditTodoViewModel.saveState()
         }
     }

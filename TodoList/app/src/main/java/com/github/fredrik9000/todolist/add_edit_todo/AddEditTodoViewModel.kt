@@ -65,7 +65,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         lastClickedUndoTime = SystemClock.elapsedRealtime()
     }
 
-    private fun setupNotificationState(args: Bundle?) {
+    fun setupNotificationState(args: Bundle?) {
         if (hasNotification) {
             if (savedStateHandleContainsValues) {
                 setNotificationValuesFromSavedState()
@@ -102,7 +102,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         notificationId = args.getInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID)
     }
 
-    private fun setupGeofenceNotificationState(args: Bundle?) {
+    fun setupGeofenceNotificationState(args: Bundle?) {
         if (hasGeofenceNotification) {
             if (savedStateHandleContainsValues) {
                 setGeofenceNotificationValuesFromSavedState()
@@ -215,15 +215,15 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
 
     fun saveTodoItem(alarmManager: AlarmManager, title: String, description: String) {
         if (notificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, notificationId, title, year, month, day, hour, minute)
+            NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, notificationId, year, month, day, hour, minute)
         } else if (notificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
             NotificationUtil.removeNotification(getApplication<Application>().applicationContext, alarmManager, notificationId)
         }
 
         if (geofenceNotificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId, title, geofenceRadius, geofenceLatitude, geofenceLongitude)
+            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId, geofenceRadius, geofenceLatitude, geofenceLongitude)
         } else if (geofenceNotificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
-            NotificationUtil.removeGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId)
+            NotificationUtil.removeGeofence(getApplication<Application>().applicationContext, geofenceNotificationId)
         }
 
         if (!hasNotification) {
@@ -312,9 +312,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             hasNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION)
             hasGeofenceNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION)
         }
-
-        setupNotificationState(args)
-        setupGeofenceNotificationState(args)
     }
 
     companion object {

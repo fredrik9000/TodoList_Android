@@ -22,6 +22,7 @@ import java.util.*
 object NotificationUtil {
 
     private const val TAG: String = "NotificationUtil"
+    private const val GEOFENCE_REQUEST_CODE = 1001
 
     fun removeNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int) {
         val notificationIntent = Intent(applicationContext, TimedNotificationAlarmReceiver::class.java)
@@ -30,9 +31,8 @@ object NotificationUtil {
         pendingIntent?.cancel()
     }
 
-    fun addNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int, title: String?, year: Int, month: Int, day: Int, hour: Int, minute: Int) {
+    fun addNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int, year: Int, month: Int, day: Int, hour: Int, minute: Int) {
         val notificationIntent = Intent(applicationContext, TimedNotificationAlarmReceiver::class.java).apply {
-            putExtra(TimedNotificationAlarmReceiver.TODO_TITLE, title)
             putExtra(TimedNotificationAlarmReceiver.NOTIFICATION_ID, notificationId)
         }
 
@@ -41,22 +41,20 @@ object NotificationUtil {
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.timeInMillis, getNotificationPendingIntent(applicationContext, notificationId, notificationIntent))
     }
 
-    fun removeGeofenceNotification(applicationContext: Context, geofenceNotificationId: Int) {
+    fun removeGeofence(applicationContext: Context, geofenceNotificationId: Int) {
+        removeGeofenceList(applicationContext, listOf(geofenceNotificationId.toString()))
+    }
+
+    fun removeGeofenceList(applicationContext: Context, geofenceNotificationIdList: List<String>) {
         val geofencingClient = LocationServices.getGeofencingClient(applicationContext)
-        geofencingClient.removeGeofences(getNotificationPendingIntent(applicationContext, geofenceNotificationId, Intent(applicationContext, GeofenceReceiver::class.java)))
+        geofencingClient.removeGeofences(geofenceNotificationIdList)
                 .addOnSuccessListener { Log.e(TAG, applicationContext.resources.getString(R.string.geofence_removed)) }
                 .addOnFailureListener { Log.e(TAG, applicationContext.resources.getString(R.string.geofence_removal_failed)) }
     }
 
     @SuppressLint("MissingPermission")
-    fun addGeofenceNotification(applicationContext: Context, notificationId: Int, title: String?, radius: Int, latitude: Double, longitude: Double) {
-        val notificationIntent = Intent(applicationContext, GeofenceReceiver::class.java).apply {
-            putExtra(GeofenceReceiver.TODO_TITLE, title)
-            putExtra(GeofenceReceiver.NOTIFICATION_ID, notificationId)
-        }
-
-        val geofenceList: MutableList<Geofence?> = ArrayList()
-        geofenceList.add(Geofence.Builder()
+    fun addGeofenceNotification(applicationContext: Context, notificationId: Int, radius: Int, latitude: Double, longitude: Double) {
+        val geofenceList = listOf<Geofence>(Geofence.Builder()
                 .setRequestId(notificationId.toString())
                 .setCircularRegion(latitude, longitude, radius.toFloat())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
@@ -68,11 +66,14 @@ object NotificationUtil {
                 .addGeofences(geofenceList)
                 .build()
 
-        // TODO: Android restricts to 5 pending intents for geofences, need to handle this
         val geofencingClient = LocationServices.getGeofencingClient(applicationContext)
-        geofencingClient.addGeofences(geofencingRequest, getNotificationPendingIntent(applicationContext, notificationId, notificationIntent))
-                .addOnSuccessListener { Log.e(TAG, applicationContext.resources.getString(R.string.geofence_added)) }
-                .addOnFailureListener { Log.e(TAG, applicationContext.resources.getString(R.string.adding_geofence_failed)) }
+        geofencingClient.addGeofences(geofencingRequest, getNotificationPendingIntent(applicationContext, GEOFENCE_REQUEST_CODE, Intent(applicationContext, GeofenceReceiver::class.java)))
+                .addOnSuccessListener {
+                    Log.e(TAG, applicationContext.resources.getString(R.string.geofence_added))
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, applicationContext.resources.getString(R.string.adding_geofence_failed))
+                }
     }
 
     private fun getNotificationPendingIntent(applicationContext: Context?, notificationId: Int, notificationIntent: Intent?): PendingIntent? {
