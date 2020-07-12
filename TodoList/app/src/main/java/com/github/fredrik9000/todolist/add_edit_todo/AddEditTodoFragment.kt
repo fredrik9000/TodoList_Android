@@ -205,13 +205,15 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
         if (requestCode == TITLE_SPEECH_REQUEST_CODE) {
             if (resultCode == RESULT_OK && data != null) {
-                val result = data.getStringArrayListExtra(EXTRA_RESULTS)
-                binding.todoTitleEditText.append(result[0].capitalize(Locale.getDefault()))
+                data.getStringArrayListExtra(EXTRA_RESULTS)?.let {
+                    binding.todoTitleEditText.append(it[0].capitalize(Locale.getDefault()))
+                }
             }
         } else if (requestCode == DESCRIPTION_SPEECH_REQUEST_CODE) {
             if (resultCode == RESULT_OK && data != null) {
-                val result = data.getStringArrayListExtra(EXTRA_RESULTS)
-                binding.todoDescriptionEditText.append(result[0].capitalize(Locale.getDefault()))
+                data.getStringArrayListExtra(EXTRA_RESULTS)?.let {
+                    binding.todoDescriptionEditText.append(it[0].capitalize(Locale.getDefault()))
+                }
             }
         }
     }
@@ -249,12 +251,16 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             addEditTodoViewModel.hasNotification = true
             displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar())
 
-            Snackbar.make(
-                    binding.addEditTodoCoordinatorLayout,
-                    R.string.undo_successful,
-                    Snackbar.LENGTH_SHORT
-            ).show()
+            showUndoSuccessfulSnackbar()
         }.show()
+    }
+
+    private fun showUndoSuccessfulSnackbar() {
+        Snackbar.make(
+                binding.addEditTodoCoordinatorLayout,
+                R.string.undo_successful,
+                Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
@@ -298,7 +304,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
         Snackbar.make(
                 binding.addEditTodoCoordinatorLayout,
-                R.string.notification_removed,
+                R.string.geofence_removed,
                 Snackbar.LENGTH_LONG
         ).setAction(R.string.undo) {
             if (addEditTodoViewModel.isUndoDoubleClicked) {
@@ -311,11 +317,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
             addEditTodoViewModel.hasGeofenceNotification = true
             displayGeofenceNotificationAddedState()
 
-            Snackbar.make(
-                    binding.addEditTodoCoordinatorLayout,
-                    R.string.undo_successful,
-                    Snackbar.LENGTH_SHORT
-            ).show()
+            showUndoSuccessfulSnackbar()
         }.show()
     }
 

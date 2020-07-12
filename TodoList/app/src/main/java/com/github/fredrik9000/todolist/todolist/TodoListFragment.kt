@@ -146,12 +146,16 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
             todoListViewModel.updateLastClickedUndoTime()
             todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager)
 
-            Snackbar.make(
-                    binding.coordinatorLayout,
-                    R.string.undo_successful,
-                    Snackbar.LENGTH_SHORT
-            ).show()
+            showUndoSuccessfulSnackbar()
         }).show()
+    }
+
+    private fun showUndoSuccessfulSnackbar() {
+        Snackbar.make(
+                binding.coordinatorLayout,
+                R.string.undo_successful,
+                Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     override fun onItemClick(view: View, todo: Todo) {
@@ -197,11 +201,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
                         todoListViewModel.updateLastClickedUndoTime()
                         todoListViewModel.insertTodo(todo, (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager)
 
-                        Snackbar.make(
-                                binding.coordinatorLayout,
-                                R.string.undo_successful,
-                                Snackbar.LENGTH_SHORT
-                        ).show()
+                        showUndoSuccessfulSnackbar()
                     }).show()
                     return true
                 }
