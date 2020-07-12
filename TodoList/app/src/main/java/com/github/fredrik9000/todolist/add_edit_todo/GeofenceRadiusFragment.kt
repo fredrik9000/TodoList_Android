@@ -17,7 +17,9 @@ import com.github.fredrik9000.todolist.databinding.FragmentGeofenceRadiusBinding
 
 class GeofenceRadiusFragment : Fragment() {
 
-    private lateinit var binding: FragmentGeofenceRadiusBinding
+    private var _binding: FragmentGeofenceRadiusBinding? = null
+    private val binding get() = _binding!!
+
     private var listener: GeofenceRadiusToFragmentInteractionListener? = null
 
     interface GeofenceRadiusToFragmentInteractionListener {
@@ -39,8 +41,13 @@ class GeofenceRadiusFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentGeofenceRadiusBinding.inflate(inflater, container, false)
+        _binding = FragmentGeofenceRadiusBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -295,8 +295,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         savedStateHandle.set(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE, geofenceNotificationUpdateState)
     }
 
-    fun setValuesFromArgumentsOrSavedState(args: Bundle) {
-        todoId = args.getInt(AddEditTodoFragment.ARGUMENT_TODO_ID)
+    fun setValuesFromArgumentsOrSavedState(args: Bundle?) {
         if (savedStateHandleContainsValues) {
             title = savedStateHandle.get(TITLE_STATE)!!
             description = savedStateHandle.get(DESCRIPTION_STATE)!!
@@ -305,12 +304,17 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             hasGeofenceNotification = savedStateHandle.get(HAS_GEOFENCE_NOTIFICATION_STATE)!!
             notificationUpdateState = savedStateHandle.get(NOTIFICATION_UPDATE_STATE_STATE)!!
             geofenceNotificationUpdateState = savedStateHandle.get(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE)!!
-        } else {
+        } else if (args != null) {
             title = args.getString(AddEditTodoFragment.ARGUMENT_TITLE)!!
             description = args.getString(AddEditTodoFragment.ARGUMENT_DESCRIPTION)!!
             priority = args.getInt(AddEditTodoFragment.ARGUMENT_PRIORITY)
             hasNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_NOTIFICATION)
             hasGeofenceNotification = args.getBoolean(AddEditTodoFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION)
+        }
+
+        // Arguments is only not null for existing tasks. Tasks not yet created don't have an id.
+        if (args != null) {
+            todoId = args.getInt(AddEditTodoFragment.ARGUMENT_TODO_ID)
         }
     }
 

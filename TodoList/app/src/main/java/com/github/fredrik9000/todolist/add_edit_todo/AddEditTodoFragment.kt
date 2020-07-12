@@ -61,11 +61,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         // Since onViewCreated will run when navigating back with Navigation Component we don't want to override the view model with arguments or saved state
         if (!this::addEditTodoViewModel.isInitialized) {
             addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
-
-            // If arguments is not null we are editing an existing task and must set up the tasks values
-            if (arguments != null) {
-                addEditTodoViewModel.setValuesFromArgumentsOrSavedState(requireArguments())
-            }
+            addEditTodoViewModel.setValuesFromArgumentsOrSavedState(arguments)
 
             // Need to set up the notification state for both new and existing tasks, since tasks without a notification will be given a new notification id
             addEditTodoViewModel.setupNotificationState(arguments)

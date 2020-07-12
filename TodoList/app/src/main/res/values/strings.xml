@@ -26,7 +26,7 @@
     <string name="remove_notification">Remove</string>
     <string name="invalid_time">Invalid Time, select a future date and time</string>
     <string name="notification_removed">Notification removed</string>
-    <string name="notification_by_time_heading">Remind me on date and time</string>
+    <string name="notification_by_time_heading">Remind me at date and time</string>
     <string name="notification_by_location_heading">Remind me when entering location</string>
     <string name="enter_title_by_voice">Enter title by voice command</string>
     <string name="enter_description_by_voice">Enter description by voice command</string>

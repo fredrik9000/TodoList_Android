@@ -27,7 +27,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFragmentInteractionListener {
 
-    private lateinit var binding: FragmentGeofenceMapBinding
+    private var _binding: FragmentGeofenceMapBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var geofenceMapViewModel: GeofenceMapViewModel
     private lateinit var map: GoogleMap
     private lateinit var userLocationButton: FloatingActionButton
@@ -36,8 +38,13 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     private lateinit var radiusContainer: FragmentContainerView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentGeofenceMapBinding.inflate(inflater, container, false)
+        _binding = FragmentGeofenceMapBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -182,8 +189,13 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
 
     override fun setGeofenceRadius(radius: Int) {
         geofenceMapViewModel.geofenceRadius = radius
-        map.clear()
-        adjustGeofenceCircle()
+
+        // If the app dies due to a process death while the geofence radius fragment is open, then map won't be initialized when reopening the app.
+        // Even so, the geofence will still be drawn, since onMapReady will handle this.
+        if (this::map.isInitialized) {
+            map.clear()
+            adjustGeofenceCircle()
+        }
     }
 
     override fun exitAnimationFinished() {
