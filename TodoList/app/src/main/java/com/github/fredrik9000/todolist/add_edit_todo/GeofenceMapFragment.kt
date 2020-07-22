@@ -2,6 +2,7 @@ package com.github.fredrik9000.todolist.add_edit_todo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.parcel.Parcelize
 
 class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFragmentInteractionListener {
 
@@ -73,10 +75,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
 
                 // Pass data to parent fragment and navigate back
                 Navigation.findNavController(it).previousBackStackEntry!!.savedStateHandle.apply {
-                    set(GeofenceMapViewModel.GEOFENCE_RADIUS_STATE, geofenceMapViewModel.geofenceRadius)
-                    set(GeofenceMapViewModel.GEOFENCE_CENTER_LAT_STATE, geofenceMapViewModel.geofenceCenter.latitude)
-                    set(GeofenceMapViewModel.GEOFENCE_CENTER_LONG_STATE, geofenceMapViewModel.geofenceCenter.longitude)
-                    set(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE, geofenceMapViewModel.hasSetGeofence)
+                    set(GeofenceData.GEOFENCE_DATA, GeofenceData(geofenceMapViewModel.geofenceRadius, geofenceMapViewModel.geofenceCenter.latitude, geofenceMapViewModel.geofenceCenter.longitude))
                 }
                 Navigation.findNavController(it).navigateUp()
             }
@@ -175,7 +174,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     }
 
     private fun moveToGeofenceLocation() {
-         map.animateCamera(CameraUpdateFactory.newLatLngZoom(geofenceMapViewModel.geofenceCenter, DEFAULT_MAP_ZOOM_LEVEL))
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(geofenceMapViewModel.geofenceCenter, DEFAULT_MAP_ZOOM_LEVEL))
     }
 
     private fun adjustGeofenceCircle() {
@@ -218,6 +217,13 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         geofenceMapViewModel.saveState()
+    }
+
+    @Parcelize
+    data class GeofenceData(var radius: Int, var latitude: Double, var longitude: Double) : Parcelable {
+        companion object {
+            const val GEOFENCE_DATA: String = "GEOFENCE_DATA"
+        }
     }
 
     companion object {

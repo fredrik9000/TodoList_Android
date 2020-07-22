@@ -7,7 +7,6 @@ import androidx.lifecycle.*
 import com.github.fredrik9000.todolist.model.Todo
 import com.github.fredrik9000.todolist.model.TodoRepository
 import com.github.fredrik9000.todolist.notifications.NotificationUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -50,13 +49,13 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         if (todo.geofenceNotificationEnabled) {
             NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.geofenceNotificationId, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.insert(todo)
         }
     }
 
     fun update(todo: Todo) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.update(todo)
         }
     }
@@ -98,7 +97,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
             NotificationUtil.removeGeofence(getApplication<Application>().applicationContext, todo.geofenceNotificationId)
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.delete(todo)
         }
     }
@@ -114,7 +113,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.insertTodoItems(todoListItems)
         }
     }

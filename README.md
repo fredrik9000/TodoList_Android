@@ -1,35 +1,27 @@
 # Todo List
 
-This todo list application for Android is written in Kotlin and with a modern MVVM architecture. The app uses the repository pattern and several Android architecture components and Jetpack libraries, such as:
+This todo list application is written in Kotlin and with a modern MVVM architecture. The app uses the repository pattern and several Android architecture components and Jetpack libraries, such as:
 
 - Navigation component
 - ViewModel
 - Room
 - LiveData
-- Data Binding
-- View Binding
+- Data Binding and View Binding
 - ConstraintLayout
 
 #### The app has the following features:
 
 - Add and edit tasks
 - Search for tasks
-- Add time based notifications to tasks 
-- Add location based notifications to tasks by setting geofences
-- Update and remove notifications, with undo
+- Set tasks to completed, and back to uncompleted
+- Add date and time notifications to tasks 
+- Set geofences and add location based notifications to tasks
 - Voice input option for entering the tasks title and description
 - Set a priority level for each task (low, medium, high)
-- Set tasks to completed, and back to uncompleted
-- Delete individual, all completed, or all tasks
-- Undo task deletion
+- Remove tasks and/or notifications with undo
 - UI for both dark mode and light mode, which can be toggled from within the app
 
 In order to use geofencing you'll need to create your own Google Maps API key.
-
-#### Potential improvements:
-
-- Recurring notifications, for example by scheduling a time based notification to happen once a day
-- (Adaptive) launcher icons
 
 I have also made an iOS version: [iOS Todo List](https://github.com/fredrik9000/TodoList_iOS)
 

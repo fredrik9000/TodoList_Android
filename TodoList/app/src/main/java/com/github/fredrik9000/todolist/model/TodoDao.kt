@@ -6,16 +6,22 @@ import androidx.room.*
 @Dao
 interface TodoDao {
     @Insert
-    fun insert(todo: Todo)
+    suspend fun insert(todo: Todo)
 
     @Insert
-    fun insert(todoList: MutableList<Todo>)
+    suspend fun insert(todoList: MutableList<Todo>)
 
     @Update
-    fun update(todo: Todo)
+    suspend fun update(todo: Todo)
 
     @Delete
-    fun delete(todo: Todo)
+    suspend fun delete(todo: Todo)
+
+    @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, title ASC")
+    fun getAllTodos(): LiveData<MutableList<Todo>>
+
+    @Query("SELECT * FROM todo_table WHERE title LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, title ASC")
+    fun getTodosWithText(searchValue: String?): LiveData<MutableList<Todo>>
 
     @Query("UPDATE todo_table SET notificationEnabled = 0, notifyYear = 0, notifyMonth = 0, notifyDay = 0, notifyHour = 0, notifyMinute = 0 WHERE notificationId = :notificationId")
     fun clearTimedNotificationValues(notificationId: Int)
@@ -34,12 +40,6 @@ interface TodoDao {
 
     @Query("SELECT * FROM todo_table WHERE geofenceNotificationId IN (:geofenceNotificationIdList)")
     fun getTodoListWithGeofenceNotificationIds(geofenceNotificationIdList: List<Int>): MutableList<Todo>
-
-    @Query("SELECT * FROM todo_table ORDER BY isCompleted ASC, priority DESC, title ASC")
-    fun getAllTodos(): LiveData<MutableList<Todo>>
-
-    @Query("SELECT * FROM todo_table WHERE title LIKE '%' || :searchValue || '%' ORDER BY isCompleted ASC, priority DESC, title ASC")
-    fun getTodosWithText(searchValue: String?): LiveData<MutableList<Todo>>
 
     @Query("SELECT * FROM todo_table WHERE geofenceNotificationEnabled = 1")
     fun getTodosWithGeofence(): MutableList<Todo>

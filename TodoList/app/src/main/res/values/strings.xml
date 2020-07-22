@@ -56,4 +56,7 @@
     <string name="geofence_removal_failed">Failed to remove geofence</string>
     <string name="adding_geofence_failed">Failed to add geofence</string>
 
+    <string name="fine_location_rationale_message">In order for geofencing to work the app needs access to location</string>
+    <string name="background_location_rationale_message">In order for geofencing to work the app also needs background location access</string>
+
 </resources>

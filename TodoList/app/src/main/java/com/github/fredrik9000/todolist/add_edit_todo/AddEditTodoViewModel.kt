@@ -12,7 +12,6 @@ import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.model.Todo
 import com.github.fredrik9000.todolist.model.TodoRepository
 import com.github.fredrik9000.todolist.notifications.NotificationUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -244,13 +243,13 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     private fun insert(todo: Todo) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.insert(todo)
         }
     }
 
     private fun update(todo: Todo) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.update(todo)
         }
     }

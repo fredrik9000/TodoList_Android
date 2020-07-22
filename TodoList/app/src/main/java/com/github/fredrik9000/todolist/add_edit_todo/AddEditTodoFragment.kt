@@ -5,7 +5,6 @@ import android.app.Activity.RESULT_OK
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.location.Geocoder
@@ -19,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -31,11 +31,14 @@ import com.github.fredrik9000.todolist.add_edit_todo.TimePickerFragment.OnSelect
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding
 import com.github.fredrik9000.todolist.model.Todo
 import com.google.android.material.snackbar.Snackbar
+import pub.devrel.easypermissions.AfterPermissionGranted
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import java.io.IOException
 import java.text.DateFormat
 import java.util.*
 
-class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, OnSelectTimeDialogInteractionListener {
+class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, OnSelectTimeDialogInteractionListener, EasyPermissions.PermissionCallbacks {
 
     private var _binding: FragmentAddEditTodoBinding? = null
     private val binding get() = _binding!!
@@ -93,35 +96,19 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.removeGeofenceNotificationButton.setOnClickListener(removeGeofenceNotificationButtonListener)
         binding.addUpdateGeofenceNotificationButton.setOnClickListener(addGeofenceNotificationButtonListener)
 
-        setGeofenceObservers()
+        setConfirmGeofenceObserver()
     }
 
-    private fun setGeofenceObservers() {
+    private fun setConfirmGeofenceObserver() {
         val savedStateHandle = NavHostFragment.findNavController(this).currentBackStackEntry!!.savedStateHandle
-
-        val radiusLiveData = savedStateHandle.getLiveData<Int>(GeofenceMapViewModel.GEOFENCE_RADIUS_STATE)
-        radiusLiveData.observe(viewLifecycleOwner, Observer { radius ->
-            addEditTodoViewModel.geofenceRadius = radius
-            savedStateHandle.remove<Int>(GeofenceMapViewModel.GEOFENCE_RADIUS_STATE)
-        })
-
-        val latitudeLiveData = savedStateHandle.getLiveData<Double>(GeofenceMapViewModel.GEOFENCE_CENTER_LAT_STATE)
-        latitudeLiveData.observe(viewLifecycleOwner, Observer { latitude ->
-            addEditTodoViewModel.geofenceLatitude = latitude
-            savedStateHandle.remove<Double>(GeofenceMapViewModel.GEOFENCE_CENTER_LAT_STATE)
-        })
-
-        val longitudeLiveData = savedStateHandle.getLiveData<Double>(GeofenceMapViewModel.GEOFENCE_CENTER_LONG_STATE)
-        longitudeLiveData.observe(viewLifecycleOwner, Observer { longitude ->
-            addEditTodoViewModel.geofenceLongitude = longitude
-            savedStateHandle.remove<Double>(GeofenceMapViewModel.GEOFENCE_CENTER_LONG_STATE)
-        })
-
-        val hasGeofenceLiveData = savedStateHandle.getLiveData<Boolean>(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE)
-        hasGeofenceLiveData.observe(viewLifecycleOwner, Observer {
+        val geofenceLiveData = savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
+        geofenceLiveData.observe(viewLifecycleOwner, Observer { geofenceData ->
+            addEditTodoViewModel.geofenceRadius = geofenceData.radius
+            addEditTodoViewModel.geofenceLatitude = geofenceData.latitude
+            addEditTodoViewModel.geofenceLongitude = geofenceData.longitude
             addEditTodoViewModel.hasGeofenceNotification = true
             addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
-            savedStateHandle.remove<Boolean>(GeofenceMapViewModel.HAS_SET_GEOFENCE_STATE)
+            savedStateHandle.remove<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
             displayGeofenceNotificationAddedState()
         })
     }
@@ -226,7 +213,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     private val addNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
         val datePickerFragment = DatePickerFragment()
-        datePickerFragment.setTargetFragment(this@AddEditTodoFragment, 1)
+        datePickerFragment.setTargetFragment(this@AddEditTodoFragment, DATE_PICKER_FRAGMENT_REQUEST_CODE)
         datePickerFragment.show(parentFragmentManager, "datePicker")
     }
 
@@ -263,25 +250,54 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         ).show()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        if (requestCode == LOCATION_REQUEST_CODE) {
-            if (ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                navigateToGeofenceMap()
-            }
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
         }
     }
 
-    private val addGeofenceNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
-        if (ContextCompat.checkSelfPermission(this@AddEditTodoFragment.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this@AddEditTodoFragment.requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        if ((requestCode == ACCESS_FINE_LOCATION_REQUEST_CODE && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) || requestCode == ACCESS_BACKGROUND_LOCATION_REQUEST_CODE) {
             navigateToGeofenceMap()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    private val addGeofenceNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
+        if (!hasLocationPermissions()) {
+            requestLocationPermissions()
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                requestPermissions(arrayOf<String?>(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION), LOCATION_REQUEST_CODE)
-            } else {
-                requestPermissions(arrayOf<String?>(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST_CODE)
-            }
+            navigateToGeofenceMap()
+        }
+    }
+
+    private fun hasLocationPermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            true
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+    }
+
+    @AfterPermissionGranted(ACCESS_FINE_LOCATION_REQUEST_CODE)
+    private fun requestLocationPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            requestBackgroundLocationPermission()
+        } else {
+            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    @AfterPermissionGranted(ACCESS_BACKGROUND_LOCATION_REQUEST_CODE)
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestBackgroundLocationPermission() {
+        if (!EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            EasyPermissions.requestPermissions(this, resources.getString(R.string.background_location_rationale_message), ACCESS_BACKGROUND_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 
@@ -339,7 +355,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     override fun onSelectDateDialogInteraction(year: Int, month: Int, day: Int) {
         addEditTodoViewModel.setTemporaryNotificationDateValues(year, month, day)
         val timePickerFragment = TimePickerFragment()
-        timePickerFragment.setTargetFragment(this@AddEditTodoFragment, 2)
+        timePickerFragment.setTargetFragment(this@AddEditTodoFragment, TIME_PICKER_FRAGMENT_REQUEST_CODE)
         timePickerFragment.show(parentFragmentManager, "timePicker")
     }
 
@@ -365,9 +381,12 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     companion object {
         private const val TAG: String = "AddEditTodoFragment"
-        private const val LOCATION_REQUEST_CODE = 1
-        private const val TITLE_SPEECH_REQUEST_CODE = 2
-        private const val DESCRIPTION_SPEECH_REQUEST_CODE = 3
+        private const val ACCESS_FINE_LOCATION_REQUEST_CODE = 1
+        private const val ACCESS_BACKGROUND_LOCATION_REQUEST_CODE = 2
+        private const val TITLE_SPEECH_REQUEST_CODE = 3
+        private const val DESCRIPTION_SPEECH_REQUEST_CODE = 4
+        private const val TIME_PICKER_FRAGMENT_REQUEST_CODE = 1001
+        private const val DATE_PICKER_FRAGMENT_REQUEST_CODE = 1002
 
         const val ARGUMENT_TODO_ID: String = "ARGUMENT_TODO_ID"
         const val ARGUMENT_TITLE: String = "ARGUMENT_TITLE"

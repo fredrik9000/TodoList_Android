@@ -2,6 +2,8 @@ package com.github.fredrik9000.todolist.model
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TodoRepository(application: Application) {
 
@@ -12,19 +14,19 @@ class TodoRepository(application: Application) {
         todoDao = database.todoDao()
     }
 
-    fun insert(todo: Todo) {
+    suspend fun insert(todo: Todo) = withContext(Dispatchers.IO) {
         todoDao.insert(todo)
     }
 
-    fun insertTodoItems(todoList: MutableList<Todo>) {
+    suspend fun insertTodoItems(todoList: MutableList<Todo>) = withContext(Dispatchers.IO) {
         todoDao.insert(todoList)
     }
 
-    fun update(todo: Todo) {
+    suspend fun update(todo: Todo) = withContext(Dispatchers.IO) {
         todoDao.update(todo)
     }
 
-    fun delete(todo: Todo) {
+    suspend fun delete(todo: Todo) = withContext(Dispatchers.IO) {
         todoDao.delete(todo)
     }
 
