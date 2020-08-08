@@ -27,14 +27,17 @@ I have also made an iOS version: [iOS Todo List](https://github.com/fredrik9000/
 
 ## Screenshots
 
-![task_list_dark](https://user-images.githubusercontent.com/13121494/87245519-4144bc80-c446-11ea-8baf-cd86aef4edb1.png)
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/13121494/89719967-f333c200-d9cd-11ea-96de-53293868c653.png" width="414" />
+  <img src="https://user-images.githubusercontent.com/13121494/89719969-f3cc5880-d9cd-11ea-948a-1bdbc63ace50.png" width="414" /> 
+</p>
 
-![edit_task_dark](https://user-images.githubusercontent.com/13121494/87245515-3f7af900-c446-11ea-9345-4334f62188e7.png)
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/13121494/89719965-f29b2b80-d9cd-11ea-8b95-f1c1bc12f20b.png" width="414" />
+  <img src="https://user-images.githubusercontent.com/13121494/89719968-f333c200-d9cd-11ea-81c6-e5b74ad26d6e.png" width="414" />
+</p>
 
-![geofence_dark](https://user-images.githubusercontent.com/13121494/87245517-40138f80-c446-11ea-8aac-c1eab2cce7c7.png)
-
-![task_list_light](https://user-images.githubusercontent.com/13121494/87245520-4144bc80-c446-11ea-8f9f-304048f0447c.png)
-
-![edit_task_light](https://user-images.githubusercontent.com/13121494/87245516-40138f80-c446-11ea-954b-9984fa5e7cde.png)
-
-![geofence_light](https://user-images.githubusercontent.com/13121494/87245518-40ac2600-c446-11ea-842e-641ff2c2ed47.png)
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/13121494/89719964-f2029500-d9cd-11ea-856e-7ed0d8282d8c.png" width="414" /> 
+  <img src="https://user-images.githubusercontent.com/13121494/89719966-f333c200-d9cd-11ea-8bcb-ae51a2760d9c.png" width="414" />
+</p>

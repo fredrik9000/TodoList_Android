@@ -17,10 +17,10 @@
 
     <string name="title_label">Title</string>
     <string name="description_label">Description</string>
-    <string name="priority_label">Priority</string>
-    <string name="low_priority">Low priority</string>
-    <string name="medium_priority">Medium priority</string>
-    <string name="high_priority">High priority</string>
+    <string name="priority_label">Priority: %1$s</string>
+    <string name="low_priority">Low</string>
+    <string name="medium_priority">Medium</string>
+    <string name="high_priority">High</string>
     <string name="add_timed_notification">New timed notification</string>
     <string name="add_geofence_notification">New geofence notification</string>
     <string name="remove_notification">Remove</string>

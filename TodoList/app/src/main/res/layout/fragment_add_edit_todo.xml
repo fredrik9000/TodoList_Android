@@ -53,6 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/description_margin_top"
                 android:text="@string/description_label"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@id/description_mic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/todo_title_text_input_layout" />
@@ -92,19 +93,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/priority_picker_margin_top"
                 android:text="@string/priority_label"
+                android:textColor="@color/medium_priority"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/todo_description_edit_text" />
 
-            <Button
-                android:id="@+id/priority_picker_button"
+            <SeekBar
+                android:id="@+id/priority_picker_seekbar"
+                style="@style/Widget.AppCompat.SeekBar.Discrete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/button_background_tint"
                 android:labelFor="@id/priority_picker_label"
-                android:text="@string/medium_priority"
-                android:textColor="@color/medium_priority"
-                android:textStyle="bold"
+                android:max="2"
+                android:paddingTop="@dimen/priority_picker_top_bottom_padding"
+                android:paddingBottom="@dimen/priority_picker_top_bottom_padding"
+                android:progress="1"
+                android:progressTint="@color/medium_priority"
+                android:thumbTint="@color/medium_priority"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/priority_picker_label" />
@@ -115,9 +121,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/notification_text_margin_top"
                 android:text="@string/notification_by_time_heading"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/priority_picker_button" />
+                app:layout_constraintTop_toBottomOf="@+id/priority_picker_seekbar" />
 
             <Button
                 android:id="@+id/add_update_notification_button"
@@ -150,6 +157,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/notification_text_margin_top"
                 android:text="@string/notification_by_location_heading"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/add_update_notification_button" />

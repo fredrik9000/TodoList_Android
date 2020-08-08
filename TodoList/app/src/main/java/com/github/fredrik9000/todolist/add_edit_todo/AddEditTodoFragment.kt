@@ -17,6 +17,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -114,13 +115,25 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     }
 
     private fun setupPriorityPicker() {
-        binding.priorityPickerButton.text = addEditTodoViewModel.getLabelForCurrentPriority()
-        binding.priorityPickerButton.setTextColor(addEditTodoViewModel.getColorForCurrentPriority())
-        binding.priorityPickerButton.setOnClickListener {
-            addEditTodoViewModel.togglePriorityValue()
-            binding.priorityPickerButton.text = addEditTodoViewModel.getLabelForCurrentPriority()
-            binding.priorityPickerButton.setTextColor(addEditTodoViewModel.getColorForCurrentPriority())
-        }
+        binding.priorityPickerSeekbar.progress = addEditTodoViewModel.priority
+        configurePriorityPickerWithCurrentValues()
+        binding.priorityPickerSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                addEditTodoViewModel.priority = progress
+                configurePriorityPickerWithCurrentValues()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+    }
+
+    private fun configurePriorityPickerWithCurrentValues() {
+        binding.priorityPickerLabel.text = resources.getString(R.string.priority_label, addEditTodoViewModel.getLabelForCurrentPriority())
+        val priorityColorId = addEditTodoViewModel.getColorForCurrentPriority()
+        binding.priorityPickerLabel.setTextColor(priorityColorId)
+        binding.priorityPickerSeekbar.thumbTintList = ColorStateList.valueOf(priorityColorId)
+        binding.priorityPickerSeekbar.progressTintList = ColorStateList.valueOf(priorityColorId)
     }
 
     private fun displayNotificationAddedStateIfActive() {

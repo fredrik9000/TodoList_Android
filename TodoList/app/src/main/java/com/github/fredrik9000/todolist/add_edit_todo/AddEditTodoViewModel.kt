@@ -28,13 +28,13 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
 
     var title: String = ""
     var description: String = ""
+    var priority = PRIORITY_MEDIUM
     var hasNotification = false
     var hasGeofenceNotification = false
     var geofenceLatitude = 0.0
     var geofenceLongitude = 0.0
     var geofenceRadius = GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS
 
-    private var priority = PRIORITY_MEDIUM
     private var dayTemp = 0
     private var day = 0
     private var monthTemp = 0
@@ -178,20 +178,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         val notificationCalendar = Calendar.getInstance()
         notificationCalendar[yearTemp, monthTemp, dayTemp, hourTemp, minuteTemp] = 0
         return notificationCalendar
-    }
-
-    fun togglePriorityValue() {
-        priority = when (priority) {
-            PRIORITY_LOW -> {
-                PRIORITY_MEDIUM
-            }
-            PRIORITY_MEDIUM -> {
-                PRIORITY_HIGH
-            }
-            else -> {
-                PRIORITY_LOW
-            }
-        }
     }
 
     fun getLabelForCurrentPriority(): String? {
