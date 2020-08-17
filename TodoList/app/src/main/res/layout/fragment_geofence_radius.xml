@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/geofence_radius_fragment_height"
     android:layout_gravity="bottom"
-    android:alpha="0.8"
+    android:alpha="0.82"
     android:background="@color/colorPrimary"
     android:orientation="vertical">
 

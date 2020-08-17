@@ -99,10 +99,8 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * it. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
@@ -136,7 +134,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
         userLocationButton.visibility = View.GONE
         radiusContainer.visibility = View.VISIBLE
 
-        // Add and animate the geofence radius fragment, but there's no need to do this after rotating
+        // Add and animate the geofence radius fragment, but there's no need to do this after rotating (in which case findFragmentByTag will return null).
         if (parentFragmentManager.findFragmentByTag(GeofenceRadiusFragment.TAG) == null) {
             val geofenceRadiusFragment = GeofenceRadiusFragment().apply {
                 arguments = Bundle().apply {
@@ -162,7 +160,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
         }
     }
 
-    // TODO: Location permissions are checked before navigating to this fragment, but it would be better to also check it here.
+    // Location permissions are checked before navigating to this fragment.
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
@@ -203,7 +201,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
 
     // Fade out all the fabs at their current position
     override fun exitAnimationStarted() {
-        val duration = 270 // Same value as in the geofence radius fragment animation
+        val duration = resources.getInteger(R.integer.expand_collapse_animation_duration)
 
         confirmGeofenceButton.startAnimation(AnimationUtils.loadAnimation(confirmGeofenceButton.context, android.R.anim.fade_out).apply {
             this.duration = duration.toLong()

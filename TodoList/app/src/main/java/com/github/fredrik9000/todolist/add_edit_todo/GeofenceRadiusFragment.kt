@@ -32,12 +32,11 @@ class GeofenceRadiusFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         // It is needed to handle the back button, otherwise the fragment wont get popped and one will navigate back to AddEditTodoFragment
-        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true /* enabled by default */) {
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 parentFragmentManager.popBackStack()
             }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

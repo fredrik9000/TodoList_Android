@@ -11,11 +11,11 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoFragment
 import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding
@@ -55,17 +55,12 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView = binding.todoList
-        recyclerView.setHasFixedSize(true)
-        val layoutManager = LinearLayoutManager(context)
-        recyclerView.layoutManager = layoutManager
         _adapter = TodoAdapter(requireContext(), this)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, layoutManager.orientation))
+        setupRecyclerView()
 
         todoListViewModel = ViewModelProvider(this).get(TodoListViewModel::class.java)
         todoListViewModel.isSearching = false // Need to reset this after rotating
-        todoListViewModel.getTodoList().observe(viewLifecycleOwner, Observer { todoList ->
+        todoListViewModel.getTodoList().observe(viewLifecycleOwner, { todoList ->
             adapter.submitList(todoList)
             showOrHideOnboardingView(todoList)
         })
@@ -74,6 +69,23 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
         addTodoButton.setOnClickListener {
             Navigation.findNavController(it).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
         }
+    }
+
+    private fun setupRecyclerView() {
+        val recyclerView = binding.todoList
+        recyclerView.setHasFixedSize(true)
+        val layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = adapter
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                deleteSingleTodoItem(adapter.getTodoAt(viewHolder.bindingAdapterPosition))
+            }
+        }).attachToRecyclerView(recyclerView)
     }
 
     override fun onResume() {
@@ -185,24 +197,9 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
             override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.menu_delete) {
-                    val todo = adapter.getTodoAt(lastItemLongClickedPosition)
-                    todoListViewModel.deleteTodo((activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager, todo)
                     actionMode.finish()
-
-                    Snackbar.make(
-                            binding.coordinatorLayout,
-                            R.string.item_deleted,
-                            Snackbar.LENGTH_LONG
-                    ).setAction(R.string.undo, View.OnClickListener {
-                        if (todoListViewModel.isUndoDoubleClicked) {
-                            return@OnClickListener
-                        }
-
-                        todoListViewModel.updateLastClickedUndoTime()
-                        todoListViewModel.insertTodo(todo, (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-
-                        showUndoSuccessfulSnackbar()
-                    }).show()
+                    val todo = adapter.getTodoAt(lastItemLongClickedPosition)
+                    deleteSingleTodoItem(todo)
                     return true
                 }
                 return false
@@ -213,6 +210,25 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
             }
         })
         return true
+    }
+
+    private fun deleteSingleTodoItem(todo: Todo) {
+        todoListViewModel.deleteTodo((activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager, todo)
+
+        Snackbar.make(
+                binding.coordinatorLayout,
+                R.string.item_deleted,
+                Snackbar.LENGTH_LONG
+        ).setAction(R.string.undo, View.OnClickListener {
+            if (todoListViewModel.isUndoDoubleClicked) {
+                return@OnClickListener
+            }
+
+            todoListViewModel.updateLastClickedUndoTime()
+            todoListViewModel.insertTodo(todo, (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+
+            showUndoSuccessfulSnackbar()
+        }).show()
     }
 
     override fun onCompletedToggled(todo: Todo, isChecked: Boolean) {

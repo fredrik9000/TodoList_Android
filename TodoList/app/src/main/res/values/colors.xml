@@ -5,6 +5,10 @@
     <color name="colorPrimaryDark">#002984</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="windowBackgroundColor">#FFF</color>
+    <color name="cardViewBackgroundColor">#FFF</color>
+    <color name="cardViewCompletedBackgroundColor">#DBDBDB</color>
+
     <color name="list_item_icon">#000000</color>
     <color name="description_border_color">#808080</color>
     <color name="fab_tint">#FFFFFF</color>

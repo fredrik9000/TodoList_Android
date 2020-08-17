@@ -1,7 +1,7 @@
 package com.github.fredrik9000.todolist.todolist
 
+import android.animation.ObjectAnimator
 import android.content.Context
-import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,24 +32,50 @@ class TodoAdapter(private val context: Context, private val interactionListener:
             AddEditTodoViewModel.PRIORITY_HIGH -> CompoundButtonCompat.setButtonTintList(todoItemViewHolder.binding.completeCheckbox, ContextCompat.getColorStateList(context, R.color.high_priority))
         }
         if (todoItem.notificationEnabled && !isNotificationExpired(todoItem)) {
-            todoItemViewHolder.binding.alarmImageView.visibility = View.VISIBLE
+            todoItemViewHolder.binding.reminderNotificationLayout.visibility = View.VISIBLE
         } else {
-            todoItemViewHolder.binding.alarmImageView.visibility = View.GONE
+            todoItemViewHolder.binding.reminderNotificationLayout.visibility = View.GONE
         }
+
         if (todoItem.geofenceNotificationEnabled) {
-            todoItemViewHolder.binding.geofenceImageView.visibility = View.VISIBLE
+            todoItemViewHolder.binding.geofenceNotificationLayout.visibility = View.VISIBLE
         } else {
-            todoItemViewHolder.binding.geofenceImageView.visibility = View.GONE
+            todoItemViewHolder.binding.geofenceNotificationLayout.visibility = View.GONE
         }
+
+        if (todoItem.notificationEnabled || todoItem.geofenceNotificationEnabled) {
+            todoItemViewHolder.binding.notificationLayout.visibility = View.VISIBLE
+        } else {
+            todoItemViewHolder.binding.notificationLayout.visibility = View.GONE
+        }
+
         if (!todoItem.description.isNullOrEmpty()) {
-            todoItemViewHolder.binding.descriptionImageView.visibility = View.VISIBLE
+            todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.VISIBLE
+            todoItemViewHolder.binding.descriptionLayout.visibility = View.VISIBLE
+
+            // The following code makes sure that the expandable description image is only visible when it needs to be.
+            // In order to correctly fetch the line count and ellipsis count we need to post a Runnable in order to allow the text view to render.
+            todoItemViewHolder.binding.descriptionTextView.post {
+                val descriptionCollapsedMaxLines = context.resources.getInteger(R.integer.max_lines_collapsed_list_item_description)
+                if (todoItemViewHolder.binding.descriptionTextView.maxLines == descriptionCollapsedMaxLines) {
+                    val textViewLayout = todoItemViewHolder.binding.descriptionTextView.layout
+                    val lineCount = textViewLayout.lineCount
+                    if (lineCount == descriptionCollapsedMaxLines && textViewLayout.getEllipsisCount(1) > 0) {
+                        todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.VISIBLE
+                    } else {
+                        todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.GONE
+                    }
+                }
+            }
         } else {
-            todoItemViewHolder.binding.descriptionImageView.visibility = View.GONE
+            todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.GONE
+            todoItemViewHolder.binding.descriptionLayout.visibility = View.GONE
         }
+
         if (todoItem.isCompleted) {
-            todoItemViewHolder.binding.titleTextView.paintFlags = todoItemViewHolder.binding.titleTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            todoItemViewHolder.binding.listItemCardView.backgroundTintList = ContextCompat.getColorStateList(context, R.color.cardViewCompletedBackgroundColor)
         } else {
-            todoItemViewHolder.binding.titleTextView.paintFlags = todoItemViewHolder.binding.titleTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            todoItemViewHolder.binding.listItemCardView.backgroundTintList = ContextCompat.getColorStateList(context, R.color.cardViewBackgroundColor)
         }
     }
 
@@ -83,7 +109,32 @@ class TodoAdapter(private val context: Context, private val interactionListener:
                     false
                 }
             }
-            binding.completeCheckbox.setOnCheckedChangeListener { _, isChecked -> interactionListener.onCompletedToggled(getItem(bindingAdapterPosition), isChecked) }
+            binding.completeCheckbox.setOnCheckedChangeListener { view, isChecked ->
+                // OnCheckedChangeListener will be called when the items are filtered through searching,
+                // so if the user didn't initiate the action, then return
+                if (!view.isPressed) {
+                    return@setOnCheckedChangeListener
+                }
+                interactionListener.onCompletedToggled(getItem(bindingAdapterPosition), isChecked)
+            }
+
+            binding.expandDescriptionImageView.setOnClickListener {
+                if (binding.descriptionTextView.maxLines == context.resources.getInteger(R.integer.max_lines_collapsed_list_item_description)) {
+                    ObjectAnimator.ofInt(
+                            binding.descriptionTextView,
+                            "maxLines",
+                            context.resources.getInteger(R.integer.max_lines_expanded_list_item_description))
+                            .also { it.duration = context.resources.getInteger(R.integer.expand_collapse_animation_duration).toLong() }.start()
+                    binding.expandDescriptionImageView.setImageResource(R.drawable.ic_description_arrow_up_24)
+                } else {
+                    ObjectAnimator.ofInt(
+                            binding.descriptionTextView,
+                            "maxLines",
+                            context.resources.getInteger(R.integer.max_lines_collapsed_list_item_description))
+                            .also { it.duration = context.resources.getInteger(R.integer.expand_collapse_animation_duration).toLong() }.start()
+                    binding.expandDescriptionImageView.setImageResource(R.drawable.ic_description_arrow_down_24)
+                }
+            }
         }
 
         fun bind(todo: Todo?) {
@@ -105,7 +156,14 @@ class TodoAdapter(private val context: Context, private val interactionListener:
                         oldItem.notificationEnabled == newItem.notificationEnabled &&
                         oldItem.geofenceNotificationEnabled == newItem.geofenceNotificationEnabled &&
                         oldItem.notificationId == newItem.notificationId &&
+                        oldItem.notifyYear == newItem.notifyYear &&
+                        oldItem.notifyMonth == newItem.notifyMonth &&
+                        oldItem.notifyDay == newItem.notifyDay &&
+                        oldItem.notifyHour == newItem.notifyHour &&
+                        oldItem.notifyMinute == newItem.notifyMinute &&
                         oldItem.geofenceNotificationId == newItem.geofenceNotificationId &&
+                        oldItem.geofenceLatitude == newItem.geofenceLatitude &&
+                        oldItem.geofenceLongitude == newItem.geofenceLongitude &&
                         oldItem.isCompleted == newItem.isCompleted
             }
         }

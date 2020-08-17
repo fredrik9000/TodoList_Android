@@ -7,13 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent.*
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +20,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
@@ -35,7 +32,6 @@ import com.google.android.material.snackbar.Snackbar
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import java.io.IOException
 import java.text.DateFormat
 import java.util.*
 
@@ -103,7 +99,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     private fun setConfirmGeofenceObserver() {
         val savedStateHandle = NavHostFragment.findNavController(this).currentBackStackEntry!!.savedStateHandle
         val geofenceLiveData = savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
-        geofenceLiveData.observe(viewLifecycleOwner, Observer { geofenceData ->
+        geofenceLiveData.observe(viewLifecycleOwner, { geofenceData ->
             addEditTodoViewModel.geofenceRadius = geofenceData.radius
             addEditTodoViewModel.geofenceLatitude = geofenceData.latitude
             addEditTodoViewModel.geofenceLongitude = geofenceData.longitude
@@ -160,22 +156,12 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
     private fun displayGeofenceNotificationAddedState() {
         binding.removeGeofenceNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateGeofenceNotificationButton.text = getAddressFromLatLong(addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude)
+        binding.addUpdateGeofenceNotificationButton.text = Todo.getAddressFromLatLong(requireContext(), addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude, true)
     }
 
     private fun displayGeofenceNotificationNotAddedState() {
         binding.addUpdateGeofenceNotificationButton.setText(R.string.add_geofence_notification)
         binding.removeGeofenceNotificationButton.visibility = View.GONE
-    }
-
-    private fun getAddressFromLatLong(latitude: Double, longitude: Double): String? {
-        var address: String? = null
-        try {
-            address = Geocoder(context, Locale.getDefault()).getFromLocation(latitude, longitude, 1)[0].getAddressLine(0)
-        } catch (e: IOException) {
-            Log.w(TAG, "Could not get city from latitude and longitude: " + e.message)
-        }
-        return address ?: "Unknown"
     }
 
     private val titleSpeechToTextListener: View.OnClickListener? = View.OnClickListener {
@@ -393,7 +379,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     }
 
     companion object {
-        private const val TAG: String = "AddEditTodoFragment"
         private const val ACCESS_FINE_LOCATION_REQUEST_CODE = 1
         private const val ACCESS_BACKGROUND_LOCATION_REQUEST_CODE = 2
         private const val TITLE_SPEECH_REQUEST_CODE = 3

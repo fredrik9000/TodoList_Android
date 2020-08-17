@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="max_lines_expanded_list_item_description">12</integer>
+    <integer name="max_lines_collapsed_list_item_description">2</integer>
+    <integer name="expand_collapse_animation_duration">270</integer>
+</resources>

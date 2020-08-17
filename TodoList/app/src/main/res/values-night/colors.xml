@@ -5,10 +5,14 @@
     <color name="colorPrimaryDark">#121212</color>
     <color name="colorAccent">#E04CFA</color>
 
+    <color name="windowBackgroundColor">#1F1A24</color>
+    <color name="cardViewBackgroundColor">#2A252F</color>
+    <color name="cardViewCompletedBackgroundColor">#404040</color>
+
     <color name="list_item_icon">#FFFFFF</color>
     <color name="description_border_color">#C0C0C0</color>
     <color name="fab_tint">#000000</color>
-    <color name="button_background_tint">#373737</color>
+    <color name="button_background_tint">#2A252F</color>
     <color name="button_drawable_tint">#FFFFFF</color>
 
     <color name="geofence_stroke">#AA1F1A24</color>
