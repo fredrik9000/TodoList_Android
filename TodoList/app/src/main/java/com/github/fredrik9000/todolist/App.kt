@@ -16,7 +16,7 @@ class App : Application() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH).apply {
+            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.task_reminder_notification_channel_name), NotificationManager.IMPORTANCE_HIGH).apply {
                 enableLights(true)
                 lightColor = Color.RED
                 enableVibration(true)
@@ -27,7 +27,6 @@ class App : Application() {
     }
 
     companion object {
-        const val NOTIFICATION_CHANNEL_ID: String = "main_channel"
-        private const val NOTIFICATION_CHANNEL_NAME: String = "Task Reminders"
+        const val NOTIFICATION_CHANNEL_ID = "main_channel"
     }
 }

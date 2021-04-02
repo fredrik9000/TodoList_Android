@@ -1,4 +1,4 @@
-package com.github.fredrik9000.todolist.add_edit_todo
+package com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence
 
 import android.app.Application
 import android.os.Bundle
@@ -34,9 +34,9 @@ class GeofenceMapViewModel(application: Application, private val savedStateHandl
     }
 
     companion object {
-        const val GEOFENCE_CENTER_LAT_STATE: String = "GEOFENCE_CENTER_LAT"
-        const val GEOFENCE_CENTER_LONG_STATE: String = "GEOFENCE_CENTER_LONG"
-        const val GEOFENCE_RADIUS_STATE: String = "GEOFENCE_RADIUS"
-        const val HAS_SET_GEOFENCE_STATE: String = "HAS_SET_GEOFENCE"
+        const val GEOFENCE_CENTER_LAT_STATE = "GEOFENCE_CENTER_LAT"
+        const val GEOFENCE_CENTER_LONG_STATE = "GEOFENCE_CENTER_LONG"
+        const val GEOFENCE_RADIUS_STATE = "GEOFENCE_RADIUS"
+        const val HAS_SET_GEOFENCE_STATE = "HAS_SET_GEOFENCE"
     }
 }

@@ -49,6 +49,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         if (todo.geofenceNotificationEnabled) {
             NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.geofenceNotificationId, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
         }
+
         viewModelScope.launch {
             repository.insert(todo)
         }

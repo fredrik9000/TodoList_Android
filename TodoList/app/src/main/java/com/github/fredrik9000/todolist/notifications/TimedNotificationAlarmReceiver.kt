@@ -7,12 +7,13 @@ import android.content.Intent
 class TimedNotificationAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val timedNotificationJobIntentServiceIntent = Intent(context, TimedNotificationJobIntentService::class.java)
-        timedNotificationJobIntentServiceIntent.putExtra(NOTIFICATION_ID, intent.getIntExtra(NOTIFICATION_ID, 0))
-        TimedNotificationJobIntentService.enqueueWork(context, timedNotificationJobIntentServiceIntent)
+        with(Intent(context, TimedNotificationJobIntentService::class.java)) {
+            this.putExtra(NOTIFICATION_ID, intent.getIntExtra(NOTIFICATION_ID, 0))
+            TimedNotificationJobIntentService.enqueueWork(context, this)
+        }
     }
 
     companion object {
-        const val NOTIFICATION_ID: String = "NOTIFICATION_ID"
+        const val NOTIFICATION_ID = "NOTIFICATION_ID"
     }
 }

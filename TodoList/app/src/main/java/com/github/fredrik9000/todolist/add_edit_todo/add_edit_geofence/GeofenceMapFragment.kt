@@ -1,4 +1,4 @@
-package com.github.fredrik9000.todolist.add_edit_todo
+package com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.github.fredrik9000.todolist.R
-import com.github.fredrik9000.todolist.add_edit_todo.GeofenceRadiusFragment.GeofenceRadiusToFragmentInteractionListener
 import com.github.fredrik9000.todolist.databinding.FragmentGeofenceMapBinding
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,7 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.parcel.Parcelize
 
-class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFragmentInteractionListener {
+class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentGeofenceMapBinding? = null
     private val binding get() = _binding!!
@@ -39,7 +40,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     private lateinit var cancelGeofenceButton: FloatingActionButton
     private lateinit var radiusContainer: FragmentContainerView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGeofenceMapBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -106,7 +107,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.setOnMapClickListener(OnMapClickListener { point ->
-            // If the fragment is already showing, don't handle map clicks
+            // If the radius fragment is showing, don't handle map clicks
             if (parentFragmentManager.findFragmentByTag(GeofenceRadiusFragment.TAG) != null) {
                 return@OnMapClickListener
             }
@@ -137,16 +138,40 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
         // Add and animate the geofence radius fragment, but there's no need to do this after rotating (in which case findFragmentByTag will return null).
         if (parentFragmentManager.findFragmentByTag(GeofenceRadiusFragment.TAG) == null) {
             val geofenceRadiusFragment = GeofenceRadiusFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(GeofenceRadiusFragment.RADIUS_ARGUMENT, geofenceMapViewModel.geofenceRadius)
-                }
-                setTargetFragment(this@GeofenceMapFragment, 0)
+                arguments = bundleOf(GeofenceRadiusFragment.RADIUS_ARGUMENT to geofenceMapViewModel.geofenceRadius)
             }
 
-            parentFragmentManager.beginTransaction()
-                    .add(R.id.geofence_radius_fragment_container, geofenceRadiusFragment, GeofenceRadiusFragment.TAG)
-                    .addToBackStack(null)
-                    .commit()
+            parentFragmentManager.commit {
+                addToBackStack(null)
+                add(R.id.geofence_radius_fragment_container, geofenceRadiusFragment, GeofenceRadiusFragment.TAG)
+            }
+
+            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.SET_GEOFENCE_RADIUS_REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+                geofenceMapViewModel.geofenceRadius = bundle.getInt(GeofenceRadiusFragment.BUNDLE_RADIUS_KEY)
+
+                // If the app dies due to a process death while the geofence radius fragment is open,then map won't be initialized when reopening the app.
+                // Even so, the geofence will still be drawn, since onMapReady will handle this.
+                if (this::map.isInitialized) {
+                    map.clear()
+                    adjustGeofenceCircle()
+                }
+            }
+
+            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.EXIT_ANIMATION_STARTED_REQUEST_KEY, viewLifecycleOwner) { _, _ ->
+                val duration = resources.getInteger(R.integer.expand_collapse_animation_duration)
+
+                // Fade out all the fabs at their current position
+                confirmGeofenceButton.startAnimation(AnimationUtils.loadAnimation(confirmGeofenceButton.context, android.R.anim.fade_out).apply {
+                    this.duration = duration.toLong()
+                })
+                cancelGeofenceButton.startAnimation(AnimationUtils.loadAnimation(cancelGeofenceButton.context, android.R.anim.fade_out).apply {
+                    this.duration = duration.toLong()
+                })
+            }
+
+            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.EXIT_ANIMATION_FINISHED_REQUEST_KEY, viewLifecycleOwner) { _, _ ->
+                cancelGeoFence()
+            }
         }
 
         if (fadeInFabs) {
@@ -163,8 +188,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     // Location permissions are checked before navigating to this fragment.
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        fusedLocationClient.lastLocation.addOnSuccessListener(requireActivity()) { location -> // Got last known location. In some rare situations this can be null.
+        LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation.addOnSuccessListener(requireActivity()) { location ->
             if (location != null) {
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
             }
@@ -176,40 +200,11 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     }
 
     private fun adjustGeofenceCircle() {
-        val center = geofenceMapViewModel.geofenceCenter
         map.addCircle(CircleOptions()
-                .center(center)
+                .center(geofenceMapViewModel.geofenceCenter)
                 .radius(geofenceMapViewModel.geofenceRadius.toDouble())
                 .strokeColor(ContextCompat.getColor(requireContext(), R.color.geofence_stroke))
                 .fillColor(ContextCompat.getColor(requireContext(), R.color.geofence_fill)))
-    }
-
-    override fun setGeofenceRadius(radius: Int) {
-        geofenceMapViewModel.geofenceRadius = radius
-
-        // If the app dies due to a process death while the geofence radius fragment is open, then map won't be initialized when reopening the app.
-        // Even so, the geofence will still be drawn, since onMapReady will handle this.
-        if (this::map.isInitialized) {
-            map.clear()
-            adjustGeofenceCircle()
-        }
-    }
-
-    override fun exitAnimationFinished() {
-        cancelGeoFence()
-    }
-
-    // Fade out all the fabs at their current position
-    override fun exitAnimationStarted() {
-        val duration = resources.getInteger(R.integer.expand_collapse_animation_duration)
-
-        confirmGeofenceButton.startAnimation(AnimationUtils.loadAnimation(confirmGeofenceButton.context, android.R.anim.fade_out).apply {
-            this.duration = duration.toLong()
-        })
-
-        cancelGeofenceButton.startAnimation(AnimationUtils.loadAnimation(cancelGeofenceButton.context, android.R.anim.fade_out).apply {
-            this.duration = duration.toLong()
-        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -225,10 +220,10 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback, GeofenceRadiusToFrag
     }
 
     companion object {
-        const val ARGUMENT_HAS_GEOFENCE_NOTIFICATION: String = "ARGUMENT_HAS_GEOFENCE_NOTIFICATION"
-        const val ARGUMENT_GEOFENCE_RADIUS: String = "ARGUMENT_GEOFENCE_RADIUS"
-        const val ARGUMENT_GEOFENCE_LATITUDE: String = "ARGUMENT_GEOFENCE_LATITUDE"
-        const val ARGUMENT_GEOFENCE_LONGITUDE: String = "ARGUMENT_GEOFENCE_LONGITUDE"
+        const val ARGUMENT_HAS_GEOFENCE_NOTIFICATION = "ARGUMENT_HAS_GEOFENCE_NOTIFICATION"
+        const val ARGUMENT_GEOFENCE_RADIUS = "ARGUMENT_GEOFENCE_RADIUS"
+        const val ARGUMENT_GEOFENCE_LATITUDE = "ARGUMENT_GEOFENCE_LATITUDE"
+        const val ARGUMENT_GEOFENCE_LONGITUDE = "ARGUMENT_GEOFENCE_LONGITUDE"
 
         private const val DEFAULT_MAP_ZOOM_LEVEL = 12f
     }

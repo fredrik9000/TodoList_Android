@@ -41,7 +41,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentTodoListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -60,13 +60,12 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
         todoListViewModel = ViewModelProvider(this).get(TodoListViewModel::class.java)
         todoListViewModel.isSearching = false // Need to reset this after rotating
-        todoListViewModel.getTodoList().observe(viewLifecycleOwner, { todoList ->
+        todoListViewModel.getTodoList().observe(viewLifecycleOwner) { todoList ->
             adapter.submitList(todoList)
             showOrHideOnboardingView(todoList)
-        })
+        }
 
-        val addTodoButton = binding.addTodoButton
-        addTodoButton.setOnClickListener {
+        binding.addTodoButton.setOnClickListener {
             Navigation.findNavController(it).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
         }
     }

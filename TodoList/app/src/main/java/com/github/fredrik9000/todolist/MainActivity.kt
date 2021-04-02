@@ -5,13 +5,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
-import com.github.fredrik9000.todolist.add_edit_todo.GeofenceRadiusFragment
+import com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence.GeofenceRadiusFragment
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val controller = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupActionBarWithNavController(this, controller)
 
@@ -39,8 +40,7 @@ class MainActivity : AppCompatActivity() {
             fragmentManager.popBackStackImmediate()
             GeofenceRadiusFragment.disableAnimations = false
         }
-        val controller = Navigation.findNavController(this, R.id.nav_host_fragment)
-        return controller.navigateUp()
+        return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp()
     }
 
     override fun onBackPressed() {

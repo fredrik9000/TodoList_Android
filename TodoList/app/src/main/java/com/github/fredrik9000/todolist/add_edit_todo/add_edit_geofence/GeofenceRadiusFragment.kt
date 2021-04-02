@@ -1,8 +1,6 @@
-package com.github.fredrik9000.todolist.add_edit_todo
+package com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +9,9 @@ import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.OnBackPressedCallback
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.databinding.FragmentGeofenceRadiusBinding
 
@@ -20,18 +20,10 @@ class GeofenceRadiusFragment : Fragment() {
     private var _binding: FragmentGeofenceRadiusBinding? = null
     private val binding get() = _binding!!
 
-    private var listener: GeofenceRadiusToFragmentInteractionListener? = null
-
-    interface GeofenceRadiusToFragmentInteractionListener {
-        fun setGeofenceRadius(radius: Int)
-        fun exitAnimationFinished()
-        fun exitAnimationStarted()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // It is needed to handle the back button, otherwise the fragment wont get popped and one will navigate back to AddEditTodoFragment
+        // It is needed to handle the back button, otherwise the fragment wont get popped and the app will navigate back to AddEditTodoFragment
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 parentFragmentManager.popBackStack()
@@ -39,7 +31,7 @@ class GeofenceRadiusFragment : Fragment() {
         })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentGeofenceRadiusBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -62,7 +54,7 @@ class GeofenceRadiusFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val radius = progressToRadius(progress)
                 radiusDescription.text = getString(R.string.radius_description, radius.toString())
-                listener!!.setGeofenceRadius(radius)
+                setFragmentResult(SET_GEOFENCE_RADIUS_REQUEST_KEY, bundleOf(BUNDLE_RADIUS_KEY to radius))
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -81,30 +73,16 @@ class GeofenceRadiusFragment : Fragment() {
             AnimationUtils.loadAnimation(activity, R.anim.exit_top_to_bottom).apply {
                 setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation?) {
-                        listener!!.exitAnimationFinished()
+                        setFragmentResult(EXIT_ANIMATION_FINISHED_REQUEST_KEY, Bundle())
                     }
 
                     override fun onAnimationRepeat(animation: Animation?) {}
                     override fun onAnimationStart(animation: Animation?) {
-                        listener!!.exitAnimationStarted()
+                        setFragmentResult(EXIT_ANIMATION_STARTED_REQUEST_KEY, Bundle())
                     }
                 })
             }
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            listener = targetFragment as GeofenceRadiusToFragmentInteractionListener?
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "onAttach: ClassCastException" + e.message)
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
     }
 
     private fun progressToRadius(progress: Int): Int {
@@ -131,8 +109,12 @@ class GeofenceRadiusFragment : Fragment() {
 
     companion object {
         var disableAnimations = false
-        const val TAG: String = "GeofenceRadiusFragment"
-        const val RADIUS_ARGUMENT: String = "RADIUS_ARGUMENT"
+        const val TAG = "GeofenceRadiusFragment"
+        const val RADIUS_ARGUMENT = "RADIUS_ARGUMENT"
         const val DEFAULT_RADIUS_IN_METERS = 300
+        const val SET_GEOFENCE_RADIUS_REQUEST_KEY = "SET_GEOFENCE_RADIUS_REQUEST"
+        const val EXIT_ANIMATION_FINISHED_REQUEST_KEY = "EXIT_ANIMATION_FINISHED_REQUEST"
+        const val EXIT_ANIMATION_STARTED_REQUEST_KEY = "EXIT_ANIMATION_STARTED_REQUEST"
+        const val BUNDLE_RADIUS_KEY = "radius"
     }
 }

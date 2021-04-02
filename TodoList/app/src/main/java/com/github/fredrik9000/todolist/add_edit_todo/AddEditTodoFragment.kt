@@ -17,6 +17,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -24,8 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.github.fredrik9000.todolist.R
-import com.github.fredrik9000.todolist.add_edit_todo.DatePickerFragment.OnSelectDateDialogInteractionListener
-import com.github.fredrik9000.todolist.add_edit_todo.TimePickerFragment.OnSelectTimeDialogInteractionListener
+import com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence.GeofenceMapFragment
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding
 import com.github.fredrik9000.todolist.model.Todo
 import com.google.android.material.snackbar.Snackbar
@@ -35,7 +36,7 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.text.DateFormat
 import java.util.*
 
-class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, OnSelectTimeDialogInteractionListener, EasyPermissions.PermissionCallbacks {
+class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private var _binding: FragmentAddEditTodoBinding? = null
     private val binding get() = _binding!!
@@ -43,7 +44,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     private lateinit var addEditTodoViewModel: AddEditTodoViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -58,16 +59,17 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Since onViewCreated will run when navigating back with Navigation Component we don't want to override the view model with arguments or saved state
+        // Since onViewCreated will run when navigating back when using the Navigation Component there is no need to override an initialized view model with supplied arguments or saved state
         if (!this::addEditTodoViewModel.isInitialized) {
             addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
             addEditTodoViewModel.setValuesFromArgumentsOrSavedState(arguments)
 
-            // Need to set up the notification state for both new and existing tasks, since tasks without a notification will be given a new notification id
+            // Need to set up the notification state for both new and existing tasks, since tasks without an existing notification will be given a new notification id
             addEditTodoViewModel.setupNotificationState(arguments)
             addEditTodoViewModel.setupGeofenceNotificationState(arguments)
         }
 
+        // If there is no title, don't allow saving the task
         if (addEditTodoViewModel.title.isEmpty()) {
             binding.saveTodoButton.isEnabled = false
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
@@ -81,8 +83,13 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
 
         setupPriorityPicker()
 
-        displayNotificationAddedStateIfActive()
-        displayGeofenceNotificationAddedStateIfActive()
+        if (addEditTodoViewModel.hasActiveTimedNotification) {
+            displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar())
+        }
+
+        if (addEditTodoViewModel.hasGeofenceNotification) {
+            displayGeofenceNotificationAddedState()
+        }
 
         binding.todoTitleEditText.addTextChangedListener(titleTextWatcher)
         binding.titleMic.setOnClickListener(titleSpeechToTextListener)
@@ -93,21 +100,20 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.removeGeofenceNotificationButton.setOnClickListener(removeGeofenceNotificationButtonListener)
         binding.addUpdateGeofenceNotificationButton.setOnClickListener(addGeofenceNotificationButtonListener)
 
-        setConfirmGeofenceObserver()
+        setupConfirmGeofenceObserver()
     }
 
-    private fun setConfirmGeofenceObserver() {
+    private fun setupConfirmGeofenceObserver() {
         val savedStateHandle = NavHostFragment.findNavController(this).currentBackStackEntry!!.savedStateHandle
-        val geofenceLiveData = savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
-        geofenceLiveData.observe(viewLifecycleOwner, { geofenceData ->
-            addEditTodoViewModel.geofenceRadius = geofenceData.radius
-            addEditTodoViewModel.geofenceLatitude = geofenceData.latitude
-            addEditTodoViewModel.geofenceLongitude = geofenceData.longitude
+        savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA).observe(viewLifecycleOwner) {
+            addEditTodoViewModel.geofenceRadius = it.radius
+            addEditTodoViewModel.geofenceLatitude = it.latitude
+            addEditTodoViewModel.geofenceLongitude = it.longitude
             addEditTodoViewModel.hasGeofenceNotification = true
             addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
             savedStateHandle.remove<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
             displayGeofenceNotificationAddedState()
-        })
+        }
     }
 
     private fun setupPriorityPicker() {
@@ -132,12 +138,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.priorityPickerSeekbar.progressTintList = ColorStateList.valueOf(priorityColorId)
     }
 
-    private fun displayNotificationAddedStateIfActive() {
-        if (addEditTodoViewModel.hasActiveTimedNotification) {
-            displayNotificationAddedState(addEditTodoViewModel.createNotificationCalendar())
-        }
-    }
-
     private fun displayNotificationAddedState(notificationCalendar: Calendar) {
         binding.removeNotificationButton.visibility = View.VISIBLE
         binding.addUpdateNotificationButton.text = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time)
@@ -146,12 +146,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     private fun displayNotificationNotAddedState() {
         binding.addUpdateNotificationButton.setText(R.string.add_timed_notification)
         binding.removeNotificationButton.visibility = View.GONE
-    }
-
-    private fun displayGeofenceNotificationAddedStateIfActive() {
-        if (addEditTodoViewModel.hasGeofenceNotification) {
-            displayGeofenceNotificationAddedState()
-        }
     }
 
     private fun displayGeofenceNotificationAddedState() {
@@ -164,59 +158,62 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         binding.removeGeofenceNotificationButton.visibility = View.GONE
     }
 
-    private val titleSpeechToTextListener: View.OnClickListener? = View.OnClickListener {
-        initiateSpeechToText(TITLE_SPEECH_REQUEST_CODE)
+    private val titleSpeechToTextListener: View.OnClickListener = View.OnClickListener {
+        initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+            if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
+                activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
+                    binding.todoTitleEditText.append(it[0].capitalize(Locale.getDefault()))
+                }
+            }
+        })
     }
 
-    private val descriptionSpeechToTextListener: View.OnClickListener? = View.OnClickListener {
-        initiateSpeechToText(DESCRIPTION_SPEECH_REQUEST_CODE)
+    private val descriptionSpeechToTextListener: View.OnClickListener = View.OnClickListener {
+        initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
+            if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
+                activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
+                    binding.todoDescriptionEditText.append(it[0].capitalize(Locale.getDefault()))
+                }
+            }
+        })
     }
 
-    private fun initiateSpeechToText(requestCode: Int) {
-        val intent = Intent((ACTION_RECOGNIZE_SPEECH)).apply {
-            putExtra(EXTRA_LANGUAGE_MODEL, LANGUAGE_MODEL_FREE_FORM)
-            putExtra(EXTRA_LANGUAGE, Locale.getDefault())
-        }
-
+    private fun initiateSpeechToText(launcher: ActivityResultLauncher<Intent>) {
         try {
-            startActivityForResult(intent, requestCode)
+            launcher.launch(Intent((ACTION_RECOGNIZE_SPEECH)).apply {
+                putExtra(EXTRA_LANGUAGE_MODEL, LANGUAGE_MODEL_FREE_FORM)
+                putExtra(EXTRA_LANGUAGE, Locale.getDefault())
+            })
         } catch (e: Exception) {
             Toast.makeText(requireContext(), R.string.cant_initiate_speech_recognition, Toast.LENGTH_SHORT).show()
         }
     }
 
-    @ExperimentalStdlibApi
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == TITLE_SPEECH_REQUEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                data.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoTitleEditText.append(it[0].capitalize(Locale.getDefault()))
-                }
-            }
-        } else if (requestCode == DESCRIPTION_SPEECH_REQUEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                data.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoDescriptionEditText.append(it[0].capitalize(Locale.getDefault()))
-                }
-            }
-        }
-    }
-
-    private val saveButtonListener: View.OnClickListener? = View.OnClickListener {
+    private val saveButtonListener: View.OnClickListener = View.OnClickListener {
         val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoTitleEditText.text.toString(), binding.todoDescriptionEditText.text.toString())
         Navigation.findNavController(requireView()).navigateUp()
     }
 
-    private val addNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
-        val datePickerFragment = DatePickerFragment()
-        datePickerFragment.setTargetFragment(this@AddEditTodoFragment, DATE_PICKER_FRAGMENT_REQUEST_CODE)
-        datePickerFragment.show(parentFragmentManager, "datePicker")
+    private val addNotificationButtonListener: View.OnClickListener = View.OnClickListener {
+        DatePickerFragment().show(parentFragmentManager, "datePicker")
+        parentFragmentManager.setFragmentResultListener(DatePickerFragment.DATE_PICKER_FRAGMENT_REQUEST_KEY, viewLifecycleOwner) { _, datePickerBundle ->
+            addEditTodoViewModel.setTemporaryNotificationDateValues(datePickerBundle.getInt(DatePickerFragment.BUNDLE_YEAR_KEY), datePickerBundle.getInt(DatePickerFragment.BUNDLE_MONTH_KEY), datePickerBundle.getInt(DatePickerFragment.BUNDLE_DAY_KEY))
+            TimePickerFragment().show(parentFragmentManager, "timePicker")
+            parentFragmentManager.setFragmentResultListener(TimePickerFragment.TIME_PICKER_FRAGMENT_REQUEST_KEY, viewLifecycleOwner) { _, timePickerBundle ->
+                addEditTodoViewModel.setTemporaryNotificationTimeValues(timePickerBundle.getInt(TimePickerFragment.BUNDLE_HOUR_KEY), timePickerBundle.getInt(TimePickerFragment.BUNDLE_MINUTE_KEY))
+                val notificationCalendar = addEditTodoViewModel.createTemporaryNotificationCalendar()
+                if (notificationCalendar.timeInMillis < Calendar.getInstance().timeInMillis) {
+                    Toast.makeText(requireActivity().applicationContext, R.string.invalid_time, Toast.LENGTH_LONG).show()
+                } else {
+                    addEditTodoViewModel.setFinallySelectedNotificationValues()
+                    displayNotificationAddedState(notificationCalendar)
+                }
+            }
+        }
     }
 
-    private val removeNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
+    private val removeNotificationButtonListener: View.OnClickListener = View.OnClickListener {
         displayNotificationNotAddedState()
         addEditTodoViewModel.hasNotification = false
         val tempNotificationUpdateState = addEditTodoViewModel.notificationUpdateState
@@ -265,37 +262,20 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
-    private val addGeofenceNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
-        if (!hasLocationPermissions()) {
-            requestLocationPermissions()
+    private val addGeofenceNotificationButtonListener: View.OnClickListener = View.OnClickListener {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            requestBackgroundLocationPermission()
         } else {
             navigateToGeofenceMap()
         }
     }
 
-    private fun hasLocationPermissions(): Boolean {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            true
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-    }
-
     @AfterPermissionGranted(ACCESS_FINE_LOCATION_REQUEST_CODE)
-    private fun requestLocationPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-            requestBackgroundLocationPermission()
-        } else {
-            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
-
-    @AfterPermissionGranted(ACCESS_BACKGROUND_LOCATION_REQUEST_CODE)
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun requestBackgroundLocationPermission() {
-        if (!EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
             EasyPermissions.requestPermissions(this, resources.getString(R.string.background_location_rationale_message), ACCESS_BACKGROUND_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
@@ -311,7 +291,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         Navigation.findNavController(requireView()).navigate(R.id.action_addEditTodoFragment_to_geofenceMapFragment, bundle)
     }
 
-    private val removeGeofenceNotificationButtonListener: View.OnClickListener? = View.OnClickListener {
+    private val removeGeofenceNotificationButtonListener: View.OnClickListener = View.OnClickListener {
         displayGeofenceNotificationNotAddedState()
         addEditTodoViewModel.hasGeofenceNotification = false
         val tempNotificationUpdateState = addEditTodoViewModel.geofenceNotificationUpdateState
@@ -336,7 +316,7 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         }.show()
     }
 
-    private val titleTextWatcher: TextWatcher? = object : TextWatcher {
+    private val titleTextWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {}
         override fun onTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
             if (charSequence.toString().trim().isEmpty()) {
@@ -351,24 +331,6 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
         override fun afterTextChanged(editable: Editable?) {}
     }
 
-    override fun onSelectDateDialogInteraction(year: Int, month: Int, day: Int) {
-        addEditTodoViewModel.setTemporaryNotificationDateValues(year, month, day)
-        val timePickerFragment = TimePickerFragment()
-        timePickerFragment.setTargetFragment(this@AddEditTodoFragment, TIME_PICKER_FRAGMENT_REQUEST_CODE)
-        timePickerFragment.show(parentFragmentManager, "timePicker")
-    }
-
-    override fun onSelectTimeDialogInteraction(hour: Int, minute: Int) {
-        addEditTodoViewModel.setTemporaryNotificationTimeValues(hour, minute)
-        val notificationCalendar = addEditTodoViewModel.createTemporaryNotificationCalendar()
-        if (notificationCalendar.timeInMillis < Calendar.getInstance().timeInMillis) {
-            Toast.makeText(requireActivity().applicationContext, R.string.invalid_time, Toast.LENGTH_LONG).show()
-        } else {
-            addEditTodoViewModel.setFinallySelectedNotificationValues()
-            displayNotificationAddedState(notificationCalendar)
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
@@ -381,52 +343,50 @@ class AddEditTodoFragment : Fragment(), OnSelectDateDialogInteractionListener, O
     companion object {
         private const val ACCESS_FINE_LOCATION_REQUEST_CODE = 1
         private const val ACCESS_BACKGROUND_LOCATION_REQUEST_CODE = 2
-        private const val TITLE_SPEECH_REQUEST_CODE = 3
-        private const val DESCRIPTION_SPEECH_REQUEST_CODE = 4
-        private const val TIME_PICKER_FRAGMENT_REQUEST_CODE = 1001
-        private const val DATE_PICKER_FRAGMENT_REQUEST_CODE = 1002
 
-        const val ARGUMENT_TODO_ID: String = "ARGUMENT_TODO_ID"
-        const val ARGUMENT_TITLE: String = "ARGUMENT_TITLE"
-        const val ARGUMENT_DESCRIPTION: String = "ARGUMENT_DESCRIPTION"
-        const val ARGUMENT_PRIORITY: String = "ARGUMENT_PRIORITY"
-        const val ARGUMENT_HAS_NOTIFICATION: String = "ARGUMENT_HAS_NOTIFICATION"
-        const val ARGUMENT_NOTIFICATION_ID: String = "ARGUMENT_NOTIFICATION_ID"
-        const val ARGUMENT_NOTIFICATION_YEAR: String = "ARGUMENT_NOTIFICATION_YEAR"
-        const val ARGUMENT_NOTIFICATION_MONTH: String = "ARGUMENT_NOTIFICATION_MONTH"
-        const val ARGUMENT_NOTIFICATION_DAY: String = "ARGUMENT_NOTIFICATION_DAY"
-        const val ARGUMENT_NOTIFICATION_HOUR: String = "ARGUMENT_NOTIFICATION_HOUR"
-        const val ARGUMENT_NOTIFICATION_MINUTE: String = "ARGUMENT_NOTIFICATION_MINUTE"
-        const val ARGUMENT_HAS_GEOFENCE_NOTIFICATION: String = "ARGUMENT_HAS_GEOFENCE_NOTIFICATION"
-        const val ARGUMENT_GEOFENCE_NOTIFICATION_ID: String = "ARGUMENT_GEOFENCE_NOTIFICATION_ID"
-        const val ARGUMENT_GEOFENCE_RADIUS: String = "ARGUMENT_GEOFENCE_RADIUS"
-        const val ARGUMENT_GEOFENCE_LATITUDE: String = "ARGUMENT_GEOFENCE_LATITUDE"
-        const val ARGUMENT_GEOFENCE_LONGITUDE: String = "ARGUMENT_GEOFENCE_LONGITUDE"
+        const val ARGUMENT_TODO_ID = "ARGUMENT_TODO_ID"
+        const val ARGUMENT_TITLE = "ARGUMENT_TITLE"
+        const val ARGUMENT_DESCRIPTION = "ARGUMENT_DESCRIPTION"
+        const val ARGUMENT_PRIORITY = "ARGUMENT_PRIORITY"
+        const val ARGUMENT_HAS_NOTIFICATION = "ARGUMENT_HAS_NOTIFICATION"
+        const val ARGUMENT_NOTIFICATION_ID = "ARGUMENT_NOTIFICATION_ID"
+        const val ARGUMENT_NOTIFICATION_YEAR = "ARGUMENT_NOTIFICATION_YEAR"
+        const val ARGUMENT_NOTIFICATION_MONTH = "ARGUMENT_NOTIFICATION_MONTH"
+        const val ARGUMENT_NOTIFICATION_DAY = "ARGUMENT_NOTIFICATION_DAY"
+        const val ARGUMENT_NOTIFICATION_HOUR = "ARGUMENT_NOTIFICATION_HOUR"
+        const val ARGUMENT_NOTIFICATION_MINUTE = "ARGUMENT_NOTIFICATION_MINUTE"
+        const val ARGUMENT_HAS_GEOFENCE_NOTIFICATION = "ARGUMENT_HAS_GEOFENCE_NOTIFICATION"
+        const val ARGUMENT_GEOFENCE_NOTIFICATION_ID = "ARGUMENT_GEOFENCE_NOTIFICATION_ID"
+        const val ARGUMENT_GEOFENCE_RADIUS = "ARGUMENT_GEOFENCE_RADIUS"
+        const val ARGUMENT_GEOFENCE_LATITUDE = "ARGUMENT_GEOFENCE_LATITUDE"
+        const val ARGUMENT_GEOFENCE_LONGITUDE = "ARGUMENT_GEOFENCE_LONGITUDE"
 
-        fun createBundleForTodoItem(todo: Todo): Bundle? {
+        fun createBundleForTodoItem(todo: Todo): Bundle {
             // Double cannot be passed as safe args, which is used for latitude and longitude, so must create a bundle instead
-            val bundle = Bundle()
-            bundle.putInt(ARGUMENT_TODO_ID, todo.id)
-            bundle.putString(ARGUMENT_TITLE, todo.title)
-            bundle.putString(ARGUMENT_DESCRIPTION, todo.description)
-            bundle.putInt(ARGUMENT_PRIORITY, todo.priority)
-            bundle.putBoolean(ARGUMENT_HAS_NOTIFICATION, todo.notificationEnabled)
-            if (todo.notificationEnabled) {
-                bundle.putInt(ARGUMENT_NOTIFICATION_ID, todo.notificationId)
-                bundle.putInt(ARGUMENT_NOTIFICATION_YEAR, todo.notifyYear)
-                bundle.putInt(ARGUMENT_NOTIFICATION_MONTH, todo.notifyMonth)
-                bundle.putInt(ARGUMENT_NOTIFICATION_DAY, todo.notifyDay)
-                bundle.putInt(ARGUMENT_NOTIFICATION_HOUR, todo.notifyHour)
-                bundle.putInt(ARGUMENT_NOTIFICATION_MINUTE, todo.notifyMinute)
+            return Bundle().apply {
+                putInt(ARGUMENT_TODO_ID, todo.id)
+                putString(ARGUMENT_TITLE, todo.title)
+                putString(ARGUMENT_DESCRIPTION, todo.description)
+                putInt(ARGUMENT_PRIORITY, todo.priority)
+                putBoolean(ARGUMENT_HAS_NOTIFICATION, todo.notificationEnabled)
+                putBoolean(ARGUMENT_HAS_GEOFENCE_NOTIFICATION, todo.geofenceNotificationEnabled)
+
+                if (todo.notificationEnabled) {
+                    putInt(ARGUMENT_NOTIFICATION_ID, todo.notificationId)
+                    putInt(ARGUMENT_NOTIFICATION_YEAR, todo.notifyYear)
+                    putInt(ARGUMENT_NOTIFICATION_MONTH, todo.notifyMonth)
+                    putInt(ARGUMENT_NOTIFICATION_DAY, todo.notifyDay)
+                    putInt(ARGUMENT_NOTIFICATION_HOUR, todo.notifyHour)
+                    putInt(ARGUMENT_NOTIFICATION_MINUTE, todo.notifyMinute)
+                }
+
+                if (todo.geofenceNotificationEnabled) {
+                    putInt(ARGUMENT_GEOFENCE_NOTIFICATION_ID, todo.geofenceNotificationId)
+                    putInt(ARGUMENT_GEOFENCE_RADIUS, todo.geofenceRadius)
+                    putDouble(ARGUMENT_GEOFENCE_LATITUDE, todo.geofenceLatitude)
+                    putDouble(ARGUMENT_GEOFENCE_LONGITUDE, todo.geofenceLongitude)
+                }
             }
-            bundle.putBoolean(ARGUMENT_HAS_GEOFENCE_NOTIFICATION, todo.geofenceNotificationEnabled)
-            if (todo.geofenceNotificationEnabled) {
-                bundle.putInt(ARGUMENT_GEOFENCE_NOTIFICATION_ID, todo.geofenceNotificationId)
-                bundle.putInt(ARGUMENT_GEOFENCE_RADIUS, todo.geofenceRadius)
-                bundle.putDouble(ARGUMENT_GEOFENCE_LATITUDE, todo.geofenceLatitude)
-                bundle.putDouble(ARGUMENT_GEOFENCE_LONGITUDE, todo.geofenceLongitude)
-            }
-            return bundle
         }
     }
 }

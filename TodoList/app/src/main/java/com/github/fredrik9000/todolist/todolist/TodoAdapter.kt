@@ -59,8 +59,7 @@ class TodoAdapter(private val context: Context, private val interactionListener:
                 val descriptionCollapsedMaxLines = context.resources.getInteger(R.integer.max_lines_collapsed_list_item_description)
                 if (todoItemViewHolder.binding.descriptionTextView.maxLines == descriptionCollapsedMaxLines) {
                     val textViewLayout = todoItemViewHolder.binding.descriptionTextView.layout
-                    val lineCount = textViewLayout.lineCount
-                    if (lineCount == descriptionCollapsedMaxLines && textViewLayout.getEllipsisCount(1) > 0) {
+                    if (textViewLayout.lineCount == descriptionCollapsedMaxLines && textViewLayout.getEllipsisCount(1) > 0) {
                         todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.VISIBLE
                     } else {
                         todoItemViewHolder.binding.expandDescriptionImageView.visibility = View.GONE
@@ -80,9 +79,9 @@ class TodoAdapter(private val context: Context, private val interactionListener:
     }
 
     private fun isNotificationExpired(todo: Todo): Boolean {
-        val notificationCalendar = Calendar.getInstance()
-        notificationCalendar[todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute] = 0
-        return notificationCalendar.timeInMillis < Calendar.getInstance().timeInMillis
+        return Calendar.getInstance().also {
+            it[todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute] = 0
+        }.timeInMillis < Calendar.getInstance().timeInMillis
     }
 
     fun getTodoAt(position: Int): Todo {

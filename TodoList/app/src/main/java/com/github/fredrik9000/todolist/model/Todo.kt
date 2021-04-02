@@ -32,7 +32,7 @@ class Todo(@PrimaryKey(autoGenerate = true) var id: Int = 0,
         private const val TAG: String = "Todo"
 
         @JvmStatic
-        fun getAddressFromLatLong(context: Context, latitude: Double, longitude: Double, geofenceNotificationEnabled: Boolean): String? {
+        fun getAddressFromLatLong(context: Context, latitude: Double, longitude: Double, geofenceNotificationEnabled: Boolean): String {
             if (!geofenceNotificationEnabled) {
                 return ""
             }
@@ -48,9 +48,10 @@ class Todo(@PrimaryKey(autoGenerate = true) var id: Int = 0,
 
         @JvmStatic
         fun getPrettifiedDateAndTime(todoItem: Todo): String? {
-            val calendar = Calendar.getInstance()
-            calendar[todoItem.notifyYear, todoItem.notifyMonth, todoItem.notifyDay, todoItem.notifyHour, todoItem.notifyMinute] = 0
-            return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.US).format(calendar.time)
+            with(Calendar.getInstance()) {
+                this[todoItem.notifyYear, todoItem.notifyMonth, todoItem.notifyDay, todoItem.notifyHour, todoItem.notifyMinute] = 0
+                return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.US).format(this.time)
+            }
         }
     }
 }

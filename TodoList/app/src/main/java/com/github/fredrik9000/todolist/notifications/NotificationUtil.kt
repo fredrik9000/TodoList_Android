@@ -28,7 +28,7 @@ object NotificationUtil {
         val notificationIntent = Intent(applicationContext, TimedNotificationAlarmReceiver::class.java)
         val pendingIntent = getNotificationPendingIntent(applicationContext, notificationId, notificationIntent)
         alarmManager.cancel(pendingIntent)
-        pendingIntent?.cancel()
+        pendingIntent.cancel()
     }
 
     fun addNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int, year: Int, month: Int, day: Int, hour: Int, minute: Int) {
@@ -36,9 +36,10 @@ object NotificationUtil {
             putExtra(TimedNotificationAlarmReceiver.NOTIFICATION_ID, notificationId)
         }
 
-        val notificationCalendar = Calendar.getInstance()
-        notificationCalendar[year, month, day, hour, minute] = 0
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationCalendar.timeInMillis, getNotificationPendingIntent(applicationContext, notificationId, notificationIntent))
+        with(Calendar.getInstance()) {
+            this[year, month, day, hour, minute] = 0
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, this.timeInMillis, getNotificationPendingIntent(applicationContext, notificationId, notificationIntent))
+        }
     }
 
     fun removeGeofence(applicationContext: Context, geofenceNotificationId: Int) {
@@ -46,28 +47,24 @@ object NotificationUtil {
     }
 
     fun removeGeofenceList(applicationContext: Context, geofenceNotificationIdList: List<String>) {
-        val geofencingClient = LocationServices.getGeofencingClient(applicationContext)
-        geofencingClient.removeGeofences(geofenceNotificationIdList)
+        LocationServices.getGeofencingClient(applicationContext).removeGeofences(geofenceNotificationIdList)
                 .addOnSuccessListener { Log.e(TAG, applicationContext.resources.getString(R.string.geofence_removed)) }
                 .addOnFailureListener { Log.e(TAG, applicationContext.resources.getString(R.string.geofence_removal_failed)) }
     }
 
     @SuppressLint("MissingPermission")
     fun addGeofenceNotification(applicationContext: Context, notificationId: Int, radius: Int, latitude: Double, longitude: Double) {
-        val geofenceList = listOf<Geofence>(Geofence.Builder()
-                .setRequestId(notificationId.toString())
-                .setCircularRegion(latitude, longitude, radius.toFloat())
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .build())
-
         val geofencingRequest = GeofencingRequest.Builder()
                 .setInitialTrigger(0) // Don't trigger geofence if already inside it
-                .addGeofences(geofenceList)
+                .addGeofences(listOf<Geofence>(Geofence.Builder()
+                        .setRequestId(notificationId.toString())
+                        .setCircularRegion(latitude, longitude, radius.toFloat())
+                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                        .setTransitionTypes(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                        .build()))
                 .build()
 
-        val geofencingClient = LocationServices.getGeofencingClient(applicationContext)
-        geofencingClient.addGeofences(geofencingRequest, getNotificationPendingIntent(applicationContext, GEOFENCE_REQUEST_CODE, Intent(applicationContext, GeofenceReceiver::class.java)))
+        LocationServices.getGeofencingClient(applicationContext).addGeofences(geofencingRequest, getNotificationPendingIntent(applicationContext, GEOFENCE_REQUEST_CODE, Intent(applicationContext, GeofenceReceiver::class.java)))
                 .addOnSuccessListener {
                     Log.e(TAG, applicationContext.resources.getString(R.string.geofence_added))
                 }
@@ -76,7 +73,7 @@ object NotificationUtil {
                 }
     }
 
-    private fun getNotificationPendingIntent(applicationContext: Context?, notificationId: Int, notificationIntent: Intent?): PendingIntent? {
+    private fun getNotificationPendingIntent(applicationContext: Context?, notificationId: Int, notificationIntent: Intent?): PendingIntent {
         // Using FLAG_UPDATE_CURRENT so that we get the same pending intent back when adding and removing
         return PendingIntent.getBroadcast(applicationContext, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     }

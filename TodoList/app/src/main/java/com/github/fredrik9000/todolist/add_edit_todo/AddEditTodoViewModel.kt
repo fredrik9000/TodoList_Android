@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.github.fredrik9000.todolist.R
+import com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence.GeofenceRadiusFragment
 import com.github.fredrik9000.todolist.model.Todo
 import com.github.fredrik9000.todolist.model.TodoRepository
 import com.github.fredrik9000.todolist.notifications.NotificationUtil
@@ -18,13 +19,12 @@ import java.util.*
 class AddEditTodoViewModel(application: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
 
     // Keeps track of whether the user has added a new, or removed an existing notification.
-    // Notifications will only be scheduled when the task is saved.
-    var notificationUpdateState: NotificationUpdateState = NotificationUpdateState.NOT_UPDATED
-    var geofenceNotificationUpdateState: NotificationUpdateState = NotificationUpdateState.NOT_UPDATED
+    var notificationUpdateState = NotificationUpdateState.NOT_UPDATED
+    var geofenceNotificationUpdateState = NotificationUpdateState.NOT_UPDATED
 
-    private val repository: TodoRepository = TodoRepository(application)
-    private var lastClickedUndoTime: Long = 0
-    private var todoId = TODO_ID_NOT_SET
+    private val repository = TodoRepository(application)
+    private var lastClickedUndoTime = 0L
+    private var todoId: Int? = null // Will be set for existing tasks being updated
 
     var title: String = ""
     var description: String = ""
@@ -78,7 +78,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             }
         } else {
             // Tasks without notification will be given a generated notification id for later use
-            // If the task is saved without a notification it wont be included
             generateNewNotificationId()
         }
     }
@@ -110,7 +109,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             }
         } else {
             // Tasks without notification will be given a generated notification id for later use
-            // If the task is saved without a notification it wont be included
             generateNewGeofenceNotificationId()
         }
     }
@@ -169,18 +167,18 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     fun createNotificationCalendar(): Calendar {
-        val calendar = Calendar.getInstance()
-        calendar[year, month, day, hour, minute] = 0
-        return calendar
+        return Calendar.getInstance().also {
+            it[year, month, day, hour, minute] = 0
+        }
     }
 
     fun createTemporaryNotificationCalendar(): Calendar {
-        val notificationCalendar = Calendar.getInstance()
-        notificationCalendar[yearTemp, monthTemp, dayTemp, hourTemp, minuteTemp] = 0
-        return notificationCalendar
+        return Calendar.getInstance().also {
+            it[yearTemp, monthTemp, dayTemp, hourTemp, minuteTemp] = 0
+        }
     }
 
-    fun getLabelForCurrentPriority(): String? {
+    fun getLabelForCurrentPriority(): String {
         return when (priority) {
             PRIORITY_LOW -> getApplication<Application>().applicationContext.getString(R.string.low_priority)
             PRIORITY_MEDIUM -> getApplication<Application>().applicationContext.getString(R.string.medium_priority)
@@ -220,11 +218,11 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         }
 
         val todo = createTodoItem(title, description)
-        if (todoId == TODO_ID_NOT_SET) {
-            insert(todo)
-        } else {
-            todo.id = todoId
+        todoId?.let {
+            todo.id = it
             update(todo)
+        } ?: run {
+            insert(todo)
         }
     }
 
@@ -304,25 +302,24 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     companion object {
-        private const val TITLE_STATE: String = "TITLE"
-        private const val DESCRIPTION_STATE: String = "DESCRIPTION"
-        private const val PRIORITY_STATE: String = "PRIORITY"
-        private const val HAS_NOTIFICATION_STATE: String = "HAS_NOTIFICATION"
-        private const val HAS_GEOFENCE_NOTIFICATION_STATE: String = "HAS_GEOFENCE_NOTIFICATION"
-        private const val NOTIFICATION_UPDATE_STATE_STATE: String = "NOTIFICATION_UPDATE_STATE"
-        private const val GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE: String = "GEOFENCE_NOTIFICATION_UPDATE_STATE"
-        private const val NOTIFICATION_ID_STATE: String = "NOTIFICATION_ID"
-        private const val NOTIFICATION_YEAR_STATE: String = "NOTIFICATION_YEAR"
-        private const val NOTIFICATION_MONTH_STATE: String = "NOTIFICATION_MONTH"
-        private const val NOTIFICATION_DAY_STATE: String = "NOTIFICATION_DAY"
-        private const val NOTIFICATION_HOUR_STATE: String = "NOTIFICATION_HOUR"
-        private const val NOTIFICATION_MINUTE_STATE: String = "NOTIFICATION_MINUTE"
-        private const val GEOFENCE_NOTIFICATION_ID_STATE: String = "GEOFENCE_NOTIFICATION_ID"
-        private const val GEOFENCE_NOTIFICATION_LONGITUDE_STATE: String = "GEOFENCE_NOTIFICATION_LONGITUDE"
-        private const val GEOFENCE_NOTIFICATION_LATITUDE_STATE: String = "GEOFENCE_NOTIFICATION_LATITUDE"
-        private const val GEOFENCE_NOTIFICATION_RADIUS_STATE: String = "GEOFENCE_NOTIFICATION_RADIUS"
+        private const val TITLE_STATE = "TITLE"
+        private const val DESCRIPTION_STATE = "DESCRIPTION"
+        private const val PRIORITY_STATE = "PRIORITY"
+        private const val HAS_NOTIFICATION_STATE = "HAS_NOTIFICATION"
+        private const val HAS_GEOFENCE_NOTIFICATION_STATE = "HAS_GEOFENCE_NOTIFICATION"
+        private const val NOTIFICATION_UPDATE_STATE_STATE = "NOTIFICATION_UPDATE_STATE"
+        private const val GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE = "GEOFENCE_NOTIFICATION_UPDATE_STATE"
+        private const val NOTIFICATION_ID_STATE = "NOTIFICATION_ID"
+        private const val NOTIFICATION_YEAR_STATE = "NOTIFICATION_YEAR"
+        private const val NOTIFICATION_MONTH_STATE = "NOTIFICATION_MONTH"
+        private const val NOTIFICATION_DAY_STATE = "NOTIFICATION_DAY"
+        private const val NOTIFICATION_HOUR_STATE = "NOTIFICATION_HOUR"
+        private const val NOTIFICATION_MINUTE_STATE = "NOTIFICATION_MINUTE"
+        private const val GEOFENCE_NOTIFICATION_ID_STATE = "GEOFENCE_NOTIFICATION_ID"
+        private const val GEOFENCE_NOTIFICATION_LONGITUDE_STATE = "GEOFENCE_NOTIFICATION_LONGITUDE"
+        private const val GEOFENCE_NOTIFICATION_LATITUDE_STATE = "GEOFENCE_NOTIFICATION_LATITUDE"
+        private const val GEOFENCE_NOTIFICATION_RADIUS_STATE = "GEOFENCE_NOTIFICATION_RADIUS"
 
-        private const val TODO_ID_NOT_SET = -1
         private const val MINIMUM_TIME_BETWEEN_UNDOS_IN_MILLISECONDS = 1000
 
         const val PRIORITY_LOW = 0

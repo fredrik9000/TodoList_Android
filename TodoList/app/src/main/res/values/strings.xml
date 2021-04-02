@@ -58,5 +58,6 @@
 
     <string name="fine_location_rationale_message">In order for geofencing to work the app needs access to location</string>
     <string name="background_location_rationale_message">In order for geofencing to work the app also needs background location access</string>
+    <string name="task_reminder_notification_channel_name">Task Reminders</string>
 
 </resources>

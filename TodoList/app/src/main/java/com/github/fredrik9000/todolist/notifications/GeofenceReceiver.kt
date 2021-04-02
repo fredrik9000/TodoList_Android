@@ -38,7 +38,7 @@ class GeofenceReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val TAG: String = "GeofenceReceiver"
-        const val NOTIFICATION_ID: String = "NOTIFICATION_ID"
+        private const val TAG = "GeofenceReceiver"
+        const val NOTIFICATION_ID = "NOTIFICATION_ID"
     }
 }

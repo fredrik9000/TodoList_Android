@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.JobIntentService
 import com.github.fredrik9000.todolist.R
-import com.github.fredrik9000.todolist.model.TodoDao
 import com.github.fredrik9000.todolist.model.TodoDatabase
 
 class GeofenceNotificationJobIntentService : JobIntentService() {
@@ -14,7 +13,7 @@ class GeofenceNotificationJobIntentService : JobIntentService() {
 
         // Remove all triggered geofences and clear notification values for these tasks from the database(except the notification id as we still need this)
         NotificationUtil.removeGeofenceList(applicationContext, ArrayList(notificationIdArrayList.map { it.toString() }))
-        val todoDao: TodoDao = TodoDatabase.getInstance(applicationContext).todoDao()
+        val todoDao = TodoDatabase.getInstance(applicationContext).todoDao()
         todoDao.clearGeofenceNotificationValues(notificationIdArrayList)
 
         // Loop through each task and send a notification for each item
