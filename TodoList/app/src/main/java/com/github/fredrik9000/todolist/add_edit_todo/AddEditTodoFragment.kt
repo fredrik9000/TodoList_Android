@@ -162,7 +162,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
             if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
                 activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoTitleEditText.append(it[0].capitalize(Locale.getDefault()))
+                    binding.todoTitleEditText.append(it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) })
                 }
             }
         })
@@ -172,7 +172,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
             if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
                 activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoDescriptionEditText.append(it[0].capitalize(Locale.getDefault()))
+                    binding.todoDescriptionEditText.append(it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) })
                 }
             }
         })
@@ -263,8 +263,8 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     }
 
     private val addGeofenceNotificationButtonListener: View.OnClickListener = View.OnClickListener {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
             requestBackgroundLocationPermission()
         } else {

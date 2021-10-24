@@ -23,7 +23,7 @@ This todo list app is written in Kotlin and with a modern MVVM architecture. The
 
 In order to use geofencing you'll need to create your own Google Maps API key.
 
-I have also made a simpler version for iOS: [iOS Todo List](https://github.com/fredrik9000/TodoList_iOS)
+I have also made a simpler version for iOS using SwiftUI: [SwiftUI Todo List](https://github.com/fredrik9000/TodoList_SwiftUI), and one with UIKIT: [UIKit Todo List](https://github.com/fredrik9000/TodoList_iOS)
 
 ## Screenshots
 

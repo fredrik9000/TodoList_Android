@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -73,9 +74,15 @@ object NotificationUtil {
                 }
     }
 
-    private fun getNotificationPendingIntent(applicationContext: Context?, notificationId: Int, notificationIntent: Intent?): PendingIntent {
+    private fun getNotificationPendingIntent(applicationContext: Context?, notificationId: Int, notificationIntent: Intent): PendingIntent {
         // Using FLAG_UPDATE_CURRENT so that we get the same pending intent back when adding and removing
-        return PendingIntent.getBroadcast(applicationContext, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+
+        return PendingIntent.getBroadcast(applicationContext, notificationId, notificationIntent, intentFlags)
     }
 
     fun sendNotification(context: Context, title: String?, todo: Todo, icon: Int, notificationId: Int) {
