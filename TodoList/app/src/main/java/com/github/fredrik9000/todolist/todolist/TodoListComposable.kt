@@ -60,8 +60,10 @@ private fun TodoListComposable(
     updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit
 ) {
     LazyColumn(contentPadding = PaddingValues(bottom = dimensionResource(id = R.dimen.todo_list_padding_bottom_to_make_room_for_fab))) {
-        items(todoItemList) {
-            TodoItemDetailsComposable(it, onTodoItemClick, onTodoItemLongClick, updateCompletionState)
+        items(todoItemList, key = { it.id }) {
+            Box(Modifier.animateItemPlacement()) {
+                TodoItemDetailsComposable(it, onTodoItemClick, onTodoItemLongClick, updateCompletionState)
+            }
         }
     }
 }
@@ -273,13 +275,19 @@ fun TodoListComposablePreview() {
     MdcTheme {
         TodoListComposable(listOf(
             Todo(
-                id = 0,
+                id = 1,
                 title = "This is a title",
                 description = "This is a description",
-                priority = 1
+                priority = 1,
+                notificationEnabled = true,
+                notifyYear = 2022,
+                notifyMonth = 2,
+                notifyDay = 20,
+                notifyHour = 5,
+                notifyMinute = 30
             ),
             Todo(
-                id = 0,
+                id = 2,
                 title = "Completed todo item",
                 description = "This is another description",
                 priority = 1,
