@@ -170,7 +170,7 @@ class TodoListFragment : Fragment() {
         }
     }
 
-    fun onItemLongClick(todoItem: Todo): Boolean {
+    private fun onItemLongClick(todoItem: Todo): Boolean {
         if (actionMode != null) {
             return false
         }

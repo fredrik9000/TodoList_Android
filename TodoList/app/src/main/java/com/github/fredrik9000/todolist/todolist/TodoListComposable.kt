@@ -112,7 +112,7 @@ private fun TodoItemDetailsComposable(
                 .padding(top = dimensionResource(id = R.dimen.list_item_vertical_padding))
                 .fillMaxWidth()
         ) {
-            TextAndCompletionRowComposable(todoItem, updateCompletionState)
+            TitleAndCompletionRowComposable(todoItem, updateCompletionState)
             if ((todoItem.notificationEnabled && !isNotificationExpired(todoItem)) || todoItem.geofenceNotificationEnabled) {
                 NotificationRowComposable(todoItem)
             }
@@ -138,16 +138,19 @@ private fun getCardViewBackgroundColor(isCompleted: Boolean) =
     }
 
 @Composable
-private fun TextAndCompletionRowComposable(todoItem: Todo, updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit) {
+private fun TitleAndCompletionRowComposable(todoItem: Todo, updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit) {
     val currentContext = LocalContext.current
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensionResource(id = R.dimen.list_item_checkbox_horizontal_start_padding),
+                bottom = dimensionResource(id = R.dimen.list_item_vertical_padding)
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.list_item_checkbox_padding))
-                .scale(1.4F),
+            modifier = Modifier.scale(1.4F),
             checked = todoItem.isCompleted,
             colors = CheckboxDefaults.colors(checkedColor = getPriorityColor(todoItem.priority), uncheckedColor = getPriorityColor(todoItem.priority)),
             onCheckedChange = {
@@ -159,7 +162,7 @@ private fun TextAndCompletionRowComposable(todoItem: Todo, updateCompletionState
             fontSize = dimensionResource(id = R.dimen.list_item_text_size).value.sp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = dimensionResource(id = R.dimen.list_item_horizontal_padding)))
+                .padding(start = dimensionResource(id = R.dimen.list_item_title_horizontal_start_padding)))
     }
 }
 

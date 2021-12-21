@@ -56,7 +56,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun update(todo: Todo) {
+    private fun update(todo: Todo) {
         viewModelScope.launch {
             repository.update(todo)
         }

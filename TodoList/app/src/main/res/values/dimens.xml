@@ -5,7 +5,6 @@
     <dimen name="onboarding_view_text_size">24sp</dimen>
     <dimen name="onboarding_view_text_line_height">36sp</dimen>
     <dimen name="onboarding_view_margin">16dp</dimen>
-    <dimen name="onboarding_view_line_spacing_extra">8sp</dimen>
 
     <dimen name="list_item_card_corner_radius">4dp</dimen>
     <dimen name="list_item_card_elevation">4dp</dimen>
@@ -16,9 +15,8 @@
     <dimen name="list_item_vertical_padding">8dp</dimen>
     <dimen name="list_item_vertical_padding_plus_expand_description_image_adjustment">20dp</dimen>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
-    <dimen name="list_item_text_horizontal_margin">16dp</dimen>
-    <dimen name="list_item_checkbox_padding">8dp</dimen>
-    <dimen name="list_item_checkbox_scale_correction_padding">2dp</dimen>
+    <dimen name="list_item_title_horizontal_start_padding">8dp</dimen>
+    <dimen name="list_item_checkbox_horizontal_start_padding">8dp</dimen>
     <dimen name="list_item_notification_text_to_image_spacing">8dp</dimen>
     <dimen name="todo_list_padding_bottom_to_make_room_for_fab">88dp</dimen>
 
