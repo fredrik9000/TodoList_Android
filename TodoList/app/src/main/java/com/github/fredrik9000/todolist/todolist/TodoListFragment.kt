@@ -5,35 +5,38 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoFragment
 import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding
 import com.github.fredrik9000.todolist.model.Todo
-import com.github.fredrik9000.todolist.notifications.NotificationUtil
-import com.github.fredrik9000.todolist.todolist.TodoAdapter.OnItemInteractionListener
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 
-class TodoListFragment : Fragment(), OnItemInteractionListener {
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+class TodoListFragment : Fragment() {
 
     private var _binding: FragmentTodoListBinding? = null
     private val binding get() = _binding!!
-    private var _adapter: TodoAdapter? = null
-    private val adapter get() = _adapter!!
 
     private lateinit var todoListViewModel: TodoListViewModel
     private var actionMode: ActionMode? = null
-    private var lastItemLongClickedPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,49 +51,39 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _adapter = null
         _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        _adapter = TodoAdapter(requireContext(), this)
-        setupRecyclerView()
-
-        todoListViewModel = ViewModelProvider(this).get(TodoListViewModel::class.java)
+        todoListViewModel = ViewModelProvider(this)[TodoListViewModel::class.java]
         todoListViewModel.isSearching = false // Need to reset this after rotating
-        todoListViewModel.getTodoList().observe(viewLifecycleOwner) { todoList ->
-            adapter.submitList(todoList)
-            showOrHideOnboardingView(todoList)
-        }
 
-        binding.addTodoButton.setOnClickListener {
-            Navigation.findNavController(it).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
-        }
-    }
-
-    private fun setupRecyclerView() {
-        val recyclerView = binding.todoList
-        recyclerView.setHasFixedSize(true)
-        val layoutManager = LinearLayoutManager(context)
-        recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = adapter
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                return false
+        binding.todoListComposeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        binding.todoListComposeView.setContent {
+            MdcTheme {
+                Scaffold(
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = {
+                                Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
+                            },
+                            content = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_add_black_24dp),
+                                    contentDescription = stringResource(id = R.string.add_todo_item),
+                                    tint = colorResource(id = R.color.fab_tint)
+                                )
+                            }
+                        )
+                    },
+                    content = {
+                        TodoListComposable(todoListViewModel, ::onItemClick, ::onItemLongClick)
+                    }
+                )
             }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                deleteSingleTodoItem(adapter.getTodoAt(viewHolder.bindingAdapterPosition))
-            }
-        }).attachToRecyclerView(recyclerView)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // The keyboard could be open from when editing the task
-        hideSoftKeyboard()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -169,21 +162,17 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
         ).show()
     }
 
-    override fun onItemClick(view: View, todo: Todo) {
-        // Disable editing for completed tasks
-        if (todo.isCompleted) {
-            return
+    private fun onItemClick(todoItem: Todo) {
+        if (!todoItem.isCompleted) {
+            Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, AddEditTodoFragment.createBundleForTodoItem(todoItem))
         }
-        Navigation.findNavController(view).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, AddEditTodoFragment.createBundleForTodoItem(todo))
     }
 
-    override fun onItemLongClick(position: Int): Boolean {
+    fun onItemLongClick(todoItem: Todo): Boolean {
         if (actionMode != null) {
             return false
         }
-
-        lastItemLongClickedPosition = position
-
+        
         actionMode = (activity as AppCompatActivity).startSupportActionMode(object : ActionMode.Callback {
             override fun onCreateActionMode(actionMode: ActionMode?, menu: Menu?): Boolean {
                 actionMode!!.menuInflater.inflate(R.menu.context_main, menu)
@@ -197,8 +186,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
             override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.menu_delete) {
                     actionMode.finish()
-                    val todo = adapter.getTodoAt(lastItemLongClickedPosition)
-                    deleteSingleTodoItem(todo)
+                    deleteSingleTodoItem(todoItem)
                     return true
                 }
                 return false
@@ -208,6 +196,7 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
                 this@TodoListFragment.actionMode = null
             }
         })
+
         return true
     }
 
@@ -228,61 +217,5 @@ class TodoListFragment : Fragment(), OnItemInteractionListener {
 
             showUndoSuccessfulSnackbar()
         }).show()
-    }
-
-    override fun onCompletedToggled(todo: Todo, isChecked: Boolean) {
-        // If a notification is active for the completed task, remove it.
-        if (isChecked) {
-            if (todo.notificationEnabled) {
-                val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                NotificationUtil.removeNotification(requireActivity().applicationContext, alarmManager, todo.notificationId)
-            }
-            if (todo.geofenceNotificationEnabled) {
-                NotificationUtil.removeGeofence(requireActivity().applicationContext, todo.geofenceNotificationId)
-            }
-        }
-
-        todoListViewModel.update(Todo(
-                todo.id,
-                todo.title,
-                todo.description,
-                todo.priority,
-                0,
-                0,
-                false,
-                0,
-                0,
-                0,
-                0,
-                0,
-                false,
-                0.0,
-                0.0,
-                0,
-                isChecked))
-    }
-
-    private fun hideSoftKeyboard() {
-        val view = requireActivity().currentFocus
-        if (view != null) {
-            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
-            // Verify if the soft keyboard is open
-            if (imm.isAcceptingText) {
-                imm.hideSoftInputFromWindow(view.windowToken, 0)
-            }
-        }
-    }
-
-    // Not setting the list to GONE or INVISIBLE due to a bug with the FAB in AddEditTodoFragment when there is no visible list.
-    // The bug is that when editing a new task (in which case the task list would have been invisible),
-    // then when selecting the EditText (without selecting anything else first) the FAB doesn't float up above the keyboard.
-    // However, when there is a visible list the FAB works as it should.
-    private fun showOrHideOnboardingView(todoList: MutableList<Todo>) {
-        if (todoList.isEmpty() && !todoListViewModel.isSearching) {
-            binding.onboardingView.visibility = View.VISIBLE
-        } else {
-            binding.onboardingView.visibility = View.GONE
-        }
     }
 }

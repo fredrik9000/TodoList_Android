@@ -7,7 +7,7 @@
         android:id="@+id/list_item_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/cardViewBackgroundColor"
+        android:backgroundTint="@color/card_view_background_color"
         app:cardCornerRadius="@dimen/list_item_card_corner_radius"
         app:cardElevation="@dimen/list_item_card_elevation"
         app:cardUseCompatPadding="true">
@@ -65,7 +65,8 @@
                 android:paddingStart="@dimen/list_item_horizontal_padding"
                 android:paddingEnd="@dimen/list_item_horizontal_padding"
                 android:paddingBottom="@dimen/list_item_vertical_padding"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/reminder_notification_layout"
@@ -74,7 +75,8 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/alarm_image_view"
@@ -108,7 +110,8 @@
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/geofence_image_view"

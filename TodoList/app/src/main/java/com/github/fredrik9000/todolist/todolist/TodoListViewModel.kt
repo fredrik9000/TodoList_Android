@@ -2,6 +2,7 @@ package com.github.fredrik9000.todolist.todolist
 
 import android.app.AlarmManager
 import android.app.Application
+import android.content.Context
 import android.os.SystemClock
 import androidx.lifecycle.*
 import com.github.fredrik9000.todolist.model.Todo
@@ -117,6 +118,38 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             repository.insertTodoItems(todoListItems)
         }
+    }
+
+    fun updatedCompleted(isChecked: Boolean, todoItem: Todo, context: Context) {
+        // If a notification is active for the completed task, remove it.
+        if (isChecked) {
+            if (todoItem.notificationEnabled) {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                NotificationUtil.removeNotification(context, alarmManager, todoItem.notificationId)
+            }
+            if (todoItem.geofenceNotificationEnabled) {
+                NotificationUtil.removeGeofence(context, todoItem.geofenceNotificationId)
+            }
+        }
+
+        update(Todo(
+            todoItem.id,
+            todoItem.title,
+            todoItem.description,
+            todoItem.priority,
+            0,
+            0,
+            false,
+            0,
+            0,
+            0,
+            0,
+            0,
+            false,
+            0.0,
+            0.0,
+            0,
+            isChecked))
     }
 
     companion object {

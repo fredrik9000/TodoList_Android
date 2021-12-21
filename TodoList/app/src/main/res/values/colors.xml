@@ -2,16 +2,19 @@
 <resources>
 
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#002984</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimaryVariant">#002984</color>
+    <color name="colorSecondary">#FF4081</color>
+    <color name="colorSecondaryVariant">#C60055</color>
+    <color name="colorOnPrimary">#FFF</color>
+    <color name="colorOnSecondary">#FFF</color>
 
-    <color name="windowBackgroundColor">#FFF</color>
-    <color name="cardViewBackgroundColor">#FFF</color>
-    <color name="cardViewCompletedBackgroundColor">#DBDBDB</color>
-
+    <color name="card_view_background_color">#FFF</color>
+    <color name="card_view_completed_background_color">#DBDBDB</color>
+    <color name="list_item_description_text_color">#676767</color>
     <color name="list_item_icon">#000000</color>
     <color name="description_border_color">#808080</color>
     <color name="fab_tint">#FFFFFF</color>
+    <color name="button_text_color">#000</color>
     <color name="button_background_tint">#F3F3F3</color>
     <color name="button_drawable_tint">#000000</color>
 

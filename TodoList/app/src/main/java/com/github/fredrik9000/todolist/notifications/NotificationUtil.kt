@@ -57,7 +57,7 @@ object NotificationUtil {
     fun addGeofenceNotification(applicationContext: Context, notificationId: Int, radius: Int, latitude: Double, longitude: Double) {
         val geofencingRequest = GeofencingRequest.Builder()
                 .setInitialTrigger(0) // Don't trigger geofence if already inside it
-                .addGeofences(listOf<Geofence>(Geofence.Builder()
+                .addGeofences(listOf(Geofence.Builder()
                         .setRequestId(notificationId.toString())
                         .setCircularRegion(latitude, longitude, radius.toFloat())
                         .setExpirationDuration(Geofence.NEVER_EXPIRE)

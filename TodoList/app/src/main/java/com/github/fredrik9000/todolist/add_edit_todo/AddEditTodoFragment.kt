@@ -75,7 +75,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
         } else {
             binding.saveTodoButton.isEnabled = true
-            binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+            binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorSecondary))
             binding.todoTitleEditText.setText(addEditTodoViewModel.title)
         }
 
@@ -324,7 +324,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
             } else {
                 binding.saveTodoButton.isEnabled = true
-                binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@AddEditTodoFragment.requireContext(), R.color.colorAccent))
+                binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@AddEditTodoFragment.requireContext(), R.color.colorSecondary))
             }
         }
 

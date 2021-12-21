@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -189,9 +189,7 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
         LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation.addOnSuccessListener(requireActivity()) { location ->
-            if (location != null) {
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
-            }
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
         }
     }
 

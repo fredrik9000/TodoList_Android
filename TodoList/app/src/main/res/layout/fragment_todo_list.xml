@@ -6,33 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".todolist.TodoListFragment">
 
-    <TextView
-        android:id="@+id/onboarding_view"
+    <androidx.compose.ui.platform.ComposeView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/onboarding_view_margin"
-        android:gravity="center"
-        android:lineSpacingExtra="@dimen/onboarding_view_line_spacing_extra"
-        android:text="@string/onboarding_explanatory_text"
-        android:textSize="@dimen/onboarding_view_text_size"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/todoList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/todo_list_padding_bottom"
-        tools:listitem="@layout/listview_item" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_todo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="@dimen/fab_margin"
-        android:contentDescription="@string/add_todo_item"
-        android:src="@drawable/ic_add_black_24dp"
-        android:tint="@color/fab_tint" />
+        android:id="@+id/todoListComposeView"
+        android:clipToPadding="false" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
