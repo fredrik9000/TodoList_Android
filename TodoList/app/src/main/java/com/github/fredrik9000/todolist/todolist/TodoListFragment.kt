@@ -67,6 +67,7 @@ class TodoListFragment : Fragment() {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
+                                actionMode?.finish()
                                 Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
                             },
                             content = {
@@ -164,6 +165,7 @@ class TodoListFragment : Fragment() {
 
     private fun onItemClick(todoItem: Todo) {
         if (!todoItem.isCompleted) {
+            actionMode?.finish()
             Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, AddEditTodoFragment.createBundleForTodoItem(todoItem))
         }
     }
@@ -176,6 +178,7 @@ class TodoListFragment : Fragment() {
         actionMode = (activity as AppCompatActivity).startSupportActionMode(object : ActionMode.Callback {
             override fun onCreateActionMode(actionMode: ActionMode?, menu: Menu?): Boolean {
                 actionMode!!.menuInflater.inflate(R.menu.context_main, menu)
+                menu?.findItem(R.id.menu_delete)?.title = getString(R.string.delete_specified_item, todoItem.title)
                 return true
             }
 

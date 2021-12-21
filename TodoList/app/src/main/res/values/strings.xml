@@ -9,7 +9,8 @@
 
     <string name="onboarding_explanatory_text">Add tasks by tapping the plus button to get started.</string>
 
-    <string name="delete_task_button">Delete item</string>
+    <string name="delete_item">Delete item</string>
+    <string name="delete_specified_item">Delete: %1$s</string>
     <string name="item_deleted">Task deleted</string>
     <string name="items_deleted">Tasks deleted</string>
     <string name="undo">Undo</string>
