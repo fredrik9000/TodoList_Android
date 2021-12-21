@@ -56,12 +56,6 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun update(todo: Todo) {
-        viewModelScope.launch {
-            repository.update(todo)
-        }
-    }
-
     fun getTodoList(): LiveData<MutableList<Todo>> {
         return todoList
     }
@@ -132,24 +126,26 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        update(Todo(
-            todoItem.id,
-            todoItem.title,
-            todoItem.description,
-            todoItem.priority,
-            0,
-            0,
-            false,
-            0,
-            0,
-            0,
-            0,
-            0,
-            false,
-            0.0,
-            0.0,
-            0,
-            isChecked))
+        viewModelScope.launch {
+            repository.update(Todo(
+                todoItem.id,
+                todoItem.title,
+                todoItem.description,
+                todoItem.priority,
+                0,
+                0,
+                false,
+                0,
+                0,
+                0,
+                0,
+                0,
+                false,
+                0.0,
+                0.0,
+                0,
+                isChecked))
+        }
     }
 
     companion object {
