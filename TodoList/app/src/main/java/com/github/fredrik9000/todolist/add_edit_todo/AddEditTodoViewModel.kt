@@ -35,15 +35,10 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     var geofenceLongitude = 0.0
     var geofenceRadius = GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS
 
-    private var dayTemp = 0
     private var day = 0
-    private var monthTemp = 0
     private var month = 0
-    private var yearTemp = 0
     private var year = 0
-    private var hourTemp = 0
     private var hour = 0
-    private var minuteTemp = 0
     private var minute = 0
     private var notificationId = 0
     private var geofenceNotificationId = 0
@@ -100,6 +95,16 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         notificationId = args.getInt(AddEditTodoFragment.ARGUMENT_NOTIFICATION_ID)
     }
 
+    fun setSelectedNotificationValues(year: Int, month: Int, day: Int, hour: Int, minute: Int) {
+        this.year = year
+        this.month = month
+        this.day = day
+        this.hour = hour
+        this.minute = minute
+        hasNotification = true
+        notificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
+    }
+
     fun setupGeofenceNotificationState(args: Bundle?) {
         if (hasGeofenceNotification) {
             if (savedStateHandleContainsValues) {
@@ -136,27 +141,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         hasNotification = false
     }
 
-    fun setTemporaryNotificationDateValues(year: Int, month: Int, day: Int) {
-        yearTemp = year
-        monthTemp = month
-        dayTemp = day
-    }
-
-    fun setTemporaryNotificationTimeValues(hour: Int, minute: Int) {
-        hourTemp = hour
-        minuteTemp = minute
-    }
-
-    fun setFinallySelectedNotificationValues() {
-        year = yearTemp
-        month = monthTemp
-        day = dayTemp
-        hour = hourTemp
-        minute = minuteTemp
-        hasNotification = true
-        notificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
-    }
-
     // TODO: fix unique notification id retrieval.
     private fun generateNewNotificationId() {
         notificationId = Random().nextInt()
@@ -169,12 +153,6 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     fun createNotificationCalendar(): Calendar {
         return Calendar.getInstance().also {
             it[year, month, day, hour, minute] = 0
-        }
-    }
-
-    fun createTemporaryNotificationCalendar(): Calendar {
-        return Calendar.getInstance().also {
-            it[yearTemp, monthTemp, dayTemp, hourTemp, minuteTemp] = 0
         }
     }
 

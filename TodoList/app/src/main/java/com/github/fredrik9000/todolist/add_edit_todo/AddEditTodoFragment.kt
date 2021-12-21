@@ -29,7 +29,12 @@ import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.add_edit_geofence.GeofenceMapFragment
 import com.github.fredrik9000.todolist.databinding.FragmentAddEditTodoBinding
 import com.github.fredrik9000.todolist.model.Todo
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointForward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
@@ -196,21 +201,32 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     }
 
     private val addNotificationButtonListener: View.OnClickListener = View.OnClickListener {
-        DatePickerFragment().show(parentFragmentManager, "datePicker")
-        parentFragmentManager.setFragmentResultListener(DatePickerFragment.DATE_PICKER_FRAGMENT_REQUEST_KEY, viewLifecycleOwner) { _, datePickerBundle ->
-            addEditTodoViewModel.setTemporaryNotificationDateValues(datePickerBundle.getInt(DatePickerFragment.BUNDLE_YEAR_KEY), datePickerBundle.getInt(DatePickerFragment.BUNDLE_MONTH_KEY), datePickerBundle.getInt(DatePickerFragment.BUNDLE_DAY_KEY))
-            TimePickerFragment().show(parentFragmentManager, "timePicker")
-            parentFragmentManager.setFragmentResultListener(TimePickerFragment.TIME_PICKER_FRAGMENT_REQUEST_KEY, viewLifecycleOwner) { _, timePickerBundle ->
-                addEditTodoViewModel.setTemporaryNotificationTimeValues(timePickerBundle.getInt(TimePickerFragment.BUNDLE_HOUR_KEY), timePickerBundle.getInt(TimePickerFragment.BUNDLE_MINUTE_KEY))
-                val notificationCalendar = addEditTodoViewModel.createTemporaryNotificationCalendar()
-                if (notificationCalendar.timeInMillis < Calendar.getInstance().timeInMillis) {
-                    Toast.makeText(requireActivity().applicationContext, R.string.invalid_time, Toast.LENGTH_LONG).show()
-                } else {
-                    addEditTodoViewModel.setFinallySelectedNotificationValues()
-                    displayNotificationAddedState(notificationCalendar)
-                }
+        MaterialDatePicker.Builder.datePicker().setTitleText("Pick a date").setCalendarConstraints(CalendarConstraints.Builder().apply {
+            setValidator(DateValidatorPointForward.now())
+        }.build()).build().apply {
+            addOnPositiveButtonClickListener { selectedDate ->
+                val clockFormat = if (android.text.format.DateFormat.is24HourFormat(requireContext())) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
+                MaterialTimePicker.Builder().setTitleText("Pick a time").setTimeFormat(clockFormat).build().apply {
+                    addOnPositiveButtonClickListener { _ ->
+                        val cal = Calendar.getInstance()
+                        cal.timeInMillis = selectedDate
+                        val selectedYear = cal.get(Calendar.YEAR)
+                        val selectedMonth = cal.get(Calendar.MONTH)
+                        val selectedDay = cal.get(Calendar.DAY_OF_MONTH)
+                        val selectedHour = this.hour
+                        val selectedMinute = this.minute
+                        if (selectedDate < Calendar.getInstance().timeInMillis) {
+                            Toast.makeText(requireActivity().applicationContext, R.string.invalid_time, Toast.LENGTH_LONG).show()
+                        } else {
+                            addEditTodoViewModel.setSelectedNotificationValues(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute)
+                            displayNotificationAddedState(Calendar.getInstance().also {
+                                it[selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute] = 0
+                            })
+                        }
+                    }
+                }.show(parentFragmentManager, NOTIFICATION_TIME_PICKER_TAG)
             }
-        }
+        }.show(parentFragmentManager, NOTIFICATION_DATE_PICKER_TAG)
     }
 
     private val removeNotificationButtonListener: View.OnClickListener = View.OnClickListener {
@@ -343,6 +359,8 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     companion object {
         private const val ACCESS_FINE_LOCATION_REQUEST_CODE = 1
         private const val ACCESS_BACKGROUND_LOCATION_REQUEST_CODE = 2
+        const val NOTIFICATION_DATE_PICKER_TAG = "NOTIFICATION_DATE_PICKER"
+        const val NOTIFICATION_TIME_PICKER_TAG = "NOTIFICATION_TIME_PICKER"
 
         const val ARGUMENT_TODO_ID = "ARGUMENT_TODO_ID"
         const val ARGUMENT_TITLE = "ARGUMENT_TITLE"
