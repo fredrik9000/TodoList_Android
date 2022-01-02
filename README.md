@@ -29,16 +29,16 @@ I have also made a simpler version for iOS using SwiftUI: [SwiftUI Todo List](ht
 ## Screenshots
 
 <p float="left">
-  <img src="https://user-images.githubusercontent.com/13121494/147884271-9c486994-7f89-4748-899c-9379c3f2a789.png" width="412" />
-  <img src="https://user-images.githubusercontent.com/13121494/147884270-296a39d3-45ce-4d4d-b4fd-e8b71ae73555.png" width="412" /> 
+  <img src="https://user-images.githubusercontent.com/13121494/147886795-59f10764-7fd0-4ffb-9e21-2cf5aba9cf49.png" width="412" />
+  <img src="https://user-images.githubusercontent.com/13121494/147886793-2484f070-325a-462a-8a9a-67d1bdf41008.png" width="412" /> 
 </p>
 
 <p float="left">
-  <img src="https://user-images.githubusercontent.com/13121494/147884269-3c2a171b-b1dc-4595-8b09-816b86655207.png" width="412" />
-  <img src="https://user-images.githubusercontent.com/13121494/147884274-dfb4583a-7ef7-4279-87a0-ea7ba7570a7f.png" width="412" />
+  <img src="https://user-images.githubusercontent.com/13121494/147886801-d721b2eb-f694-47b4-a81c-5aeea8e598f8.png" width="412" />
+  <img src="https://user-images.githubusercontent.com/13121494/147886799-4814a93f-587f-4d02-a938-134229c73521.png" width="412" />
 </p>
 
 <p float="left">
-  <img src="https://user-images.githubusercontent.com/13121494/147884273-78e34d34-54e4-4841-966f-8d4dbcb931d0.png" width="412" /> 
-  <img src="https://user-images.githubusercontent.com/13121494/147884272-946d27be-ea2a-46f7-b2d2-2a3dadab4687.png" width="412" />
+  <img src="https://user-images.githubusercontent.com/13121494/147886797-a74a6602-d2e0-4fe6-a8f4-f1093fe6f5f1.png" width="412" /> 
+  <img src="https://user-images.githubusercontent.com/13121494/147886796-ee0091bb-3735-4951-a3f6-3ae909a22ccc.png" width="412" />
 </p>

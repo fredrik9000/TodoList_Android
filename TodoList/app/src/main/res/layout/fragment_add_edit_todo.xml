@@ -212,6 +212,6 @@
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/save_todo_item"
         android:src="@drawable/ic_check_black_24dp"
-        android:tint="@color/fab_tint" />
+        app:tint="@color/fab_tint" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -26,10 +26,10 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:contentDescription="@string/add_todo_item"
             android:src="@drawable/ic_cancel_black_24dp"
-            android:tint="@color/fab_tint"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/fab_tint" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/confirm_geofence_button"
@@ -40,12 +40,12 @@
             android:layout_marginBottom="@dimen/fab_margin"
             android:contentDescription="@string/add_todo_item"
             android:src="@drawable/ic_check_black_24dp"
-            android:tint="@color/fab_tint"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/geofence_radius_fragment_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cancel_geofence_button"
-            app:layout_goneMarginBottom="16dp" />
+            app:layout_goneMarginBottom="16dp"
+            app:tint="@color/fab_tint" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/user_location_button"
@@ -56,10 +56,10 @@
             android:layout_marginBottom="@dimen/fab_margin"
             android:contentDescription="@string/add_todo_item"
             android:src="@drawable/ic_my_location_black_24dp"
-            android:tint="@color/fab_tint"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_goneMarginBottom="@dimen/fab_margin" />
+            app:layout_goneMarginBottom="@dimen/fab_margin"
+            app:tint="@color/fab_tint" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/geofence_radius_fragment_container"
