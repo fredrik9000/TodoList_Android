@@ -27,7 +27,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.parcelize.Parcelize
-import kotlin.math.log
 
 class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
 
