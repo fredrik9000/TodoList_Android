@@ -256,6 +256,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
         savedStateHandle.set(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE, geofenceNotificationUpdateState)
     }
 
+    // TODO: Arguments get saved in the savedStateHandle so we don't need to separate these as long as the keys are the same
     fun setValuesFromArgumentsOrSavedState(args: Bundle?) {
         if (savedStateHandleContainsValues) {
             title = savedStateHandle.get(TITLE_STATE)!!

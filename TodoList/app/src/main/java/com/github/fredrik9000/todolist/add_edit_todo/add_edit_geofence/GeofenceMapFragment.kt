@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.parcelize.Parcelize
+import kotlin.math.log
 
 class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -189,7 +190,9 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
         LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation.addOnSuccessListener(requireActivity()) { location ->
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
+            if (location != null) {
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
+            }
         }
     }
 

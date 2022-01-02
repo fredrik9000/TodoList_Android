@@ -84,7 +84,8 @@ private fun OnboardingComposable() {
 @ExperimentalMaterialApi
 @Composable
 private fun TodoItemDetailsComposable(
-    todoItem: Todo, onTodoItemClick: (todoItem: Todo) -> Unit,
+    todoItem: Todo,
+    onTodoItemClick: (todoItem: Todo) -> Unit,
     onTodoItemLongClick: (todoItem: Todo) -> Unit,
     updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit
 ) {

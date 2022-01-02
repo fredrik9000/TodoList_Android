@@ -3,9 +3,10 @@
 
     <color name="colorPrimary">#1F1A24</color>
     <color name="colorPrimaryVariant">#000000</color>
+    <color name="colorOnPrimary">#FFF</color>
+
     <color name="colorSecondary">#E04CFA</color>
     <color name="colorSecondaryVariant">#AA00C6</color>
-    <color name="colorOnPrimary">#FFF</color>
     <color name="colorOnSecondary">#FFF</color>
 
     <color name="card_view_background_color">#1F1A24</color>
