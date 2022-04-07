@@ -76,7 +76,14 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
 
                 // Pass data to parent fragment and navigate back
                 Navigation.findNavController(it).previousBackStackEntry!!.savedStateHandle.apply {
-                    set(GeofenceData.GEOFENCE_DATA, GeofenceData(geofenceMapViewModel.geofenceRadius, geofenceMapViewModel.geofenceCenter.latitude, geofenceMapViewModel.geofenceCenter.longitude))
+                    set(
+                        GeofenceData.GEOFENCE_DATA,
+                        GeofenceData(
+                            geofenceMapViewModel.geofenceRadius,
+                            geofenceMapViewModel.geofenceCenter.latitude,
+                            geofenceMapViewModel.geofenceCenter.longitude
+                        )
+                    )
                 }
                 Navigation.findNavController(it).navigateUp()
             }
@@ -200,11 +207,13 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun adjustGeofenceCircle() {
-        map.addCircle(CircleOptions()
+        map.addCircle(
+            CircleOptions()
                 .center(geofenceMapViewModel.geofenceCenter)
                 .radius(geofenceMapViewModel.geofenceRadius.toDouble())
                 .strokeColor(ContextCompat.getColor(requireContext(), R.color.geofence_stroke))
-                .fillColor(ContextCompat.getColor(requireContext(), R.color.geofence_fill)))
+                .fillColor(ContextCompat.getColor(requireContext(), R.color.geofence_fill))
+        )
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

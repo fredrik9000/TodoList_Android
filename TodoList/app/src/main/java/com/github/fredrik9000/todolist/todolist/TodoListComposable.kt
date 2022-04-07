@@ -28,7 +28,6 @@ import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoViewModel
 import com.github.fredrik9000.todolist.model.Todo
 import com.google.android.material.composethemeadapter.MdcTheme
-import java.util.*
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -44,7 +43,13 @@ fun TodoListComposable(
             if (todoList.isEmpty() && !todoListViewModel.isSearching) {
                 OnboardingComposable()
             } else {
-                TodoListComposable(todoList, onTodoItemClick, onTodoItemLongClick, todoListViewModel::updatedCompleted)
+                TodoListComposable(
+                    todoItemList = todoList,
+                    onTodoItemClick = onTodoItemClick,
+                    onTodoItemLongClick = onTodoItemLongClick,
+                    updateCompletionState = todoListViewModel::updatedCompleted,
+                    isNotificationExpired = todoListViewModel::isNotificationExpired
+                )
             }
         }
     }
@@ -57,12 +62,19 @@ private fun TodoListComposable(
     todoItemList: List<Todo>,
     onTodoItemClick: (todoItem: Todo) -> Unit,
     onTodoItemLongClick: (todoItem: Todo) -> Unit,
-    updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit
+    updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit,
+    isNotificationExpired: (todo: Todo) -> Boolean
 ) {
     LazyColumn(contentPadding = PaddingValues(bottom = dimensionResource(id = R.dimen.todo_list_padding_bottom_to_make_room_for_fab))) {
         items(todoItemList, key = { it.id }) {
             Box(Modifier.animateItemPlacement()) {
-                TodoItemDetailsComposable(it, onTodoItemClick, onTodoItemLongClick, updateCompletionState)
+                TodoItemDetailsComposable(
+                    todoItem = it,
+                    onTodoItemClick = onTodoItemClick,
+                    onTodoItemLongClick = onTodoItemLongClick,
+                    updateCompletionState = updateCompletionState,
+                    isNotificationExpired = isNotificationExpired
+                )
             }
         }
     }
@@ -70,13 +82,17 @@ private fun TodoListComposable(
 
 @Composable
 private fun OnboardingComposable() {
-    Column(modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = stringResource(id = R.string.onboarding_explanatory_text),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = R.string.onboarding_explanatory_text),
             fontSize = dimensionResource(id = R.dimen.onboarding_view_text_size).value.sp,
             lineHeight = dimensionResource(id = R.dimen.onboarding_view_text_line_height).value.sp,
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.onboarding_view_margin)))
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.onboarding_view_margin))
+        )
     }
 }
 
@@ -87,7 +103,8 @@ private fun TodoItemDetailsComposable(
     todoItem: Todo,
     onTodoItemClick: (todoItem: Todo) -> Unit,
     onTodoItemLongClick: (todoItem: Todo) -> Unit,
-    updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit
+    updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit,
+    isNotificationExpired: (todo: Todo) -> Boolean
 ) {
     Card(
         shape = RoundedCornerShape(dimensionResource(id = R.dimen.list_item_card_corner_radius)),
@@ -114,20 +131,16 @@ private fun TodoItemDetailsComposable(
                 .fillMaxWidth()
         ) {
             TitleAndCompletionRowComposable(todoItem, updateCompletionState)
+
             if ((todoItem.notificationEnabled && !isNotificationExpired(todoItem)) || todoItem.geofenceNotificationEnabled) {
-                NotificationRowComposable(todoItem)
+                NotificationRowComposable(todoItem, isNotificationExpired)
             }
+
             if (!todoItem.description.isNullOrEmpty()) {
                 DescriptionRowComposable(todoItem)
             }
         }
     }
-}
-
-private fun isNotificationExpired(todo: Todo): Boolean {
-    return Calendar.getInstance().also {
-        it[todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute] = 0
-    }.timeInMillis < Calendar.getInstance().timeInMillis
 }
 
 @Composable
@@ -153,70 +166,97 @@ private fun TitleAndCompletionRowComposable(todoItem: Todo, updateCompletionStat
         Checkbox(
             modifier = Modifier.scale(1.4F),
             checked = todoItem.isCompleted,
-            colors = CheckboxDefaults.colors(checkedColor = getPriorityColor(todoItem.priority), uncheckedColor = getPriorityColor(todoItem.priority)),
+            colors = CheckboxDefaults.colors(
+                checkedColor = getPriorityColor(todoItem.priority),
+                uncheckedColor = getPriorityColor(todoItem.priority)
+            ),
             onCheckedChange = {
                 updateCompletionState(it, todoItem, currentContext)
-            })
-        Text(text = todoItem.title ?: "",
+            }
+        )
+
+        Text(
+            text = todoItem.title ?: "",
             maxLines = integerResource(id = R.integer.max_lines_list_item_title),
             overflow = TextOverflow.Ellipsis,
             fontSize = dimensionResource(id = R.dimen.list_item_text_size).value.sp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = dimensionResource(id = R.dimen.list_item_title_horizontal_start_padding)))
+                .padding(start = dimensionResource(id = R.dimen.list_item_title_horizontal_start_padding))
+        )
     }
 }
 
 @Composable
 private fun getPriorityColor(priority: Int): Color {
-    return colorResource(id = when (priority) {
-        AddEditTodoViewModel.PRIORITY_LOW -> R.color.low_priority
-        AddEditTodoViewModel.PRIORITY_HIGH -> R.color.high_priority
-        else -> R.color.medium_priority
-    })
+    return colorResource(
+        id = when (priority) {
+            AddEditTodoViewModel.PRIORITY_LOW -> R.color.low_priority
+            AddEditTodoViewModel.PRIORITY_HIGH -> R.color.high_priority
+            else -> R.color.medium_priority
+        }
+    )
 }
 
 @Composable
-private fun NotificationRowComposable(todoItem: Todo) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(
-            start = dimensionResource(id = R.dimen.list_item_horizontal_padding),
-            end = dimensionResource(id = R.dimen.list_item_horizontal_padding),
-            bottom = dimensionResource(id = R.dimen.list_item_vertical_padding)
-        )
+private fun NotificationRowComposable(todoItem: Todo, isNotificationExpired: (todo: Todo) -> Boolean) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = dimensionResource(id = R.dimen.list_item_horizontal_padding),
+                end = dimensionResource(id = R.dimen.list_item_horizontal_padding),
+                bottom = dimensionResource(id = R.dimen.list_item_vertical_padding)
+            )
     ) {
         if (todoItem.notificationEnabled && !isNotificationExpired(todoItem)) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1.0F)) {
-                Image(painter = painterResource(id = R.drawable.ic_notifications_active_black_20dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.0F)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_notifications_active_black_20dp),
                     contentDescription = "Reminder icon",
                     colorFilter = ColorFilter.tint(colorResource(id = R.color.list_item_icon)),
-                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.list_item_notification_text_to_image_spacing)))
-                Text(text = Todo.getPrettifiedDateAndTime(todoItem) ?: "",
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.list_item_notification_text_to_image_spacing))
+                )
+
+                Text(
+                    text = Todo.getPrettifiedDateAndTime(todoItem) ?: "",
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
                     fontSize = dimensionResource(id = R.dimen.list_item_notification_text_size).value.sp,
-                    modifier = Modifier.weight(1.0F))
+                    modifier = Modifier.weight(1.0F)
+                )
             }
         }
+
         if (todoItem.geofenceNotificationEnabled) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1.0F)) {
-                Image(painter = painterResource(id = R.drawable.ic_geofence_location_black_20dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.0F)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_geofence_location_black_20dp),
                     contentDescription = "Geofence icon",
                     colorFilter = ColorFilter.tint(colorResource(id = R.color.list_item_icon)),
-                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.list_item_notification_text_to_image_spacing)))
-                Text(text = Todo.getAddressFromLatLong(LocalContext.current,
-                    todoItem.geofenceLatitude,
-                    todoItem.geofenceLongitude,
-                    todoItem.geofenceNotificationEnabled),
+                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.list_item_notification_text_to_image_spacing))
+                )
+
+                Text(
+                    text = Todo.getAddressFromLatLong(
+                        LocalContext.current,
+                        todoItem.geofenceLatitude,
+                        todoItem.geofenceLongitude,
+                        todoItem.geofenceNotificationEnabled
+                    ),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
                     fontSize = dimensionResource(id = R.dimen.list_item_notification_text_size).value.sp,
-                    modifier = Modifier.weight(1.0F))
+                    modifier = Modifier.weight(1.0F)
+                )
             }
         }
     }
@@ -224,13 +264,14 @@ private fun NotificationRowComposable(todoItem: Todo) {
 
 @Composable
 private fun DescriptionRowComposable(todoItem: Todo) {
-    var expandedDescription by remember { mutableStateOf (false) }
-    var descriptionIsCollapsedAndEllipsizised by remember { mutableStateOf (false) }
-    var descriptionLineCount by remember { mutableStateOf (0) }
+    var expandedDescription by remember { mutableStateOf(false) }
+    var descriptionIsCollapsedAndEllipsizised by remember { mutableStateOf(false) }
+    var descriptionLineCount by remember { mutableStateOf(0) }
     val collapsedMaxDescriptionLines = integerResource(id = R.integer.max_lines_collapsed_list_item_description)
 
     Row(modifier = Modifier.fillMaxWidth()) {
-        Text(text = todoItem.description ?: "",
+        Text(
+            text = todoItem.description ?: "",
             maxLines = if (expandedDescription) {
                 integerResource(id = R.integer.max_lines_expanded_list_item_description)
             } else {
@@ -241,7 +282,8 @@ private fun DescriptionRowComposable(todoItem: Todo) {
             color = colorResource(id = R.color.list_item_description_text_color),
             onTextLayout = { res ->
                 descriptionLineCount = res.lineCount
-                descriptionIsCollapsedAndEllipsizised = descriptionLineCount == collapsedMaxDescriptionLines && res.isLineEllipsized(collapsedMaxDescriptionLines - 1)
+                descriptionIsCollapsedAndEllipsizised =
+                    descriptionLineCount == collapsedMaxDescriptionLines && res.isLineEllipsized(collapsedMaxDescriptionLines - 1)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -252,8 +294,16 @@ private fun DescriptionRowComposable(todoItem: Todo) {
                 )
                 .animateContentSize()
         )
+
         if (descriptionLineCount > collapsedMaxDescriptionLines || descriptionIsCollapsedAndEllipsizised) {
-            Image(painter = painterResource(id = if (descriptionLineCount > collapsedMaxDescriptionLines) R.drawable.ic_description_arrow_up_24 else R.drawable.ic_description_arrow_down_24),
+            Image(
+                painter = painterResource(
+                    id = if (descriptionLineCount > collapsedMaxDescriptionLines) {
+                        R.drawable.ic_description_arrow_up_24
+                    } else {
+                        R.drawable.ic_description_arrow_down_24
+                    }
+                ),
                 contentDescription = "Expand description",
                 colorFilter = ColorFilter.tint(colorResource(id = R.color.list_item_icon)),
                 modifier = Modifier
@@ -277,33 +327,34 @@ private fun DescriptionRowComposable(todoItem: Todo) {
 @Composable
 fun TodoListComposablePreview() {
     MdcTheme {
-        TodoListComposable(listOf(
-            Todo(
-                id = 1,
-                title = "This is a title",
-                description = "This is a description",
-                priority = 1,
-                notificationEnabled = true,
-                notifyYear = 2022,
-                notifyMonth = 2,
-                notifyDay = 20,
-                notifyHour = 5,
-                notifyMinute = 30
+        TodoListComposable(
+            todoItemList = listOf(
+                Todo(
+                    id = 1,
+                    title = "This is a title",
+                    description = "This is a description",
+                    priority = 1,
+                    notificationEnabled = true,
+                    notifyYear = 2022,
+                    notifyMonth = 2,
+                    notifyDay = 20,
+                    notifyHour = 5,
+                    notifyMinute = 30
+                ),
+                Todo(
+                    id = 2,
+                    title = "Completed todo item",
+                    description = "This is another description",
+                    priority = 1,
+                    isCompleted = true
+                )
             ),
-            Todo(
-                id = 2,
-                title = "Completed todo item",
-                description = "This is another description",
-                priority = 1,
-                isCompleted = true
-            )
-        ), {
-            // Navigation not handled in preview
-        }, {
-            // Long press not handled in preview
-        }, { isChecked: Boolean, todo: Todo, context: Context ->
-            // Completion toggle not handled in preview
-        })
+            onTodoItemClick = {},
+            onTodoItemLongClick = {},
+            updateCompletionState = { _: Boolean, _: Todo, _: Context -> },
+            isNotificationExpired = { false }
+        )
+
         // OnboardingComposable()
     }
 }

@@ -20,7 +20,13 @@ class TimedNotificationJobIntentService : JobIntentService() {
         if (todosWithNotificationId.isNotEmpty()) {
             val todo = todosWithNotificationId[0]
             todo.notificationId = 0 // Finally clearing the notification id
-            NotificationUtil.sendNotification(applicationContext, applicationContext.resources.getString(R.string.timed_notification_title), todosWithNotificationId[0], R.drawable.ic_notifications_active_black_24dp, notificationId)
+            NotificationUtil.sendNotification(
+                context = applicationContext,
+                title = applicationContext.resources.getString(R.string.timed_notification_title),
+                todo = todosWithNotificationId[0],
+                icon = R.drawable.ic_notifications_active_black_24dp,
+                notificationId = notificationId
+            )
         }
     }
 

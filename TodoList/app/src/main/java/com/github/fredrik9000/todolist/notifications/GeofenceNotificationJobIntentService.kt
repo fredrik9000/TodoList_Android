@@ -11,19 +11,29 @@ class GeofenceNotificationJobIntentService : JobIntentService() {
     override fun onHandleWork(intent: Intent) {
         val notificationIdArrayList = intent.getIntegerArrayListExtra(GeofenceReceiver.NOTIFICATION_ID)!!
 
-        // Remove all triggered geofences and clear notification values for these tasks from the database(except the notification id as we still need this)
-        NotificationUtil.removeGeofenceList(applicationContext, ArrayList(notificationIdArrayList.map { it.toString() }))
+        // Remove all triggered geofences and clear notification values for these tasks from the database(except the notification id since we still need this)
+        NotificationUtil.removeGeofenceList(
+            applicationContext = applicationContext,
+            geofenceNotificationIdList = notificationIdArrayList.map { it.toString() }
+        )
+
         val todoDao = TodoDatabase.getInstance(applicationContext).todoDao()
-        todoDao.clearGeofenceNotificationValues(notificationIdArrayList)
+        todoDao.clearGeofenceNotificationValues(geofenceNotificationIdList = notificationIdArrayList)
 
         // Loop through each task and send a notification for each item
-        val todoListForTriggeredGeofences = todoDao.getTodoListWithGeofenceNotificationIds(notificationIdArrayList)
+        val todoListForTriggeredGeofences = todoDao.getTodoListWithGeofenceNotificationIds(geofenceNotificationIdList = notificationIdArrayList)
         for (todo in todoListForTriggeredGeofences) {
-            NotificationUtil.sendNotification(applicationContext, applicationContext.resources.getString(R.string.geofence_notification_title), todo, R.drawable.ic_geofence_location_black_24dp, todo.geofenceNotificationId)
+            NotificationUtil.sendNotification(
+                context = applicationContext,
+                title = applicationContext.resources.getString(R.string.geofence_notification_title),
+                todo = todo,
+                icon = R.drawable.ic_geofence_location_black_24dp,
+                notificationId = todo.geofenceNotificationId
+            )
         }
 
         // Clear the notification ids
-        todoDao.clearGeofenceNotificationIds(notificationIdArrayList)
+        todoDao.clearGeofenceNotificationIds(geofenceNotificationIdList = notificationIdArrayList)
     }
 
     companion object {

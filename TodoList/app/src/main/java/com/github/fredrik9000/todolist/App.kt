@@ -16,11 +16,16 @@ class App : Application() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.task_reminder_notification_channel_name), NotificationManager.IMPORTANCE_HIGH).apply {
+            val notificationChannel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                getString(R.string.task_reminder_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
                 enableLights(true)
                 lightColor = Color.RED
                 enableVibration(true)
             }
+
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
         }

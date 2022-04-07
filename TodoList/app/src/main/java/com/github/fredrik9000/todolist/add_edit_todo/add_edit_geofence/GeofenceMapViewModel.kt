@@ -21,7 +21,10 @@ class GeofenceMapViewModel(application: Application, private val savedStateHandl
             hasSetGeofence = args.getBoolean(GeofenceMapFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, false)
             if (hasSetGeofence) {
                 geofenceRadius = args.getInt(GeofenceMapFragment.ARGUMENT_GEOFENCE_RADIUS, GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS)
-                geofenceCenter = LatLng(args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LATITUDE, 0.0), args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LONGITUDE, 0.0))
+                geofenceCenter = LatLng(
+                    args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LATITUDE, 0.0),
+                    args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LONGITUDE, 0.0)
+                )
             }
         }
     }

@@ -11,11 +11,12 @@ class ReRegisterGeofencesJobIntentService : JobIntentService() {
         val todoItemsWithGeofencing = TodoDatabase.getInstance(applicationContext).todoDao().getTodosWithGeofence()
         for (todo in todoItemsWithGeofencing) {
             NotificationUtil.addGeofenceNotification(
-                    applicationContext,
-                    todo.geofenceNotificationId,
-                    todo.geofenceRadius,
-                    todo.geofenceLatitude,
-                    todo.geofenceLongitude)
+                applicationContext = applicationContext,
+                notificationId = todo.geofenceNotificationId,
+                radius = todo.geofenceRadius,
+                latitude = todo.geofenceLatitude,
+                longitude = todo.geofenceLongitude
+            )
         }
     }
 

@@ -48,8 +48,10 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private lateinit var addEditTodoViewModel: AddEditTodoViewModel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -145,7 +147,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private fun displayNotificationAddedState(notificationCalendar: Calendar) {
         binding.removeNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateNotificationButton.text = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, Locale.US).format(notificationCalendar.time)
+        binding.addUpdateNotificationButton.text = DateFormat.getDateTimeInstance(
+            DateFormat.LONG, DateFormat.SHORT, Locale.US
+        ).format(notificationCalendar.time)
     }
 
     private fun displayNotificationNotAddedState() {
@@ -155,7 +159,13 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private fun displayGeofenceNotificationAddedState() {
         binding.removeGeofenceNotificationButton.visibility = View.VISIBLE
-        binding.addUpdateGeofenceNotificationButton.text = Todo.getAddressFromLatLong(requireContext(), addEditTodoViewModel.geofenceLatitude, addEditTodoViewModel.geofenceLongitude, true)
+        binding.addUpdateGeofenceNotificationButton.text =
+            Todo.getAddressFromLatLong(
+                context = requireContext(),
+                latitude = addEditTodoViewModel.geofenceLatitude,
+                longitude = addEditTodoViewModel.geofenceLongitude,
+                geofenceNotificationEnabled = true
+            )
     }
 
     private fun displayGeofenceNotificationNotAddedState() {
@@ -236,9 +246,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         addEditTodoViewModel.notificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION
 
         Snackbar.make(
-                binding.addEditTodoCoordinatorLayout,
-                R.string.notification_removed,
-                Snackbar.LENGTH_LONG
+            binding.addEditTodoCoordinatorLayout,
+            R.string.notification_removed,
+            Snackbar.LENGTH_LONG
         ).setAction(R.string.undo) {
             if (addEditTodoViewModel.isUndoDoubleClicked) {
                 return@setAction
@@ -256,9 +266,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private fun showUndoSuccessfulSnackbar() {
         Snackbar.make(
-                binding.addEditTodoCoordinatorLayout,
-                R.string.undo_successful,
-                Snackbar.LENGTH_SHORT
+            binding.addEditTodoCoordinatorLayout,
+            R.string.undo_successful,
+            Snackbar.LENGTH_SHORT
         ).show()
     }
 
@@ -279,9 +289,23 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     }
 
     private val addGeofenceNotificationButtonListener: View.OnClickListener = View.OnClickListener {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            EasyPermissions.requestPermissions(this, resources.getString(R.string.fine_location_rationale_message), ACCESS_FINE_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            !EasyPermissions.hasPermissions(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        ) {
+            EasyPermissions.requestPermissions(
+                this,
+                resources.getString(R.string.fine_location_rationale_message),
+                ACCESS_FINE_LOCATION_REQUEST_CODE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(
+                requireContext(),
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        ) {
             requestBackgroundLocationPermission()
         } else {
             navigateToGeofenceMap()
@@ -291,8 +315,17 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     @AfterPermissionGranted(ACCESS_FINE_LOCATION_REQUEST_CODE)
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun requestBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-            EasyPermissions.requestPermissions(this, resources.getString(R.string.background_location_rationale_message), ACCESS_BACKGROUND_LOCATION_REQUEST_CODE, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !EasyPermissions.hasPermissions(
+                requireContext(),
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        ) {
+            EasyPermissions.requestPermissions(
+                this,
+                resources.getString(R.string.background_location_rationale_message),
+                ACCESS_BACKGROUND_LOCATION_REQUEST_CODE,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
         }
     }
 
@@ -314,9 +347,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION
 
         Snackbar.make(
-                binding.addEditTodoCoordinatorLayout,
-                R.string.geofence_removed,
-                Snackbar.LENGTH_LONG
+            binding.addEditTodoCoordinatorLayout,
+            R.string.geofence_removed,
+            Snackbar.LENGTH_LONG
         ).setAction(R.string.undo) {
             if (addEditTodoViewModel.isUndoDoubleClicked) {
                 return@setAction
@@ -340,7 +373,8 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                 binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
             } else {
                 binding.saveTodoButton.isEnabled = true
-                binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this@AddEditTodoFragment.requireContext(), R.color.colorSecondary))
+                binding.saveTodoButton.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(this@AddEditTodoFragment.requireContext(), R.color.colorSecondary))
             }
         }
 

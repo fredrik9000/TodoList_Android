@@ -43,8 +43,7 @@ class TodoListFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentTodoListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -140,9 +139,9 @@ class TodoListFragment : Fragment() {
 
     private fun showDeletedItemsSnackbarWithUndo(removedTodoListItems: MutableList<Todo>, alarmManager: AlarmManager) {
         Snackbar.make(
-                binding.coordinatorLayout,
-                R.string.items_deleted,
-                Snackbar.LENGTH_LONG
+            binding.coordinatorLayout,
+            R.string.items_deleted,
+            Snackbar.LENGTH_LONG
         ).setAction(R.string.undo, View.OnClickListener {
             if (todoListViewModel.isUndoDoubleClicked) {
                 return@OnClickListener
@@ -157,16 +156,19 @@ class TodoListFragment : Fragment() {
 
     private fun showUndoSuccessfulSnackbar() {
         Snackbar.make(
-                binding.coordinatorLayout,
-                R.string.undo_successful,
-                Snackbar.LENGTH_SHORT
+            binding.coordinatorLayout,
+            R.string.undo_successful,
+            Snackbar.LENGTH_SHORT
         ).show()
     }
 
     private fun onItemClick(todoItem: Todo) {
         if (!todoItem.isCompleted) {
             actionMode?.finish()
-            Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment, AddEditTodoFragment.createBundleForTodoItem(todoItem))
+            Navigation.findNavController(requireView()).navigate(
+                R.id.action_todoListFragment_to_addEditTodoFragment,
+                AddEditTodoFragment.createBundleForTodoItem(todoItem)
+            )
         }
     }
 
@@ -174,7 +176,7 @@ class TodoListFragment : Fragment() {
         if (actionMode != null) {
             return false
         }
-        
+
         actionMode = (activity as AppCompatActivity).startSupportActionMode(object : ActionMode.Callback {
             override fun onCreateActionMode(actionMode: ActionMode?, menu: Menu?): Boolean {
                 actionMode!!.menuInflater.inflate(R.menu.context_main, menu)
@@ -207,9 +209,9 @@ class TodoListFragment : Fragment() {
         todoListViewModel.deleteTodo((activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager, todo)
 
         Snackbar.make(
-                binding.coordinatorLayout,
-                R.string.item_deleted,
-                Snackbar.LENGTH_LONG
+            binding.coordinatorLayout,
+            R.string.item_deleted,
+            Snackbar.LENGTH_LONG
         ).setAction(R.string.undo, View.OnClickListener {
             if (todoListViewModel.isUndoDoubleClicked) {
                 return@OnClickListener

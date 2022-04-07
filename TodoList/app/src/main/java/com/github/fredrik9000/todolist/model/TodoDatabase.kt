@@ -16,9 +16,12 @@ abstract class TodoDatabase : RoomDatabase() {
 
         @Synchronized
         fun getInstance(context: Context): TodoDatabase =
-                instance ?: Room.databaseBuilder(context.applicationContext,
-                        TodoDatabase::class.java, "todo_database")
-                        .fallbackToDestructiveMigration()
-                        .build().also { instance = it }
+            instance ?: Room.databaseBuilder(
+                context.applicationContext,
+                TodoDatabase::class.java,
+                "todo_database"
+            )
+                .fallbackToDestructiveMigration()
+                .build().also { instance = it }
     }
 }

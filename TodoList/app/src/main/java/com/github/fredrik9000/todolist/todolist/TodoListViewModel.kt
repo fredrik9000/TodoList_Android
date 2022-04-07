@@ -42,13 +42,26 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
 
     fun insertTodo(todo: Todo, alarmManager: AlarmManager) {
         if (todo.notificationEnabled) {
-            NotificationUtil.addNotification(getApplication<Application>().applicationContext,
-                    alarmManager,
-                    todo.notificationId, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
+            NotificationUtil.addNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                alarmManager = alarmManager,
+                notificationId = todo.notificationId,
+                year = todo.notifyYear,
+                month = todo.notifyMonth,
+                day = todo.notifyDay,
+                hour = todo.notifyHour,
+                minute = todo.notifyMinute
+            )
         }
 
         if (todo.geofenceNotificationEnabled) {
-            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.geofenceNotificationId, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
+            NotificationUtil.addGeofenceNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                notificationId = todo.geofenceNotificationId,
+                radius = todo.geofenceRadius,
+                latitude = todo.geofenceLatitude,
+                longitude = todo.geofenceLongitude
+            )
         }
 
         viewModelScope.launch {
@@ -86,11 +99,18 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
 
     fun deleteTodo(alarmManager: AlarmManager, todo: Todo) {
         if (todo.notificationEnabled) {
-            NotificationUtil.removeNotification(getApplication<Application>().applicationContext, alarmManager, todo.notificationId)
+            NotificationUtil.removeNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                alarmManager = alarmManager,
+                notificationId = todo.notificationId
+            )
         }
 
         if (todo.geofenceNotificationEnabled) {
-            NotificationUtil.removeGeofence(getApplication<Application>().applicationContext, todo.geofenceNotificationId)
+            NotificationUtil.removeGeofence(
+                applicationContext = getApplication<Application>().applicationContext,
+                notificationId = todo.geofenceNotificationId
+            )
         }
 
         viewModelScope.launch {
@@ -101,11 +121,26 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
     fun insertTodoItems(todoListItems: MutableList<Todo>, alarmManager: AlarmManager) {
         for (todo in todoListItems) {
             if (todo.notificationEnabled) {
-                NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, todo.notificationId, todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute)
+                NotificationUtil.addNotification(
+                    applicationContext = getApplication<Application>().applicationContext,
+                    alarmManager = alarmManager,
+                    notificationId = todo.notificationId,
+                    year = todo.notifyYear,
+                    month = todo.notifyMonth,
+                    day = todo.notifyDay,
+                    hour = todo.notifyHour,
+                    minute = todo.notifyMinute
+                )
             }
 
             if (todo.geofenceNotificationEnabled) {
-                NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, todo.notificationId, todo.geofenceRadius, todo.geofenceLatitude, todo.geofenceLongitude)
+                NotificationUtil.addGeofenceNotification(
+                    applicationContext = getApplication<Application>().applicationContext,
+                    notificationId = todo.notificationId,
+                    radius = todo.geofenceRadius,
+                    latitude = todo.geofenceLatitude,
+                    longitude = todo.geofenceLongitude
+                )
             }
         }
 
@@ -119,33 +154,46 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         if (isChecked) {
             if (todoItem.notificationEnabled) {
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                NotificationUtil.removeNotification(context, alarmManager, todoItem.notificationId)
+                NotificationUtil.removeNotification(
+                    applicationContext = context,
+                    alarmManager = alarmManager,
+                    notificationId = todoItem.notificationId
+                )
             }
             if (todoItem.geofenceNotificationEnabled) {
-                NotificationUtil.removeGeofence(context, todoItem.geofenceNotificationId)
+                NotificationUtil.removeGeofence(applicationContext = context, notificationId = todoItem.geofenceNotificationId)
             }
         }
 
         viewModelScope.launch {
-            repository.update(Todo(
-                todoItem.id,
-                todoItem.title,
-                todoItem.description,
-                todoItem.priority,
-                0,
-                0,
-                false,
-                0,
-                0,
-                0,
-                0,
-                0,
-                false,
-                0.0,
-                0.0,
-                0,
-                isChecked))
+            repository.update(
+                Todo(
+                    id = todoItem.id,
+                    title = todoItem.title,
+                    description = todoItem.description,
+                    priority = todoItem.priority,
+                    notificationId = 0,
+                    geofenceNotificationId = 0,
+                    notificationEnabled = false,
+                    notifyYear = 0,
+                    notifyMonth = 0,
+                    notifyDay = 0,
+                    notifyHour = 0,
+                    notifyMinute = 0,
+                    geofenceNotificationEnabled = false,
+                    geofenceLatitude = 0.0,
+                    geofenceLongitude = 0.0,
+                    geofenceRadius = 0,
+                    isCompleted = isChecked
+                )
+            )
         }
+    }
+
+    fun isNotificationExpired(todo: Todo): Boolean {
+        return Calendar.getInstance().also {
+            it[todo.notifyYear, todo.notifyMonth, todo.notifyDay, todo.notifyHour, todo.notifyMinute] = 0
+        }.timeInMillis < Calendar.getInstance().timeInMillis
     }
 
     companion object {

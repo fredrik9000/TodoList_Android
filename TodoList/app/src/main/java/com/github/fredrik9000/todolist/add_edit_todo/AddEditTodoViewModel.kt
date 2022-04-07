@@ -176,15 +176,37 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
 
     fun saveTodoItem(alarmManager: AlarmManager, title: String, description: String) {
         if (notificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addNotification(getApplication<Application>().applicationContext, alarmManager, notificationId, year, month, day, hour, minute)
+            NotificationUtil.addNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                alarmManager = alarmManager,
+                notificationId = notificationId,
+                year = year,
+                month = month,
+                day = day,
+                hour = hour,
+                minute = minute
+            )
         } else if (notificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
-            NotificationUtil.removeNotification(getApplication<Application>().applicationContext, alarmManager, notificationId)
+            NotificationUtil.removeNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                alarmManager = alarmManager,
+                notificationId = notificationId
+            )
         }
 
         if (geofenceNotificationUpdateState == NotificationUpdateState.ADDED_NOTIFICATION) {
-            NotificationUtil.addGeofenceNotification(getApplication<Application>().applicationContext, geofenceNotificationId, geofenceRadius, geofenceLatitude, geofenceLongitude)
+            NotificationUtil.addGeofenceNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                notificationId = geofenceNotificationId,
+                radius = geofenceRadius,
+                latitude = geofenceLatitude,
+                longitude = geofenceLongitude
+            )
         } else if (geofenceNotificationUpdateState == NotificationUpdateState.REMOVED_NOTIFICATION) {
-            NotificationUtil.removeGeofence(getApplication<Application>().applicationContext, geofenceNotificationId)
+            NotificationUtil.removeGeofence(
+                applicationContext = getApplication<Application>().applicationContext,
+                notificationId = geofenceNotificationId
+            )
         }
 
         if (!hasNotification) {
@@ -217,23 +239,25 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     private fun createTodoItem(title: String, description: String): Todo {
-        return Todo(0,
-                title,
-                description,
-                priority,
-                notificationId,
-                geofenceNotificationId,
-                hasNotification,
-                year,
-                month,
-                day,
-                hour,
-                minute,
-                hasGeofenceNotification,
-                geofenceLatitude,
-                geofenceLongitude,
-                geofenceRadius,
-                false)
+        return Todo(
+            id = 0,
+            title = title,
+            description = description,
+            priority = priority,
+            notificationId = notificationId,
+            geofenceNotificationId = geofenceNotificationId,
+            notificationEnabled = hasNotification,
+            notifyYear = year,
+            notifyMonth = month,
+            notifyDay = day,
+            notifyHour = hour,
+            notifyMinute = minute,
+            geofenceNotificationEnabled = hasGeofenceNotification,
+            geofenceLatitude = geofenceLatitude,
+            geofenceLongitude = geofenceLongitude,
+            geofenceRadius = geofenceRadius,
+            isCompleted = false
+        )
     }
 
     fun saveState() {

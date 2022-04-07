@@ -18,11 +18,15 @@ class GeofenceReceiver : BroadcastReceiver() {
             Log.e(TAG, errorMessage(context.resources, geofencingEvent.errorCode))
             return
         }
+
         val geofenceTransition = geofencingEvent.geofenceTransition
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            GeofenceNotificationJobIntentService.enqueueWork(context, Intent(context, GeofenceNotificationJobIntentService::class.java).apply {
-                putIntegerArrayListExtra(NOTIFICATION_ID, ArrayList(geofencingEvent.triggeringGeofences.map { it.requestId.toInt() }))
-            })
+            GeofenceNotificationJobIntentService.enqueueWork(
+                context = context,
+                work = Intent(context, GeofenceNotificationJobIntentService::class.java).apply {
+                    putIntegerArrayListExtra(NOTIFICATION_ID, ArrayList(geofencingEvent.triggeringGeofences.map { it.requestId.toInt() }))
+                }
+            )
         } else {
             Log.e(TAG, context.resources.getString(R.string.geofence_transition_invalid_type, geofenceTransition))
         }

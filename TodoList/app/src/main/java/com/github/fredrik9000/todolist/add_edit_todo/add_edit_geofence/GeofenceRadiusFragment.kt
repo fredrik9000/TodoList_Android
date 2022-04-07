@@ -48,6 +48,7 @@ class GeofenceRadiusFragment : Fragment() {
         val radiusDescription = binding.radiusDescription
         radiusDescription.text = getString(R.string.radius_description, radiusArgumentValue.toString())
 
+        // Seekbar that maps progress to geofence radius. When the progress is changed the listener will redraw the circle.
         val seekBar = binding.geofenceRadiusSeekBar
         seekBar.progress = radiusToProgress(radiusArgumentValue)
         seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -85,6 +86,7 @@ class GeofenceRadiusFragment : Fragment() {
         }
     }
 
+    // TODO: Not ideal to hard code the progress and radius values like this. Max value for seekbar is set to 4, which needs to be in sync with these values.
     private fun progressToRadius(progress: Int): Int {
         return when (progress) {
             0 -> 100
