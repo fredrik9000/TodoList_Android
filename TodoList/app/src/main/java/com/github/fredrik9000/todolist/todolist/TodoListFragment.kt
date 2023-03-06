@@ -10,14 +10,19 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -25,7 +30,7 @@ import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoFragment
 import com.github.fredrik9000.todolist.databinding.FragmentTodoListBinding
 import com.github.fredrik9000.todolist.model.Todo
-import com.google.android.material.composethemeadapter.MdcTheme
+import com.google.accompanist.themeadapter.material.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 
 @ExperimentalMaterialApi
@@ -40,7 +45,71 @@ class TodoListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.mymenu, menu)
+
+                val searchItem = menu.findItem(R.id.action_search)
+                val searchView = searchItem.actionView as SearchView
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        todoListViewModel.searchTodoList(query)
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        todoListViewModel.searchTodoList(newText)
+                        return true
+                    }
+                })
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.delete_all_tasks_menu_item -> {
+                        val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val removedTodoListItems = todoListViewModel.deleteAllTodoItems(alarmManager)
+
+                        if (removedTodoListItems.size == 0) {
+                            return true
+                        }
+
+                        showDeletedItemsSnackbarWithUndo(
+                            removedTodoListItems = removedTodoListItems,
+                            alarmManager = alarmManager
+                        )
+                        return true
+                    }
+                    R.id.delete_completed_tasks_menu_item -> {
+                        val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val removedTodoListItems = todoListViewModel.deleteAllCompletedTodoItems(alarmManager)
+
+                        if (removedTodoListItems.size == 0) {
+                            return true
+                        }
+
+                        showDeletedItemsSnackbarWithUndo(
+                            removedTodoListItems = removedTodoListItems,
+                            alarmManager = alarmManager
+                        )
+                        return true
+                    }
+                    R.id.toggle_night_mode -> {
+                        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        } else { // Assume light theme
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        }
+
+                        return true
+                    }
+                    else -> return true
+                }
+            }
+
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -67,7 +136,8 @@ class TodoListFragment : Fragment() {
                         FloatingActionButton(
                             onClick = {
                                 actionMode?.finish()
-                                Navigation.findNavController(requireView()).navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
+                                Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_todoListFragment_to_addEditTodoFragment)
                             },
                             content = {
                                 Icon(
@@ -78,62 +148,17 @@ class TodoListFragment : Fragment() {
                             }
                         )
                     },
-                    content = {
-                        TodoListComposable(todoListViewModel, ::onItemClick, ::onItemLongClick)
+                    content = { contentPadding ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(contentPadding)
+                        ) {
+                            TodoListComposable(todoListViewModel, ::onItemClick, ::onItemLongClick)
+                        }
                     }
                 )
             }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.mymenu, menu)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                todoListViewModel.searchTodoList(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                todoListViewModel.searchTodoList(newText)
-                return true
-            }
-        })
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.delete_all_tasks_menu_item -> {
-                val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val removedTodoListItems = todoListViewModel.deleteAllTodoItems(alarmManager)
-                if (removedTodoListItems.size == 0) {
-                    return super.onOptionsItemSelected(item)
-                }
-                showDeletedItemsSnackbarWithUndo(removedTodoListItems, alarmManager)
-                return true
-            }
-            R.id.delete_completed_tasks_menu_item -> {
-                val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val removedTodoListItems = todoListViewModel.deleteAllCompletedTodoItems(alarmManager)
-                if (removedTodoListItems.size == 0) {
-                    return super.onOptionsItemSelected(item)
-                }
-                showDeletedItemsSnackbarWithUndo(removedTodoListItems, alarmManager)
-                return true
-            }
-            R.id.toggle_night_mode -> {
-                val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-                if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                } else { // Assume light theme
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
         }
     }
 
@@ -148,7 +173,7 @@ class TodoListFragment : Fragment() {
             }
 
             todoListViewModel.updateLastClickedUndoTime()
-            todoListViewModel.insertTodoItems(removedTodoListItems, alarmManager)
+            todoListViewModel.insertTodoItems(todoListItems = removedTodoListItems, alarmManager = alarmManager)
 
             showUndoSuccessfulSnackbar()
         }).show()
@@ -206,7 +231,10 @@ class TodoListFragment : Fragment() {
     }
 
     private fun deleteSingleTodoItem(todo: Todo) {
-        todoListViewModel.deleteTodo((activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager, todo)
+        todoListViewModel.deleteTodo(
+            alarmManager = (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager,
+            todo = todo
+        )
 
         Snackbar.make(
             binding.coordinatorLayout,
@@ -218,7 +246,10 @@ class TodoListFragment : Fragment() {
             }
 
             todoListViewModel.updateLastClickedUndoTime()
-            todoListViewModel.insertTodo(todo, (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+            todoListViewModel.insertTodo(
+                todo = todo,
+                alarmManager = (activity as AppCompatActivity).getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            )
 
             showUndoSuccessfulSnackbar()
         }).show()

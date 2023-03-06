@@ -1,6 +1,5 @@
 package com.github.fredrik9000.todolist
 
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.Navigation
@@ -16,7 +15,8 @@ class MainActivity : AppCompatActivity() {
         val controller = Navigation.findNavController(this, R.id.nav_host_fragment)
         NavigationUI.setupActionBarWithNavController(this, controller)
 
-        // We have to dynamically set the title for each fragment because the label of any fragment will stick around and override setTitle
+        // We have to dynamically set the title for each fragment
+        // because the label of any fragment will stick around and override setTitle
         controller.addOnDestinationChangedListener { _, destination, arguments ->
             val destinationId = destination.id
             if (destinationId == R.id.mainFragment) {
@@ -41,19 +41,5 @@ class MainActivity : AppCompatActivity() {
             GeofenceRadiusFragment.disableAnimations = false
         }
         return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp()
-    }
-
-    override fun onBackPressed() {
-        // Fix for memory leak in the Android framework that happens on Android 10:
-        // https://issuetracker.google.com/issues/139738913
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isTaskRoot &&
-            supportFragmentManager.primaryNavigationFragment != null &&
-            supportFragmentManager.primaryNavigationFragment!!.childFragmentManager.backStackEntryCount == 0 &&
-            supportFragmentManager.backStackEntryCount == 0
-        ) {
-            finishAfterTransition()
-        } else {
-            super.onBackPressed()
-        }
     }
 }

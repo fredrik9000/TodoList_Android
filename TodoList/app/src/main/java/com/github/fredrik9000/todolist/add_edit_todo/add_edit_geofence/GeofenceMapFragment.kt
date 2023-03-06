@@ -99,9 +99,11 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
         userLocationButton.visibility = View.VISIBLE
 
         // Fade in the location button
-        userLocationButton.startAnimation(AnimationUtils.loadAnimation(userLocationButton.context, android.R.anim.fade_in).apply {
-            duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-        })
+        userLocationButton.startAnimation(
+            AnimationUtils.loadAnimation(userLocationButton.context, android.R.anim.fade_in).apply {
+                duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+            }
+        )
     }
 
     /**
@@ -153,7 +155,10 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
                 add(R.id.geofence_radius_fragment_container, geofenceRadiusFragment, GeofenceRadiusFragment.TAG)
             }
 
-            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.SET_GEOFENCE_RADIUS_REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            parentFragmentManager.setFragmentResultListener(
+                GeofenceRadiusFragment.SET_GEOFENCE_RADIUS_REQUEST_KEY,
+                viewLifecycleOwner
+            ) { _, bundle ->
                 geofenceMapViewModel.geofenceRadius = bundle.getInt(GeofenceRadiusFragment.BUNDLE_RADIUS_KEY)
 
                 // If the app dies due to a process death while the geofence radius fragment is open,then map won't be initialized when reopening the app.
@@ -164,19 +169,30 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
                 }
             }
 
-            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.EXIT_ANIMATION_STARTED_REQUEST_KEY, viewLifecycleOwner) { _, _ ->
+            parentFragmentManager.setFragmentResultListener(
+                GeofenceRadiusFragment.EXIT_ANIMATION_STARTED_REQUEST_KEY,
+                viewLifecycleOwner
+            ) { _, _ ->
                 val duration = resources.getInteger(R.integer.expand_collapse_animation_duration)
 
                 // Fade out all the fabs at their current position
-                confirmGeofenceButton.startAnimation(AnimationUtils.loadAnimation(confirmGeofenceButton.context, android.R.anim.fade_out).apply {
+                confirmGeofenceButton.startAnimation(AnimationUtils.loadAnimation(
+                    confirmGeofenceButton.context,
+                    android.R.anim.fade_out
+                ).apply {
                     this.duration = duration.toLong()
                 })
-                cancelGeofenceButton.startAnimation(AnimationUtils.loadAnimation(cancelGeofenceButton.context, android.R.anim.fade_out).apply {
-                    this.duration = duration.toLong()
-                })
+                cancelGeofenceButton.startAnimation(
+                    AnimationUtils.loadAnimation(cancelGeofenceButton.context, android.R.anim.fade_out).apply {
+                        this.duration = duration.toLong()
+                    }
+                )
             }
 
-            parentFragmentManager.setFragmentResultListener(GeofenceRadiusFragment.EXIT_ANIMATION_FINISHED_REQUEST_KEY, viewLifecycleOwner) { _, _ ->
+            parentFragmentManager.setFragmentResultListener(
+                GeofenceRadiusFragment.EXIT_ANIMATION_FINISHED_REQUEST_KEY,
+                viewLifecycleOwner
+            ) { _, _ ->
                 cancelGeoFence()
             }
         }
@@ -195,9 +211,16 @@ class GeofenceMapFragment : Fragment(), OnMapReadyCallback {
     // Location permissions are checked before navigating to this fragment.
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
-        LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation.addOnSuccessListener(requireActivity()) { location ->
+        LocationServices.getFusedLocationProviderClient(
+            requireContext()
+        ).lastLocation.addOnSuccessListener(requireActivity()) { location ->
             if (location != null) {
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_MAP_ZOOM_LEVEL))
+                map.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(location.latitude, location.longitude),
+                        DEFAULT_MAP_ZOOM_LEVEL
+                    )
+                )
             }
         }
     }

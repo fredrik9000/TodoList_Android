@@ -11,12 +11,14 @@ class TimedNotificationJobIntentService : JobIntentService() {
 
     override fun onHandleWork(intent: Intent) {
         val notificationId = intent.getIntExtra(TimedNotificationAlarmReceiver.NOTIFICATION_ID, 0)
+
         val todoDao: TodoDao = TodoDatabase.getInstance(applicationContext).todoDao()
 
         // First clear the notification values, then get the updated item and clear the notification id
         todoDao.clearTimedNotificationValues(notificationId)
         val todosWithNotificationId = todoDao.getTodoWithNotificationId(notificationId)
         todoDao.clearNotificationId(notificationId)
+
         if (todosWithNotificationId.isNotEmpty()) {
             val todo = todosWithNotificationId[0]
             todo.notificationId = 0 // Finally clearing the notification id

@@ -40,35 +40,6 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         lastClickedUndoTime = SystemClock.elapsedRealtime()
     }
 
-    fun insertTodo(todo: Todo, alarmManager: AlarmManager) {
-        if (todo.notificationEnabled) {
-            NotificationUtil.addNotification(
-                applicationContext = getApplication<Application>().applicationContext,
-                alarmManager = alarmManager,
-                notificationId = todo.notificationId,
-                year = todo.notifyYear,
-                month = todo.notifyMonth,
-                day = todo.notifyDay,
-                hour = todo.notifyHour,
-                minute = todo.notifyMinute
-            )
-        }
-
-        if (todo.geofenceNotificationEnabled) {
-            NotificationUtil.addGeofenceNotification(
-                applicationContext = getApplication<Application>().applicationContext,
-                notificationId = todo.geofenceNotificationId,
-                radius = todo.geofenceRadius,
-                latitude = todo.geofenceLatitude,
-                longitude = todo.geofenceLongitude
-            )
-        }
-
-        viewModelScope.launch {
-            repository.insert(todo)
-        }
-    }
-
     fun getTodoList(): LiveData<MutableList<Todo>> {
         return todoList
     }
@@ -81,7 +52,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         val removedTodoItems: MutableList<Todo> = ArrayList()
         for (todo in todoList.value!!) {
             removedTodoItems.add(todo)
-            deleteTodo(alarmManager, todo)
+            deleteTodo(alarmManager = alarmManager, todo = todo)
         }
         return removedTodoItems
     }
@@ -91,7 +62,7 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
         for (todo in todoList.value!!) {
             if (todo.isCompleted) {
                 removedTodoItems.add(todo)
-                deleteTodo(alarmManager, todo)
+                deleteTodo(alarmManager = alarmManager, todo = todo)
             }
         }
         return removedTodoItems
@@ -120,32 +91,44 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
 
     fun insertTodoItems(todoListItems: MutableList<Todo>, alarmManager: AlarmManager) {
         for (todo in todoListItems) {
-            if (todo.notificationEnabled) {
-                NotificationUtil.addNotification(
-                    applicationContext = getApplication<Application>().applicationContext,
-                    alarmManager = alarmManager,
-                    notificationId = todo.notificationId,
-                    year = todo.notifyYear,
-                    month = todo.notifyMonth,
-                    day = todo.notifyDay,
-                    hour = todo.notifyHour,
-                    minute = todo.notifyMinute
-                )
-            }
-
-            if (todo.geofenceNotificationEnabled) {
-                NotificationUtil.addGeofenceNotification(
-                    applicationContext = getApplication<Application>().applicationContext,
-                    notificationId = todo.notificationId,
-                    radius = todo.geofenceRadius,
-                    latitude = todo.geofenceLatitude,
-                    longitude = todo.geofenceLongitude
-                )
-            }
+            addNotificationForTodoItem(todo = todo, alarmManager = alarmManager)
         }
 
         viewModelScope.launch {
             repository.insertTodoItems(todoListItems)
+        }
+    }
+
+    fun insertTodo(todo: Todo, alarmManager: AlarmManager) {
+        addNotificationForTodoItem(todo = todo, alarmManager = alarmManager)
+
+        viewModelScope.launch {
+            repository.insert(todo)
+        }
+    }
+
+    private fun addNotificationForTodoItem(todo: Todo, alarmManager: AlarmManager) {
+        if (todo.notificationEnabled) {
+            NotificationUtil.addNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                alarmManager = alarmManager,
+                notificationId = todo.notificationId,
+                year = todo.notifyYear,
+                month = todo.notifyMonth,
+                day = todo.notifyDay,
+                hour = todo.notifyHour,
+                minute = todo.notifyMinute
+            )
+        }
+
+        if (todo.geofenceNotificationEnabled) {
+            NotificationUtil.addGeofenceNotification(
+                applicationContext = getApplication<Application>().applicationContext,
+                notificationId = todo.geofenceNotificationId,
+                radius = todo.geofenceRadius,
+                latitude = todo.geofenceLatitude,
+                longitude = todo.geofenceLongitude
+            )
         }
     }
 
@@ -161,7 +144,10 @@ class TodoListViewModel(application: Application) : AndroidViewModel(application
                 )
             }
             if (todoItem.geofenceNotificationEnabled) {
-                NotificationUtil.removeGeofence(applicationContext = context, notificationId = todoItem.geofenceNotificationId)
+                NotificationUtil.removeGeofence(
+                    applicationContext = context,
+                    notificationId = todoItem.geofenceNotificationId
+                )
             }
         }
 

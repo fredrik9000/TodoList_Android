@@ -27,7 +27,12 @@ object NotificationUtil {
 
     fun removeNotification(applicationContext: Context?, alarmManager: AlarmManager, notificationId: Int) {
         val notificationIntent = Intent(applicationContext, TimedNotificationAlarmReceiver::class.java)
-        val pendingIntent = getNotificationPendingIntent(applicationContext, notificationId, notificationIntent)
+        val pendingIntent = getNotificationPendingIntent(
+            applicationContext = applicationContext,
+            notificationId = notificationId,
+            notificationIntent = notificationIntent
+        )
+
         alarmManager.cancel(pendingIntent)
         pendingIntent.cancel()
     }
@@ -67,7 +72,13 @@ object NotificationUtil {
     }
 
     @SuppressLint("MissingPermission")
-    fun addGeofenceNotification(applicationContext: Context, notificationId: Int, radius: Int, latitude: Double, longitude: Double) {
+    fun addGeofenceNotification(
+        applicationContext: Context,
+        notificationId: Int,
+        radius: Int,
+        latitude: Double,
+        longitude: Double
+    ) {
         val geofencingRequest = GeofencingRequest.Builder()
             .setInitialTrigger(0) // Don't trigger geofence if already inside it
             .addGeofences(

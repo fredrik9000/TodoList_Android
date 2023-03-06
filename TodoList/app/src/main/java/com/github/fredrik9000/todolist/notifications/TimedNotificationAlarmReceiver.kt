@@ -9,6 +9,7 @@ class TimedNotificationAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         with(Intent(context, TimedNotificationJobIntentService::class.java)) {
             this.putExtra(NOTIFICATION_ID, intent.getIntExtra(NOTIFICATION_ID, 0))
+
             TimedNotificationJobIntentService.enqueueWork(context, this)
         }
     }

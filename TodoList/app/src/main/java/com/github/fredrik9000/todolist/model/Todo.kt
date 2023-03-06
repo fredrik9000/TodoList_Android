@@ -34,14 +34,22 @@ class Todo(
         private const val TAG: String = "Todo"
 
         @JvmStatic
-        fun getAddressFromLatLong(context: Context, latitude: Double, longitude: Double, geofenceNotificationEnabled: Boolean): String {
+        fun getAddressFromLatLong(
+            context: Context,
+            latitude: Double,
+            longitude: Double,
+            geofenceNotificationEnabled: Boolean
+        ): String {
             if (!geofenceNotificationEnabled) {
                 return ""
             }
 
             var address: String? = null
             try {
-                address = Geocoder(context, Locale.getDefault()).getFromLocation(latitude, longitude, 1)[0].getAddressLine(0)
+                address = Geocoder(
+                    context,
+                    Locale.getDefault()
+                ).getFromLocation(latitude, longitude, 1)?.get(0)?.getAddressLine(0)
             } catch (e: IOException) {
                 Log.w(TAG, "Could not get city from latitude and longitude: " + e.message)
             }
@@ -51,7 +59,14 @@ class Todo(
         @JvmStatic
         fun getPrettifiedDateAndTime(todoItem: Todo): String? {
             with(Calendar.getInstance()) {
-                this[todoItem.notifyYear, todoItem.notifyMonth, todoItem.notifyDay, todoItem.notifyHour, todoItem.notifyMinute] = 0
+                this[
+                        todoItem.notifyYear,
+                        todoItem.notifyMonth,
+                        todoItem.notifyDay,
+                        todoItem.notifyHour,
+                        todoItem.notifyMinute
+                ] = 0
+
                 return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.US).format(this.time)
             }
         }

@@ -11,7 +11,10 @@ class BootCompletedReceiver : BroadcastReceiver() {
             intent.action == "android.intent.action.QUICKBOOT_POWERON" ||
             intent.action == "com.htc.intent.action.QUICKBOOT_POWERON"
         ) {
-            ReRegisterGeofencesJobIntentService.enqueueWork(context, Intent(context, ReRegisterGeofencesJobIntentService::class.java))
+            ReRegisterGeofencesJobIntentService.enqueueWork(
+                context = context,
+                work = Intent(context, ReRegisterGeofencesJobIntentService::class.java)
+            )
         }
     }
 }

@@ -9,6 +9,7 @@ class ReRegisterGeofencesJobIntentService : JobIntentService() {
 
     override fun onHandleWork(intent: Intent) {
         val todoItemsWithGeofencing = TodoDatabase.getInstance(applicationContext).todoDao().getTodosWithGeofence()
+
         for (todo in todoItemsWithGeofencing) {
             NotificationUtil.addGeofenceNotification(
                 applicationContext = applicationContext,

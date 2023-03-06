@@ -58,6 +58,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         addEditTodoViewModel.title = binding.todoTitleEditText.text.toString().trim()
         addEditTodoViewModel.description = binding.todoDescriptionEditText.text.toString()
         _binding = null
@@ -66,12 +67,14 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Since onViewCreated will run when navigating back when using the Navigation Component there is no need to override an initialized view model with supplied arguments or saved state
+        // Since onViewCreated will run when navigating back when using the Navigation Component
+        // there is no need to override an initialized view model with supplied arguments or saved state
         if (!this::addEditTodoViewModel.isInitialized) {
             addEditTodoViewModel = ViewModelProvider(this).get(AddEditTodoViewModel::class.java)
             addEditTodoViewModel.setValuesFromArgumentsOrSavedState(arguments)
 
-            // Need to set up the notification state for both new and existing tasks, since tasks without an existing notification will be given a new notification id
+            // Need to set up the notification state for both new and existing tasks,
+            // since tasks without an existing notification will be given a new notification id
             addEditTodoViewModel.setupNotificationState(arguments)
             addEditTodoViewModel.setupGeofenceNotificationState(arguments)
         }
@@ -82,7 +85,10 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(Color.GRAY)
         } else {
             binding.saveTodoButton.isEnabled = true
-            binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorSecondary))
+            binding.saveTodoButton.backgroundTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.colorSecondary)
+            )
+
             binding.todoTitleEditText.setText(addEditTodoViewModel.title)
         }
 
@@ -112,20 +118,26 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private fun setupConfirmGeofenceObserver() {
         val savedStateHandle = NavHostFragment.findNavController(this).currentBackStackEntry!!.savedStateHandle
-        savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA).observe(viewLifecycleOwner) {
+        savedStateHandle.getLiveData<GeofenceMapFragment.GeofenceData>(
+            GeofenceMapFragment.GeofenceData.GEOFENCE_DATA
+        ).observe(viewLifecycleOwner) {
             addEditTodoViewModel.geofenceRadius = it.radius
             addEditTodoViewModel.geofenceLatitude = it.latitude
             addEditTodoViewModel.geofenceLongitude = it.longitude
             addEditTodoViewModel.hasGeofenceNotification = true
             addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.ADDED_NOTIFICATION
+
             savedStateHandle.remove<GeofenceMapFragment.GeofenceData>(GeofenceMapFragment.GeofenceData.GEOFENCE_DATA)
+
             displayGeofenceNotificationAddedState()
         }
     }
 
     private fun setupPriorityPicker() {
         binding.priorityPickerSeekbar.progress = addEditTodoViewModel.priority
+
         configurePriorityPickerWithCurrentValues()
+
         binding.priorityPickerSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 addEditTodoViewModel.priority = progress
@@ -138,7 +150,10 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     }
 
     private fun configurePriorityPickerWithCurrentValues() {
-        binding.priorityPickerLabel.text = resources.getString(R.string.priority_label, addEditTodoViewModel.getLabelForCurrentPriority())
+        binding.priorityPickerLabel.text = resources.getString(
+            R.string.priority_label, addEditTodoViewModel.getLabelForCurrentPriority()
+        )
+
         val priorityColorId = addEditTodoViewModel.getColorForCurrentPriority()
         binding.priorityPickerLabel.setTextColor(priorityColorId)
         binding.priorityPickerSeekbar.thumbTintList = ColorStateList.valueOf(priorityColorId)
@@ -177,7 +192,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
             if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
                 activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoTitleEditText.append(it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) })
+                    binding.todoTitleEditText.append(
+                        it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) }
+                    )
                 }
             }
         })
@@ -187,7 +204,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
         initiateSpeechToText(registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult ->
             if (activityResult.resultCode == RESULT_OK && activityResult.data != null) {
                 activityResult.data!!.getStringArrayListExtra(EXTRA_RESULTS)?.let {
-                    binding.todoDescriptionEditText.append(it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) })
+                    binding.todoDescriptionEditText.append(
+                        it[0].replaceFirstChar { firstChar -> firstChar.titlecase(Locale.getDefault()) }
+                    )
                 }
             }
         })
@@ -206,42 +225,68 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private val saveButtonListener: View.OnClickListener = View.OnClickListener {
         val alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        addEditTodoViewModel.saveTodoItem(alarmManager, binding.todoTitleEditText.text.toString(), binding.todoDescriptionEditText.text.toString())
+
+        addEditTodoViewModel.saveTodoItem(
+            alarmManager = alarmManager,
+            title = binding.todoTitleEditText.text.toString(),
+            description = binding.todoDescriptionEditText.text.toString()
+        )
+
         Navigation.findNavController(requireView()).navigateUp()
     }
 
     private val addNotificationButtonListener: View.OnClickListener = View.OnClickListener {
-        MaterialDatePicker.Builder.datePicker().setTitleText("Pick a date").setCalendarConstraints(CalendarConstraints.Builder().apply {
-            setValidator(DateValidatorPointForward.now())
-        }.build()).build().apply {
-            addOnPositiveButtonClickListener { selectedDate ->
-                val clockFormat = if (android.text.format.DateFormat.is24HourFormat(requireContext())) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H
-                MaterialTimePicker.Builder().setTitleText("Pick a time").setTimeFormat(clockFormat).build().apply {
-                    addOnPositiveButtonClickListener { _ ->
-                        val cal = Calendar.getInstance()
-                        cal.timeInMillis = selectedDate
-                        val selectedYear = cal.get(Calendar.YEAR)
-                        val selectedMonth = cal.get(Calendar.MONTH)
-                        val selectedDay = cal.get(Calendar.DAY_OF_MONTH)
-                        val selectedHour = this.hour
-                        val selectedMinute = this.minute
-                        if (selectedDate < Calendar.getInstance().timeInMillis) {
-                            Toast.makeText(requireActivity().applicationContext, R.string.invalid_time, Toast.LENGTH_LONG).show()
-                        } else {
-                            addEditTodoViewModel.setSelectedNotificationValues(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute)
-                            displayNotificationAddedState(Calendar.getInstance().also {
-                                it[selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute] = 0
-                            })
-                        }
+        MaterialDatePicker.Builder.datePicker().setTitleText("Pick a date")
+            .setCalendarConstraints(CalendarConstraints.Builder().apply {
+                setValidator(DateValidatorPointForward.now())
+            }.build()).build().apply {
+                addOnPositiveButtonClickListener { selectedDate ->
+                    val clockFormat = if (android.text.format.DateFormat.is24HourFormat(requireContext())) {
+                        TimeFormat.CLOCK_24H
+                    } else {
+                        TimeFormat.CLOCK_12H
                     }
-                }.show(parentFragmentManager, NOTIFICATION_TIME_PICKER_TAG)
-            }
-        }.show(parentFragmentManager, NOTIFICATION_DATE_PICKER_TAG)
+
+                    MaterialTimePicker.Builder().setTitleText("Pick a time").setTimeFormat(clockFormat).build().apply {
+                        addOnPositiveButtonClickListener { _ ->
+                            val cal = Calendar.getInstance()
+                            cal.timeInMillis = selectedDate
+                            val selectedYear = cal.get(Calendar.YEAR)
+                            val selectedMonth = cal.get(Calendar.MONTH)
+                            val selectedDay = cal.get(Calendar.DAY_OF_MONTH)
+                            val selectedHour = this.hour
+                            val selectedMinute = this.minute
+
+                            if (selectedDate < Calendar.getInstance().timeInMillis) {
+                                Toast.makeText(
+                                    requireActivity().applicationContext,
+                                    R.string.invalid_time,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                addEditTodoViewModel.setSelectedNotificationValues(
+                                    year = selectedYear,
+                                    month = selectedMonth,
+                                    day = selectedDay,
+                                    hour = selectedHour,
+                                    minute = selectedMinute
+                                )
+
+                                displayNotificationAddedState(Calendar.getInstance().also {
+                                    it[selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute] = 0
+                                })
+                            }
+                        }
+                    }.show(parentFragmentManager, NOTIFICATION_TIME_PICKER_TAG)
+                }
+            }.show(parentFragmentManager, NOTIFICATION_DATE_PICKER_TAG)
     }
 
     private val removeNotificationButtonListener: View.OnClickListener = View.OnClickListener {
         displayNotificationNotAddedState()
+
         addEditTodoViewModel.hasNotification = false
+
         val tempNotificationUpdateState = addEditTodoViewModel.notificationUpdateState
         addEditTodoViewModel.notificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION
 
@@ -253,6 +298,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             if (addEditTodoViewModel.isUndoDoubleClicked) {
                 return@setAction
             }
+
             addEditTodoViewModel.updateLastClickedUndoTime()
 
             // When undoing, set the notification update state to what it was previously.
@@ -279,7 +325,9 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        if ((requestCode == ACCESS_FINE_LOCATION_REQUEST_CODE && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) || requestCode == ACCESS_BACKGROUND_LOCATION_REQUEST_CODE) {
+        if ((requestCode == ACCESS_FINE_LOCATION_REQUEST_CODE && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) ||
+            requestCode == ACCESS_BACKGROUND_LOCATION_REQUEST_CODE
+        ) {
             navigateToGeofenceMap()
         }
     }
@@ -331,18 +379,25 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private fun navigateToGeofenceMap() {
         val bundle = Bundle()
+
         if (addEditTodoViewModel.hasGeofenceNotification) {
-            bundle.putBoolean(GeofenceMapFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, addEditTodoViewModel.hasGeofenceNotification)
+            bundle.putBoolean(
+                GeofenceMapFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION,
+                addEditTodoViewModel.hasGeofenceNotification
+            )
             bundle.putInt(GeofenceMapFragment.ARGUMENT_GEOFENCE_RADIUS, addEditTodoViewModel.geofenceRadius)
             bundle.putDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LATITUDE, addEditTodoViewModel.geofenceLatitude)
             bundle.putDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LONGITUDE, addEditTodoViewModel.geofenceLongitude)
         }
+
         Navigation.findNavController(requireView()).navigate(R.id.action_addEditTodoFragment_to_geofenceMapFragment, bundle)
     }
 
     private val removeGeofenceNotificationButtonListener: View.OnClickListener = View.OnClickListener {
         displayGeofenceNotificationNotAddedState()
+
         addEditTodoViewModel.hasGeofenceNotification = false
+
         val tempNotificationUpdateState = addEditTodoViewModel.geofenceNotificationUpdateState
         addEditTodoViewModel.geofenceNotificationUpdateState = NotificationUpdateState.REMOVED_NOTIFICATION
 
@@ -367,6 +422,7 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private val titleTextWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {}
+
         override fun onTextChanged(charSequence: CharSequence?, i: Int, i1: Int, i2: Int) {
             if (charSequence.toString().trim().isEmpty()) {
                 binding.saveTodoButton.isEnabled = false
@@ -374,7 +430,12 @@ class AddEditTodoFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             } else {
                 binding.saveTodoButton.isEnabled = true
                 binding.saveTodoButton.backgroundTintList =
-                    ColorStateList.valueOf(ContextCompat.getColor(this@AddEditTodoFragment.requireContext(), R.color.colorSecondary))
+                    ColorStateList.valueOf(
+                        ContextCompat.getColor(
+                            this@AddEditTodoFragment.requireContext(),
+                            R.color.colorSecondary
+                        )
+                    )
             }
         }
 

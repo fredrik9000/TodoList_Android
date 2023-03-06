@@ -5,6 +5,7 @@
     <dimen name="onboarding_view_text_size">24sp</dimen>
     <dimen name="onboarding_view_text_line_height">36sp</dimen>
     <dimen name="onboarding_view_margin">16dp</dimen>
+    <dimen name="onboarding_text_bottom_padding">64dp</dimen>
 
     <dimen name="list_item_card_corner_radius">8dp</dimen>
     <dimen name="list_item_card_elevation">4dp</dimen>
@@ -27,6 +28,7 @@
     <dimen name="description_label_margin">8dp</dimen>
     <dimen name="notification_text_margin_top">16dp</dimen>
     <dimen name="button_drawable_padding">8dp</dimen>
+    <dimen name="notification_buttons_padding">8dp</dimen>
 
     <dimen name="geofence_radius_fragment_height">114dp</dimen>
     <dimen name="geofence_radius_fragment_title_margin">16dp</dimen>

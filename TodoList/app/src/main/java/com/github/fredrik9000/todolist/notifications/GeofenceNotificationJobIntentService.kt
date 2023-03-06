@@ -11,7 +11,8 @@ class GeofenceNotificationJobIntentService : JobIntentService() {
     override fun onHandleWork(intent: Intent) {
         val notificationIdArrayList = intent.getIntegerArrayListExtra(GeofenceReceiver.NOTIFICATION_ID)!!
 
-        // Remove all triggered geofences and clear notification values for these tasks from the database(except the notification id since we still need this)
+        // Remove all triggered geofences and clear notification values for these tasks
+        // from the database(except the notification id since we still need this)
         NotificationUtil.removeGeofenceList(
             applicationContext = applicationContext,
             geofenceNotificationIdList = notificationIdArrayList.map { it.toString() }
@@ -21,7 +22,10 @@ class GeofenceNotificationJobIntentService : JobIntentService() {
         todoDao.clearGeofenceNotificationValues(geofenceNotificationIdList = notificationIdArrayList)
 
         // Loop through each task and send a notification for each item
-        val todoListForTriggeredGeofences = todoDao.getTodoListWithGeofenceNotificationIds(geofenceNotificationIdList = notificationIdArrayList)
+        val todoListForTriggeredGeofences = todoDao.getTodoListWithGeofenceNotificationIds(
+            geofenceNotificationIdList = notificationIdArrayList
+        )
+
         for (todo in todoListForTriggeredGeofences) {
             NotificationUtil.sendNotification(
                 context = applicationContext,

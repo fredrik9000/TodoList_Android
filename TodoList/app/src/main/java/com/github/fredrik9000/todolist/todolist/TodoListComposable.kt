@@ -21,13 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.github.fredrik9000.todolist.R
 import com.github.fredrik9000.todolist.add_edit_todo.AddEditTodoViewModel
 import com.github.fredrik9000.todolist.model.Todo
-import com.google.android.material.composethemeadapter.MdcTheme
+import com.google.accompanist.themeadapter.material.MdcTheme
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -83,7 +84,9 @@ private fun TodoListComposable(
 @Composable
 private fun OnboardingComposable() {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = dimensionResource(id = R.dimen.onboarding_text_bottom_padding)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -91,6 +94,7 @@ private fun OnboardingComposable() {
             text = stringResource(id = R.string.onboarding_explanatory_text),
             fontSize = dimensionResource(id = R.dimen.onboarding_view_text_size).value.sp,
             lineHeight = dimensionResource(id = R.dimen.onboarding_view_text_line_height).value.sp,
+            textAlign = TextAlign.Center,
             modifier = Modifier.padding(dimensionResource(id = R.dimen.onboarding_view_margin))
         )
     }
@@ -152,7 +156,10 @@ private fun getCardViewBackgroundColor(isCompleted: Boolean) =
     }
 
 @Composable
-private fun TitleAndCompletionRowComposable(todoItem: Todo, updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit) {
+private fun TitleAndCompletionRowComposable(
+    todoItem: Todo,
+    updateCompletionState: (isChecked: Boolean, todoItem: Todo, context: Context) -> Unit
+) {
     val currentContext = LocalContext.current
     Row(
         modifier = Modifier

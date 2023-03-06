@@ -23,7 +23,8 @@ class GeofenceRadiusFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // It is needed to handle the back button, otherwise the fragment wont get popped and the app will navigate back to AddEditTodoFragment
+        // It is needed to handle the back button, otherwise the fragment wont get popped
+        // and the app will navigate back to AddEditTodoFragment
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 parentFragmentManager.popBackStack()
@@ -86,7 +87,8 @@ class GeofenceRadiusFragment : Fragment() {
         }
     }
 
-    // TODO: Not ideal to hard code the progress and radius values like this. Max value for seekbar is set to 4, which needs to be in sync with these values.
+    // TODO: Not ideal to hard code the progress and radius values like this.
+    //  Max value for seekbar is set to 4, which needs to be in sync with these values.
     private fun progressToRadius(progress: Int): Int {
         return when (progress) {
             0 -> 100

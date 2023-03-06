@@ -16,7 +16,10 @@ import com.github.fredrik9000.todolist.notifications.NotificationUtil
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddEditTodoViewModel(application: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+class AddEditTodoViewModel(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     // Keeps track of whether the user has added a new, or removed an existing notification.
     var notificationUpdateState = NotificationUpdateState.NOT_UPDATED
@@ -78,12 +81,12 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     private fun setNotificationValuesFromSavedState() {
-        year = savedStateHandle.get(NOTIFICATION_YEAR_STATE)!!
-        month = savedStateHandle.get(NOTIFICATION_MONTH_STATE)!!
-        day = savedStateHandle.get(NOTIFICATION_DAY_STATE)!!
-        hour = savedStateHandle.get(NOTIFICATION_HOUR_STATE)!!
-        minute = savedStateHandle.get(NOTIFICATION_MINUTE_STATE)!!
-        notificationId = savedStateHandle.get(NOTIFICATION_ID_STATE)!!
+        year = savedStateHandle[NOTIFICATION_YEAR_STATE]!!
+        month = savedStateHandle[NOTIFICATION_MONTH_STATE]!!
+        day = savedStateHandle[NOTIFICATION_DAY_STATE]!!
+        hour = savedStateHandle[NOTIFICATION_HOUR_STATE]!!
+        minute = savedStateHandle[NOTIFICATION_MINUTE_STATE]!!
+        notificationId = savedStateHandle[NOTIFICATION_ID_STATE]!!
     }
 
     private fun setNotificationValuesFromArguments(args: Bundle) {
@@ -110,7 +113,7 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
             if (savedStateHandleContainsValues) {
                 setGeofenceNotificationValuesFromSavedState()
             } else args?.let {
-                setGeofenceNotificationValuesFromArguments(it)
+                setGeofenceNotificationValuesFromArguments(args = it)
             }
         } else {
             // Tasks without notification will be given a generated notification id for later use
@@ -119,10 +122,10 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     private fun setGeofenceNotificationValuesFromSavedState() {
-        geofenceNotificationId = savedStateHandle.get(GEOFENCE_NOTIFICATION_ID_STATE)!!
-        geofenceLatitude = savedStateHandle.get(GEOFENCE_NOTIFICATION_LATITUDE_STATE)!!
-        geofenceLongitude = savedStateHandle.get(GEOFENCE_NOTIFICATION_LONGITUDE_STATE)!!
-        geofenceRadius = savedStateHandle.get(GEOFENCE_NOTIFICATION_RADIUS_STATE)!!
+        geofenceNotificationId = savedStateHandle[GEOFENCE_NOTIFICATION_ID_STATE]!!
+        geofenceLatitude = savedStateHandle[GEOFENCE_NOTIFICATION_LATITUDE_STATE]!!
+        geofenceLongitude = savedStateHandle[GEOFENCE_NOTIFICATION_LONGITUDE_STATE]!!
+        geofenceRadius = savedStateHandle[GEOFENCE_NOTIFICATION_RADIUS_STATE]!!
     }
 
     private fun setGeofenceNotificationValuesFromArguments(args: Bundle) {
@@ -167,10 +170,22 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
 
     fun getColorForCurrentPriority(): Int {
         return when (priority) {
-            PRIORITY_LOW -> ContextCompat.getColor(getApplication<Application>().applicationContext, R.color.low_priority)
-            PRIORITY_MEDIUM -> ContextCompat.getColor(getApplication<Application>().applicationContext, R.color.medium_priority)
-            PRIORITY_HIGH -> ContextCompat.getColor(getApplication<Application>().applicationContext, R.color.high_priority)
-            else -> ContextCompat.getColor(getApplication<Application>().applicationContext, R.color.medium_priority)
+            PRIORITY_LOW -> ContextCompat.getColor(
+                getApplication<Application>().applicationContext,
+                R.color.low_priority
+            )
+            PRIORITY_MEDIUM -> ContextCompat.getColor(
+                getApplication<Application>().applicationContext,
+                R.color.medium_priority
+            )
+            PRIORITY_HIGH -> ContextCompat.getColor(
+                getApplication<Application>().applicationContext,
+                R.color.high_priority
+            )
+            else -> ContextCompat.getColor(
+                getApplication<Application>().applicationContext,
+                R.color.medium_priority
+            )
         }
     }
 
@@ -261,35 +276,35 @@ class AddEditTodoViewModel(application: Application, private val savedStateHandl
     }
 
     fun saveState() {
-        savedStateHandle.set(TITLE_STATE, title)
-        savedStateHandle.set(DESCRIPTION_STATE, description)
-        savedStateHandle.set(PRIORITY_STATE, priority)
-        savedStateHandle.set(NOTIFICATION_YEAR_STATE, year)
-        savedStateHandle.set(NOTIFICATION_MONTH_STATE, month)
-        savedStateHandle.set(NOTIFICATION_DAY_STATE, day)
-        savedStateHandle.set(NOTIFICATION_HOUR_STATE, hour)
-        savedStateHandle.set(NOTIFICATION_MINUTE_STATE, minute)
-        savedStateHandle.set(NOTIFICATION_ID_STATE, notificationId)
-        savedStateHandle.set(GEOFENCE_NOTIFICATION_ID_STATE, geofenceNotificationId)
-        savedStateHandle.set(GEOFENCE_NOTIFICATION_LATITUDE_STATE, geofenceLatitude)
-        savedStateHandle.set(GEOFENCE_NOTIFICATION_LONGITUDE_STATE, geofenceLongitude)
-        savedStateHandle.set(GEOFENCE_NOTIFICATION_RADIUS_STATE, geofenceRadius)
-        savedStateHandle.set(HAS_NOTIFICATION_STATE, hasNotification)
-        savedStateHandle.set(HAS_GEOFENCE_NOTIFICATION_STATE, hasGeofenceNotification)
-        savedStateHandle.set(NOTIFICATION_UPDATE_STATE_STATE, notificationUpdateState)
-        savedStateHandle.set(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE, geofenceNotificationUpdateState)
+        savedStateHandle[TITLE_STATE] = title
+        savedStateHandle[DESCRIPTION_STATE] = description
+        savedStateHandle[PRIORITY_STATE] = priority
+        savedStateHandle[NOTIFICATION_YEAR_STATE] = year
+        savedStateHandle[NOTIFICATION_MONTH_STATE] = month
+        savedStateHandle[NOTIFICATION_DAY_STATE] = day
+        savedStateHandle[NOTIFICATION_HOUR_STATE] = hour
+        savedStateHandle[NOTIFICATION_MINUTE_STATE] = minute
+        savedStateHandle[NOTIFICATION_ID_STATE] = notificationId
+        savedStateHandle[GEOFENCE_NOTIFICATION_ID_STATE] = geofenceNotificationId
+        savedStateHandle[GEOFENCE_NOTIFICATION_LATITUDE_STATE] = geofenceLatitude
+        savedStateHandle[GEOFENCE_NOTIFICATION_LONGITUDE_STATE] = geofenceLongitude
+        savedStateHandle[GEOFENCE_NOTIFICATION_RADIUS_STATE] = geofenceRadius
+        savedStateHandle[HAS_NOTIFICATION_STATE] = hasNotification
+        savedStateHandle[HAS_GEOFENCE_NOTIFICATION_STATE] = hasGeofenceNotification
+        savedStateHandle[NOTIFICATION_UPDATE_STATE_STATE] = notificationUpdateState
+        savedStateHandle[GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE] = geofenceNotificationUpdateState
     }
 
     // TODO: Arguments get saved in the savedStateHandle so we don't need to separate these as long as the keys are the same
     fun setValuesFromArgumentsOrSavedState(args: Bundle?) {
         if (savedStateHandleContainsValues) {
-            title = savedStateHandle.get(TITLE_STATE)!!
-            description = savedStateHandle.get(DESCRIPTION_STATE)!!
-            priority = savedStateHandle.get(PRIORITY_STATE)!!
-            hasNotification = savedStateHandle.get(HAS_NOTIFICATION_STATE)!!
-            hasGeofenceNotification = savedStateHandle.get(HAS_GEOFENCE_NOTIFICATION_STATE)!!
-            notificationUpdateState = savedStateHandle.get(NOTIFICATION_UPDATE_STATE_STATE)!!
-            geofenceNotificationUpdateState = savedStateHandle.get(GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE)!!
+            title = savedStateHandle[TITLE_STATE]!!
+            description = savedStateHandle[DESCRIPTION_STATE]!!
+            priority = savedStateHandle[PRIORITY_STATE]!!
+            hasNotification = savedStateHandle[HAS_NOTIFICATION_STATE]!!
+            hasGeofenceNotification = savedStateHandle[HAS_GEOFENCE_NOTIFICATION_STATE]!!
+            notificationUpdateState = savedStateHandle[NOTIFICATION_UPDATE_STATE_STATE]!!
+            geofenceNotificationUpdateState = savedStateHandle[GEOFENCE_NOTIFICATION_UPDATE_STATE_STATE]!!
         } else if (args != null) {
             title = args.getString(AddEditTodoFragment.ARGUMENT_TITLE)!!
             description = args.getString(AddEditTodoFragment.ARGUMENT_DESCRIPTION)!!

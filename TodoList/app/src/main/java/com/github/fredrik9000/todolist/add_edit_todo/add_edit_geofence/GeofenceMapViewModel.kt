@@ -6,7 +6,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.gms.maps.model.LatLng
 
-class GeofenceMapViewModel(application: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+class GeofenceMapViewModel(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     var geofenceCenter: LatLng = LatLng(0.0, 0.0)
     var geofenceRadius: Int = GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS
@@ -14,13 +17,19 @@ class GeofenceMapViewModel(application: Application, private val savedStateHandl
 
     fun setValuesFromArgumentsOrSavedState(args: Bundle) {
         if (savedStateHandle.contains(HAS_SET_GEOFENCE_STATE)) {
-            hasSetGeofence = savedStateHandle.get(HAS_SET_GEOFENCE_STATE)!!
-            geofenceCenter = LatLng(savedStateHandle.get(GEOFENCE_CENTER_LAT_STATE)!!, savedStateHandle.get(GEOFENCE_CENTER_LONG_STATE)!!)
-            geofenceRadius = savedStateHandle.get(GEOFENCE_RADIUS_STATE)!!
+            hasSetGeofence = savedStateHandle[HAS_SET_GEOFENCE_STATE]!!
+            geofenceCenter = LatLng(
+                savedStateHandle[GEOFENCE_CENTER_LAT_STATE]!!,
+                savedStateHandle[GEOFENCE_CENTER_LONG_STATE]!!
+            )
+            geofenceRadius = savedStateHandle[GEOFENCE_RADIUS_STATE]!!
         } else {
             hasSetGeofence = args.getBoolean(GeofenceMapFragment.ARGUMENT_HAS_GEOFENCE_NOTIFICATION, false)
             if (hasSetGeofence) {
-                geofenceRadius = args.getInt(GeofenceMapFragment.ARGUMENT_GEOFENCE_RADIUS, GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS)
+                geofenceRadius = args.getInt(
+                    GeofenceMapFragment.ARGUMENT_GEOFENCE_RADIUS,
+                    GeofenceRadiusFragment.DEFAULT_RADIUS_IN_METERS
+                )
                 geofenceCenter = LatLng(
                     args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LATITUDE, 0.0),
                     args.getDouble(GeofenceMapFragment.ARGUMENT_GEOFENCE_LONGITUDE, 0.0)
@@ -30,10 +39,10 @@ class GeofenceMapViewModel(application: Application, private val savedStateHandl
     }
 
     fun saveState() {
-        savedStateHandle.set(HAS_SET_GEOFENCE_STATE, hasSetGeofence)
-        savedStateHandle.set(GEOFENCE_CENTER_LAT_STATE, geofenceCenter.latitude)
-        savedStateHandle.set(GEOFENCE_CENTER_LONG_STATE, geofenceCenter.longitude)
-        savedStateHandle.set(GEOFENCE_RADIUS_STATE, geofenceRadius)
+        savedStateHandle[HAS_SET_GEOFENCE_STATE] = hasSetGeofence
+        savedStateHandle[GEOFENCE_CENTER_LAT_STATE] = geofenceCenter.latitude
+        savedStateHandle[GEOFENCE_CENTER_LONG_STATE] = geofenceCenter.longitude
+        savedStateHandle[GEOFENCE_RADIUS_STATE] = geofenceRadius
     }
 
     companion object {
